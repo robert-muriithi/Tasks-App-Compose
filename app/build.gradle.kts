@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "dev.robert.composetodo"
+    namespace = "dev.robert.compose_todo"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "dev.robert.composetodo"
+        applicationId = "dev.robert.compose_todo"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -42,7 +42,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.3"
     }
     packaging {
         resources {
