@@ -1,10 +1,10 @@
-import com.android.build.gradle.internal.utils.isKspPluginApplied
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.compose.compiler)
 }
 
 apply {
@@ -39,7 +39,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -56,9 +56,6 @@ android {
     buildFeatures {
         buildConfig = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -67,5 +64,4 @@ android {
 }
 
 dependencies {
-
 }
