@@ -1,6 +1,7 @@
 [versions]
 agp = "8.4.1"
 coreKtx = "1.13.1"
+firebaseBom = "33.1.0"
 kotlin = "2.0.0"
 ksp = "2.0.0-1.0.21"
 junit = "4.13.2"
@@ -15,12 +16,14 @@ hilt = "2.49"
 roomCompiler = "2.6.1"
 roomRuntime = "2.6.1"
 ktlint = "12.1.0"
+googleServices = "4.4.2"
 
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -48,4 +51,5 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+google-services = {id = "com.google.gms.google-services", version.ref = "googleServices"}
 
