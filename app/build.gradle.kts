@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.google.services)
 }
 
 apply {
@@ -15,6 +16,9 @@ apply {
 }
 apply {
     from("$rootDir/testing-dependencies.gradle")
+}
+apply {
+    from("$rootDir/firebase.gradle")
 }
 
 android {
