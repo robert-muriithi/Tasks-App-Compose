@@ -1,14 +1,32 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.google.services)
+}
+
+apply {
+    from("$rootDir/compose-dependencies.gradle")
+}
+apply {
+    from("$rootDir/core-dependencies.gradle")
+}
+apply {
+    from("$rootDir/testing-dependencies.gradle")
+}
+apply {
+    from("$rootDir/firebase.gradle")
 }
 
 android {
-    namespace = "dev.robert.composetodo"
+    namespace = "dev.robert.compose_todo"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "dev.robert.composetodo"
+        applicationId = "dev.robert.compose_todo"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -25,7 +43,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -39,8 +57,8 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+    buildFeatures {
+        buildConfig = true
     }
     packaging {
         resources {
@@ -50,20 +68,4 @@ android {
 }
 
 dependencies {
-
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
 }

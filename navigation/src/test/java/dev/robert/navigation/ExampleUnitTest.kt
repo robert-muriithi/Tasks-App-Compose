@@ -1,4 +1,4 @@
-package dev.robert.core
+package dev.robert.navigation
 
 import org.junit.Assert.*
 import org.junit.Test
