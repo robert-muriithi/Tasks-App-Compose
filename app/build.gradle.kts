@@ -68,4 +68,5 @@ android {
 }
 
 dependencies {
+    implementation(project(path = ":core:database"))
 }
