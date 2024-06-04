@@ -12,4 +12,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    implementation(libs.androidx.ui.text.google.fonts)
+    implementation(libs.androidx.compose.navigation)
+    implementation(libs.androidx.hilt.navigation.compose)
 }
