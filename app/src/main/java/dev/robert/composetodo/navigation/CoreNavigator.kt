@@ -4,13 +4,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import dev.robert.design_system.theme.TodoTheme
-import dev.robert.navigation.auth.LoginScreen
+import dev.robert.navigation.auth.AuthNavGraph
 import dev.robert.navigation.auth.authNavGraph
-import dev.robert.navigation.task.TasksNavGraph
+import dev.robert.navigation.task.tasksNavGraph
 
 @Composable
 fun TodoCoreNavigator() {
@@ -21,19 +20,10 @@ fun TodoCoreNavigator() {
         ) {
             NavHost(
                 navController = navController,
-                startDestination = LoginScreen,
+                startDestination = AuthNavGraph,
             ) {
-                authNavGraph(
-                    onNavigate = {
-                        navController.navigate(
-                            TasksNavGraph,
-                            navOptions =
-                                NavOptions.Builder()
-                                    .setPopUpTo(navController.graph.id, true)
-                                    .build(),
-                        )
-                    },
-                )
+                authNavGraph(navController = navController)
+                tasksNavGraph(navController = navController)
             }
         }
     }

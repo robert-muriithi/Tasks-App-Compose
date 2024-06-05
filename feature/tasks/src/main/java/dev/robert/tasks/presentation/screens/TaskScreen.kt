@@ -1,4 +1,4 @@
-package dev.robert.auth.presentation.screens.login
+package dev.robert.tasks.presentation.screens
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,22 +12,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun LoginScreen(
-    onNavigateToHome: () -> Unit,
-    onNavigateToRegister: () -> Unit,
-) {
+fun TaskScreen(onNavigateToDetails: () -> Unit) {
     Scaffold { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize().align(alignment = Alignment.Center)) {
                 Button(onClick = {
-                    onNavigateToHome()
+                    onNavigateToDetails()
                 }) {
-                    Text("Go to Home")
-                }
-                Button(onClick = {
-                    onNavigateToRegister()
-                }) {
-                    Text("Go to Register")
+                    Text("Go to Details")
                 }
             }
         }
