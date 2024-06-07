@@ -1,6 +1,7 @@
-package dev.robert.design_system.theme
+package dev.robert.design_system.presentation.theme
 import android.app.Activity
 import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -269,22 +270,35 @@ val unspecified_scheme =
 @Composable
 fun TodoTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    theme: Int,
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content:
         @Composable()
         () -> Unit,
 ) {
-    val colorScheme =
-        when {
-            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                val context = LocalContext.current
-                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-            }
+    val autoColors = if (isSystemInDarkTheme()) darkScheme else lightScheme
 
-            darkTheme -> darkScheme
-            else -> lightScheme
+    val dynamicColors =
+        if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val context = LocalContext.current
+            if (isSystemInDarkTheme()) {
+                dynamicDarkColorScheme(context)
+            } else {
+                dynamicLightColorScheme(context)
+            }
+        } else {
+            autoColors
         }
+
+    val colorScheme =
+        when (theme) {
+            Theme.LIGHT_THEME.themeValue -> lightScheme
+            Theme.DARK_THEME.themeValue -> darkScheme
+            Theme.MATERIAL_YOU.themeValue -> dynamicColors
+            else -> autoColors
+        }
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -299,4 +313,21 @@ fun TodoTheme(
         typography = AppTypography,
         content = content,
     )
+}
+
+enum class Theme(
+    val themeValue: Int,
+) {
+    MATERIAL_YOU(
+        themeValue = 12,
+    ),
+    FOLLOW_SYSTEM(
+        themeValue = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM,
+    ),
+    LIGHT_THEME(
+        themeValue = AppCompatDelegate.MODE_NIGHT_NO,
+    ),
+    DARK_THEME(
+        themeValue = AppCompatDelegate.MODE_NIGHT_YES,
+    ),
 }

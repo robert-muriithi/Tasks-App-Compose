@@ -1,4 +1,4 @@
-package dev.robert.design_system.theme
+package dev.robert.design_system.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontFamily

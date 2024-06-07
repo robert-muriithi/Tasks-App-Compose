@@ -3,4 +3,5 @@ dependencies {
     ksp(libs.hilt.android.compiler)
     // Gson
     implementation(libs.gson)
+    implementation(libs.androidx.appcompat)
 }

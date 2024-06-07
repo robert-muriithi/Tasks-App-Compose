@@ -1,24 +1,17 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.ktlint)
-    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.ktlint)
 }
 
-apply {
-    from("$rootDir/compose-dependencies.gradle")
-}
-apply {
-    from("$rootDir/testing-dependencies.gradle")
-}
 apply {
     from("$rootDir/core-dependencies.gradle")
 }
 
 android {
-    namespace = "dev.robert.design_system"
+    namespace = "dev.robert.datastore"
     compileSdk = 34
 
     defaultConfig {
@@ -38,21 +31,16 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
-    }
-
-    buildFeatures {
-        compose = true
-    }
-    buildFeatures {
-        buildConfig = true
+        jvmTarget = "17"
     }
 }
 
 dependencies {
-    implementation((project(path = ":core:datastore")))
+    implementation(libs.kotlinx.json)
+    implementation(libs.gson)
+    implementation(libs.datastore.preferences)
 }

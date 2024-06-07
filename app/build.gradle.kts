@@ -72,4 +72,5 @@ dependencies {
     implementation(project(path = ":core:database"))
     implementation(project(path = ":design-system"))
     implementation(project(path = ":navigation"))
+    implementation(project(path = ":core:datastore"))
 }

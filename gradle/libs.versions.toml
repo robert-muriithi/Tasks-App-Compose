@@ -22,6 +22,7 @@ navVersion = "2.8.0-beta02"
 kotlinx-json = "1.6.3"
 hiltExt = "1.2.0"
 kotlin-serialization = "2.0.0"
+datastore = "1.1.1"
 
 
 [libraries]
@@ -53,6 +54,9 @@ hilt-ext-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.r
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltExt" }
 androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 kotlinx-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-json" }
+androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
