@@ -9,7 +9,9 @@ plugins {
 apply {
     from("$rootDir/core-dependencies.gradle")
 }
-
+apply {
+    from("$rootDir/testing-dependencies.gradle")
+}
 android {
     namespace = "dev.robert.datastore"
     compileSdk = 34
@@ -41,6 +43,4 @@ android {
 
 dependencies {
     implementation(libs.kotlinx.json)
-    implementation(libs.gson)
-    implementation(libs.datastore.preferences)
 }
