@@ -3,6 +3,19 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
+}
+
+apply {
+    from("$rootDir/compose-dependencies.gradle")
+}
+apply {
+    from("$rootDir/testing-dependencies.gradle")
+}
+apply {
+    from("$rootDir/core-dependencies.gradle")
 }
 
 android {
@@ -32,9 +45,14 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+    buildFeatures {
+        compose = true
+    }
+    buildFeatures {
+        buildConfig = true
+    }
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.json)
 }
