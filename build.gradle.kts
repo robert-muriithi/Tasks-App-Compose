@@ -18,7 +18,6 @@ subprojects {
         android.set(true)
         debug.set(true)
         verbose.set(true)
-        debug.set(true)
         outputToConsole.set(true)
         outputColorName.set("RED")
         ignoreFailures.set(true)

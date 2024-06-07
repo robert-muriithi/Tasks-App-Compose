@@ -7,9 +7,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel
-    @Inject
-    constructor(
-        themeRepository: ThemeRepository,
-    ) : ViewModel() {
-        val currentTheme = themeRepository.themeValue
-    }
+@Inject
+constructor(
+    themeRepository: ThemeRepository,
+) : ViewModel() {
+    val currentTheme = themeRepository.themeValue
+}

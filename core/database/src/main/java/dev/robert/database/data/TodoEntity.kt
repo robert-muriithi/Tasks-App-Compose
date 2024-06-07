@@ -17,6 +17,3 @@ data class TodoEntity(
     val isSynced: Boolean = false,
 //    val attachment : Attachment? = null
 )
-
-
-

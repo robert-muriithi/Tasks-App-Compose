@@ -274,8 +274,8 @@ fun TodoTheme(
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content:
-        @Composable()
-        () -> Unit,
+    @Composable()
+    () -> Unit,
 ) {
     val autoColors = if (isSystemInDarkTheme()) darkScheme else lightScheme
 

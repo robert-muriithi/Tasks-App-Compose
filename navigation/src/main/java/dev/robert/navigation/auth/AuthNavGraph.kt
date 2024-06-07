@@ -23,9 +23,9 @@ fun NavGraphBuilder.authNavGraph(navController: NavController) {
                 navController.navigate(
                     TasksNavGraph,
                     navOptions =
-                        NavOptions.Builder()
-                            .setPopUpTo(navController.graph.id, true)
-                            .build(),
+                    NavOptions.Builder()
+                        .setPopUpTo(navController.graph.id, true)
+                        .build(),
                 )
             },
             onNavigateToRegister = {
@@ -37,9 +37,9 @@ fun NavGraphBuilder.authNavGraph(navController: NavController) {
                 navController.navigate(
                     TasksNavGraph,
                     navOptions =
-                        NavOptions.Builder()
-                            .setPopUpTo(navController.graph.id, true)
-                            .build(),
+                    NavOptions.Builder()
+                        .setPopUpTo(navController.graph.id, true)
+                        .build(),
                 )
             },
             onNavigateUp = {

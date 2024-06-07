@@ -16,26 +16,28 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
     @[
-        Provides
-        Singleton
+    Provides
+    Singleton
     ]
-    fun provideGson () = Gson()
+    fun provideGson() = Gson()
 
     @[
-        Provides
-        Singleton
+    Provides
+    Singleton
     ]
     fun provideTodoDao(db: TodoDatabase) = db.dao
 
     @[
-        Provides
-        Singleton
+    Provides
+    Singleton
     ]
-    fun provideTodoDatabase(@ApplicationContext context: Context) : TodoDatabase {
+    fun provideTodoDatabase(
+        @ApplicationContext context: Context,
+    ): TodoDatabase {
         return Room.databaseBuilder(
             context = context,
             TodoDatabase::class.java,
-            TODO_DATABASE
+            TODO_DATABASE,
         ).build()
     }
 }
