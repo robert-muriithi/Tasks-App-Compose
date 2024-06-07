@@ -21,7 +21,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "ComposeTODO"
 include(":app")
-include(":core")
 include(":feature")
 include(":feature:tasks")
 include(":feature:settings")
@@ -29,3 +28,5 @@ include(":design-system")
 include(":core:database")
 include(":core:network")
 include(":navigation")
+include(":feature:auth")
+include(":core:datastore")

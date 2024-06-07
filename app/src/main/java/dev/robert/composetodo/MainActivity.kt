@@ -4,15 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import dev.robert.composetodo.ui.theme.ComposeTODOTheme
+import dev.robert.composetodo.navigation.TodoCoreNavigator
+import dev.robert.design_system.presentation.theme.Theme
+import kotlinx.coroutines.Dispatchers
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -20,33 +18,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ComposeTODOTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding),
-                    )
-                }
-            }
+            val viewModel: MainActivityViewModel = hiltViewModel()
+            val theme by viewModel.currentTheme.collectAsState(
+                initial = Theme.FOLLOW_SYSTEM.themeValue,
+                context = Dispatchers.Main.immediate,
+            )
+            TodoCoreNavigator(
+                theme = theme,
+            )
         }
-    }
-}
-
-@Composable
-fun Greeting(
-    name: String,
-    modifier: Modifier = Modifier,
-) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier,
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ComposeTODOTheme {
-        Greeting("Android")
     }
 }
