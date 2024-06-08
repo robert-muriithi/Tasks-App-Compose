@@ -9,7 +9,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.robert.database.ConstUtils.TODO_DATABASE
-import dev.robert.database.data.TodoDatabase
+import dev.robert.database.data.todo.TodoDatabase
 import javax.inject.Singleton
 
 @Module
