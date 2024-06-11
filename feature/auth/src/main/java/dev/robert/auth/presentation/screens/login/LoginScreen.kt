@@ -83,7 +83,6 @@ fun LoginScreen(
                     SecondaryTextTabs(
                         onEmailChange = viewModel::onEmailChange,
                         onPasswordChange = viewModel::onPasswordChange,
-                        onNameChange = viewModel::onNameChange,
                         uiState = uiState,
                         onLogin = viewModel::login,
                         onRegister = viewModel::register
@@ -128,7 +127,7 @@ fun SecondaryTextTabs(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onLogin: (String, String) -> Unit,
-    onNameChange: (String) -> Unit,
+
     uiState: LoginState,
     onRegister: (String, String, String) -> Unit
 ) {
@@ -259,25 +258,6 @@ fun SecondaryTextTabs(
                         maxLines = 2
                     )
                     TDSpacer(modifier = Modifier.height(10.dp))
-                    TDOutlinedTextField(
-                        isPassword = false,
-                        value = uiState.name,
-                        label = "Name",
-                        trailingIcon = {
-                            Icon(
-                                painter = painterResource(R.drawable.mail_24px),
-                                contentDescription = "Email Icon"
-                            )
-                        },
-                        onValueChange = onNameChange,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(53.dp),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Email,
-                            imeAction = ImeAction.Next
-                        )
-                    )
                     TDSpacer(modifier = Modifier.height(10.dp))
                     TDOutlinedTextField(
                         isPassword = false,
