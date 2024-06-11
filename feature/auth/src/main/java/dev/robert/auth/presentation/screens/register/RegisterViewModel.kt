@@ -59,5 +59,5 @@ class RegisterViewModel @Inject constructor(
     }
 }
 sealed class RegisterAction {
-    object NavigateToLogin : RegisterAction()
+    data object NavigateToLogin : RegisterAction()
 }
