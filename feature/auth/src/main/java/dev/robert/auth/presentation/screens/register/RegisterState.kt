@@ -12,4 +12,5 @@ data class RegisterState(
     val name: String = "",
     val nameError: String? = "",
     val error: String? = "",
+    val buttonEnabled: Boolean = true
 )

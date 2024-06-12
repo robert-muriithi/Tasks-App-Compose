@@ -269,9 +269,7 @@ fun SecondaryTextTabs(
                                 contentDescription = "Email Icon"
                             )
                         },
-                        onValueChange = {
-                            onEmailChange(it)
-                        },
+                        onValueChange = onEmailChange,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(53.dp),
@@ -285,9 +283,7 @@ fun SecondaryTextTabs(
                         isPassword = true,
                         value = uiState.password,
                         label = "Password",
-                        onValueChange = {
-                            onPasswordChange(it)
-                        },
+                        onValueChange = onPasswordChange,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(53.dp),
