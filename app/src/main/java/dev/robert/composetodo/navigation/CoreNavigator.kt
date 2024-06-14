@@ -7,8 +7,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import dev.robert.design_system.presentation.theme.TodoTheme
-import dev.robert.navigation.auth.AuthNavGraph
 import dev.robert.navigation.auth.authNavGraph
+import dev.robert.navigation.onboarding.OnBoardingNavGraph
+import dev.robert.navigation.onboarding.onBoardingNavGraph
 import dev.robert.navigation.task.tasksNavGraph
 
 @Composable
@@ -22,8 +23,9 @@ fun TodoCoreNavigator(theme: Int) {
         ) {
             NavHost(
                 navController = navController,
-                startDestination = AuthNavGraph,
+                startDestination = OnBoardingNavGraph,
             ) {
+                onBoardingNavGraph(navController = navController)
                 authNavGraph(navController = navController)
                 tasksNavGraph(navController = navController)
             }

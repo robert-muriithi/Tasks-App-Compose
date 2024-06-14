@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="welcome_to_taskify">Welcome to Taskify</string>
+    <string name="item_1_description">Taskify helps you organize your tasks efficiently and stay productive.</string>
+    <string name="item_2_description">Easily create tasks and categorize them based on priority and due dates.</string>
+    <string name="create_tasks">Create Tasks</string>
+    <string name="track_progress">Track Progress</string>
+    <string name="item_3_description">Monitor your progress and completion status of tasks to stay motivated.</string>
+</resources>

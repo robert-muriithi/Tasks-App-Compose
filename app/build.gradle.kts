@@ -73,4 +73,6 @@ dependencies {
     implementation(project(path = ":design-system"))
     implementation(project(path = ":navigation"))
     implementation(project(path = ":core:datastore"))
+    implementation(project(path = ":feature:onboarding"))
+    implementation(project(path = ":feature:settings"))
 }
