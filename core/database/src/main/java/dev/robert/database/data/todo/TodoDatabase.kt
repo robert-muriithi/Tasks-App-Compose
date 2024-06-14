@@ -1,4 +1,4 @@
-package dev.robert.database.data
+package dev.robert.database.data.todo
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

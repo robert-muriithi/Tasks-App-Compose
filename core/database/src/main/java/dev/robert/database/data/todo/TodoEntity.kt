@@ -1,4 +1,4 @@
-package dev.robert.database.data
+package dev.robert.database.data.todo
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
