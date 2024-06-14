@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 apply {
@@ -14,11 +15,14 @@ apply {
     from("$rootDir/testing-dependencies.gradle")
 }
 apply {
+    from("$rootDir/firebase.gradle")
+}
+apply {
     from("$rootDir/core-dependencies.gradle")
 }
 
 android {
-    namespace = "dev.robert.design_system"
+    namespace = "dev.robert.onboarding"
     compileSdk = 34
 
     defaultConfig {
@@ -44,7 +48,6 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
-
     buildFeatures {
         compose = true
     }
@@ -54,4 +57,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.kotlinx.json)
+    implementation(project(path = ":design-system"))
+    implementation(project(path = ":core:datastore"))
 }

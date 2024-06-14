@@ -1,7 +1,7 @@
-package dev.robert.design_system.data
+package dev.robert.settings.data
 
 import dev.robert.datastore.data.TodoAppPreferences
-import dev.robert.design_system.domain.ThemeRepository
+import dev.robert.settings.domain.ThemeRepository
 import kotlinx.coroutines.flow.Flow
 
 class ThemeRepositoryImpl(

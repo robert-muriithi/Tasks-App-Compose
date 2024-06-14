@@ -55,4 +55,5 @@ android {
 
 dependencies {
     implementation(libs.kotlinx.json)
+    implementation((project(path = ":core:datastore")))
 }

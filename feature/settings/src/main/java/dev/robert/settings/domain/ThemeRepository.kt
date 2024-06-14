@@ -1,4 +1,4 @@
-package dev.robert.design_system.domain
+package dev.robert.settings.domain
 
 import kotlinx.coroutines.flow.Flow
 

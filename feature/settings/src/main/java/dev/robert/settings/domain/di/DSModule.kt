@@ -1,12 +1,12 @@
-package dev.robert.design_system.domain.di
+package dev.robert.settings.domain.di
 
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dev.robert.datastore.data.TodoAppPreferences
-import dev.robert.design_system.data.ThemeRepositoryImpl
-import dev.robert.design_system.domain.ThemeRepository
+import dev.robert.settings.data.ThemeRepositoryImpl
+import dev.robert.settings.domain.ThemeRepository
 import javax.inject.Singleton
 
 @Module

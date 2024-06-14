@@ -55,4 +55,5 @@ dependencies {
     implementation(project(path = ":feature:auth"))
     implementation(project(path = ":feature:tasks"))
     implementation(project(path = ":feature:settings"))
+    implementation(project(path = ":feature:onboarding"))
 }

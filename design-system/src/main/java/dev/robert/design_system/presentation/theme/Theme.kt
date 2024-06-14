@@ -319,7 +319,7 @@ enum class Theme(
     val themeValue: Int,
 ) {
     MATERIAL_YOU(
-        themeValue = 12,
+        themeValue = MaterialYou,
     ),
     FOLLOW_SYSTEM(
         themeValue = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM,
@@ -331,3 +331,5 @@ enum class Theme(
         themeValue = AppCompatDelegate.MODE_NIGHT_YES,
     ),
 }
+
+private const val MaterialYou = 12
