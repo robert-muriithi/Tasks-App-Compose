@@ -4,17 +4,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.robert.auth.domain.repository.AuthenticationRepository
+import dev.robert.auth.presentation.utils.EmailValidator
+import dev.robert.auth.presentation.utils.PasswordValidator
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val repository: AuthenticationRepository
+    private val repository: AuthenticationRepository,
+    private val passwordValidator: PasswordValidator,
+    private val emailValidator: EmailValidator,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginState())
@@ -23,32 +26,39 @@ class LoginViewModel @Inject constructor(
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
         _uiState.update { it.copy(error = exception.message) }
     }
-    fun onEmailChange(email: String) = _uiState.update { uiState ->
+    private fun onEmailChange(email: String) = _uiState.update { uiState ->
         uiState.copy(email = email)
     }
-    fun onPasswordChange(password: String) = _uiState.update { uiState ->
+    private fun onPasswordChange(password: String) = _uiState.update { uiState ->
         uiState.copy(password = password)
     }
-    fun onNameChange(name: String) = _uiState.update { uiState ->
-        uiState.copy(name = name)
-    }
 
-    fun register(email: String, password: String, name: String) {
-        _uiState.update { it.copy(isLoading = true) }
-        viewModelScope.launch(coroutineExceptionHandler) {
-            repository.register(email, password)
-            _uiState.update { it.copy(isSuccess = true, isLoading = false) }
+    fun onEvent(event: LoginScreenEvents) {
+        when (event) {
+            is LoginScreenEvents.OnEmailChanged -> onEmailChange(event.email)
+            is LoginScreenEvents.OnPasswordChanged -> onPasswordChange(event.password)
+            is LoginScreenEvents.LoginEvent -> login()
         }
     }
 
-    fun login(email: String, password: String) {
-        _uiState.update { it.copy(isLoading = true) }
+    fun login() {
+        val currentState = uiState.value
+        val emailValid = emailValidator.validate(currentState.email)
+        val passwordValid = passwordValidator.validate(currentState.password)
+        val hasError = listOf(emailValid, passwordValid).any { !it.isValid }
+        _uiState.update {
+            it.copy(
+                buttonEnabled = listOf(
+                    emailValid,
+                    passwordValid
+                ).all { it.isValid }
+            )
+        }
+        if (hasError) return
         viewModelScope.launch(coroutineExceptionHandler) {
-            repository.login(email = email, password = password).collectLatest {
-                _uiState.update {
-                    it.copy(isSuccess = true, isLoading = false)
-                }
-            }
+            _uiState.update { it.copy(isLoading = true) }
+            repository.login(currentState.email, currentState.password)
+            _uiState.update { it.copy(isLoading = false, isSuccess = true) }
         }
     }
 }
