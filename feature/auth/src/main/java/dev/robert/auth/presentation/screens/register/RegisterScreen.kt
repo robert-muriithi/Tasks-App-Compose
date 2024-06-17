@@ -33,7 +33,6 @@ import dev.robert.design_system.presentation.components.TDSpacer
 @Composable
 fun RegisterScreen(
     onNavigateUp: () -> Unit,
-    onNavigate: () -> Unit,
 ) {
     val viewModel = hiltViewModel<RegisterViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

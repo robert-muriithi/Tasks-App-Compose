@@ -23,6 +23,7 @@ kotlinx-json = "1.6.3"
 hiltExt = "1.2.0"
 kotlin-serialization = "2.0.0"
 datastore = "1.1.1"
+moduleGraphVersion = "0.10.0"
 
 
 [libraries]
@@ -66,6 +67,7 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+module-graph ={ id = "dev.iurysouza.modulegraph", version.ref = "moduleGraphVersion" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-serialization" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-services = {id = "com.google.gms.google-services", version.ref = "googleServices"}

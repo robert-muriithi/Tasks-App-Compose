@@ -10,28 +10,34 @@ import dev.robert.tasks.presentation.screens.TaskScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
+object TasksNavGraph
+
+@Serializable
 object TasksScreen
 
-@Serializable data class TodoItem(val name: String)
+@Serializable
+data class TodoItem(val name: String,
+    val age: Int)
 
-fun NavGraphBuilder.tasksScreen(onNavigateToDetails: () -> Unit) {
-    composable<TasksScreen> {
-        TaskScreen(
-            onNavigateToDetails = onNavigateToDetails,
-        )
-    }
-}
-
-fun NavGraphBuilder.taskDetailsScreen(
-    navController: NavController,
-    onNavigateBack: () -> Unit,
-) {
-    composable<TodoItem> { backStackEntry ->
-        val item: TodoItem = backStackEntry.toRoute()
-        TaskDetailsScreen(
-            navController = navController,
-            onNavigateBack = onNavigateBack,
-            item = item,
-        )
+fun NavGraphBuilder.tasksNavGraph(navController: NavController) {
+    navigation<TasksNavGraph>(
+        startDestination = TasksScreen,
+    ) {
+        composable<TasksScreen> {
+            TaskScreen(
+                onNavigateToDetails = { name, age ->
+                    navController.navigate(route = TodoItem(name = name, age = age))
+                },
+            )
+        }
+        composable<TodoItem> { backStackEntry ->
+            val item: TodoItem = backStackEntry.toRoute()
+            TaskDetailsScreen(
+                onNavigateBack = {
+                    navController.navigateUp()
+                },
+                user = item.name,
+            )
+        }
     }
 }

@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 apply {
@@ -69,10 +70,12 @@ android {
 }
 
 dependencies {
+    implementation(libs.kotlinx.json)
     implementation(project(path = ":core:database"))
     implementation(project(path = ":design-system"))
-    implementation(project(path = ":navigation"))
     implementation(project(path = ":core:datastore"))
     implementation(project(path = ":feature:onboarding"))
     implementation(project(path = ":feature:settings"))
+    implementation(project(path = ":feature:tasks"))
+    implementation(project(path = ":feature:auth"))
 }
