@@ -1,23 +1,16 @@
 package dev.robert.auth.presentation.screens.login
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -33,11 +26,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
@@ -49,8 +42,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.robert.auth.R
+import dev.robert.design_system.presentation.components.SignInWithGoogleButton
 import dev.robert.design_system.presentation.components.TDButton
+import dev.robert.design_system.presentation.components.TDFilledTextField
 import dev.robert.design_system.presentation.components.TDLoader
+import dev.robert.design_system.presentation.components.TDOrSeparator
 import dev.robert.design_system.presentation.components.TDOutlinedTextField
 import dev.robert.design_system.presentation.components.TDSpacer
 
@@ -66,30 +62,90 @@ fun LoginScreen(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
+                .paint(
+                    painter = painterResource(id = R.drawable.bg),
+                    contentScale = ContentScale.FillBounds,
+                    sizeToIntrinsics = true,
+                    alpha = 0.2f
+                )
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(alignment = Alignment.Center)
-            ) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 10.dp)
-                        .wrapContentHeight(),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary)
-                ) {
-                    SecondaryTextTabs(
-                        onEmailChange = viewModel::onEmailChange,
-                        onPasswordChange = viewModel::onPasswordChange,
-                        uiState = uiState,
-                        onLogin = viewModel::login,
-                        onRegister = viewModel::register
+            LoginScreenContent(
+                uiState = uiState,
+                onEmailChange = { email ->
+                    viewModel.onEvent(
+                        LoginScreenEvents.OnEmailChanged(email)
                     )
-                }
-            }
+                },
+                onPasswordChange = { password ->
+                    viewModel.onEvent(
+                        LoginScreenEvents.OnPasswordChanged(password)
+                    )
+                },
+                onSubmit = {
+                    viewModel.onEvent(LoginScreenEvents.LoginEvent)
+                },
+                modifier = Modifier.fillMaxSize()
+            )
         }
+    }
+}
+
+@Composable
+fun LoginScreenContent(
+    modifier: Modifier = Modifier,
+    uiState: LoginState,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onSubmit: () -> Unit
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        TDFilledTextField(
+            value = uiState.email,
+            onValueChange = onEmailChange,
+            label = "Email",
+            trailingIcon = {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.mail_24px),
+                    contentDescription = "Email Icon"
+                )
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next
+            ),
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .height(53.dp)
+        )
+        TDSpacer(modifier = Modifier.height(10.dp))
+        TDFilledTextField(
+            value = uiState.password,
+            onValueChange = onPasswordChange,
+            label = "Password",
+            isPassword = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done
+            ),
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .height(53.dp)
+        )
+        TDSpacer(modifier = Modifier.height(10.dp))
+        TDButton(
+            onClick = onSubmit,
+            text = "Login",
+            enabled = true,
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+        )
+        // TDOrSeparator(modifier = Modifier.fillMaxWidth(0.9f))
+        TDOrSeparator()
+        SignInWithGoogleButton(onClick = {})
     }
 }
 
@@ -323,33 +379,6 @@ fun SecondaryTextTabs(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun SignInWithGoogleButton(onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .padding(8.dp)
-            .clip(RoundedCornerShape(4.dp))
-            .clickable(onClick = onClick)
-            .height(48.dp)
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            imageVector = ImageVector.vectorResource(id = R.drawable.google),
-            contentDescription = "Google Icon",
-            tint = Color.Unspecified,
-            modifier = Modifier.size(24.dp)
-        )
-
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = "Sign in with Google",
-            style = MaterialTheme.typography.bodySmall
-        )
     }
 }
 
