@@ -58,6 +58,6 @@ android {
 
 dependencies {
     implementation(libs.kotlinx.json)
-    implementation(project(path = ":design-system"))
+    implementation(project(path = ":core:design-system"))
     implementation(project(path = ":core:datastore"))
 }

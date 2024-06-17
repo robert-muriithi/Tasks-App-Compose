@@ -72,7 +72,7 @@ android {
 dependencies {
     implementation(libs.kotlinx.json)
     implementation(project(path = ":core:database"))
-    implementation(project(path = ":design-system"))
+    implementation(project(path = ":core:design-system"))
     implementation(project(path = ":core:datastore"))
     implementation(project(path = ":feature:onboarding"))
     implementation(project(path = ":feature:settings"))
