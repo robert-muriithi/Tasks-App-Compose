@@ -16,7 +16,7 @@ fun NavGraphBuilder.authNavGraph(
     onNavigateUp: () -> Unit,
 ) {
     navigation<AuthNavGraph>(
-        startDestination = RegisterScreen,
+        startDestination = LoginScreen,
     ) {
         loginScreen(
             onNavigateToHome = onNavigateToHome,

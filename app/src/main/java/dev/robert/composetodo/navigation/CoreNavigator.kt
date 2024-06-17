@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import dev.robert.auth.presentation.navigation.AuthNavGraph
 import dev.robert.auth.presentation.navigation.authNavGraph
 import dev.robert.design_system.presentation.theme.TodoTheme
 import dev.robert.onboarding.presentation.navigation.OnBoardingNavGraph
@@ -30,7 +31,7 @@ fun TodoCoreNavigator(theme: Int) {
                 onBoardingNavGraph(
                     onCompleteOnBoarding = {
                         navController.navigate(
-                            TasksNavGraph,
+                            AuthNavGraph,
                             navOptions = NavOptions.Builder()
                                 .setPopUpTo(navController.graph.id, true)
                                 .build(),
