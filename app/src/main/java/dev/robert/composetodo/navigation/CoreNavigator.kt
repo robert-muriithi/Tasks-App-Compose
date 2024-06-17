@@ -4,13 +4,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import dev.robert.auth.presentation.navigation.authNavGraph
 import dev.robert.design_system.presentation.theme.TodoTheme
-import dev.robert.navigation.auth.authNavGraph
-import dev.robert.navigation.onboarding.OnBoardingNavGraph
-import dev.robert.navigation.onboarding.onBoardingNavGraph
-import dev.robert.navigation.task.tasksNavGraph
+import dev.robert.onboarding.presentation.navigation.OnBoardingNavGraph
+import dev.robert.onboarding.presentation.navigation.onBoardingNavGraph
+import dev.robert.tasks.presentation.navigation.TasksNavGraph
+import dev.robert.tasks.presentation.navigation.tasksNavGraph
 
 @Composable
 fun TodoCoreNavigator(theme: Int) {
@@ -25,8 +27,31 @@ fun TodoCoreNavigator(theme: Int) {
                 navController = navController,
                 startDestination = OnBoardingNavGraph,
             ) {
-                onBoardingNavGraph(navController = navController)
-                authNavGraph(navController = navController)
+                onBoardingNavGraph(
+                    onCompleteOnBoarding = {
+                        navController.navigate(
+                            TasksNavGraph,
+                            navOptions = NavOptions.Builder()
+                                .setPopUpTo(navController.graph.id, true)
+                                .build(),
+                        )
+                    }
+                )
+                authNavGraph(
+                    onNavigateToHome = {
+                        navController.navigate(
+                            TasksNavGraph,
+                            navOptions =
+                            NavOptions.Builder()
+                                .setPopUpTo(navController.graph.id, true)
+                                .build(),
+                        ) },
+                    onNavigateToRegister = {
+                    },
+                    onNavigateUp = {
+                        navController.navigateUp()
+                    }
+                )
                 tasksNavGraph(navController = navController)
             }
         }

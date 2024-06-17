@@ -12,12 +12,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun TaskScreen(onNavigateToDetails: () -> Unit) {
+fun TaskScreen(onNavigateToDetails: (String, Int) -> Unit) {
     Scaffold { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize().align(alignment = Alignment.Center)) {
                 Button(onClick = {
-                    onNavigateToDetails()
+                    onNavigateToDetails("Robert", 25)
                 }) {
                     Text("Go to Details")
                 }
