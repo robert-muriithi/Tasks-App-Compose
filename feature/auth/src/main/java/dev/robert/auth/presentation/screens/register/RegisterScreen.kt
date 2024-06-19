@@ -1,7 +1,7 @@
 package dev.robert.auth.presentation.screens.register
 
 import android.widget.Toast
-import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,22 +12,27 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.robert.auth.R
 import dev.robert.design_system.presentation.components.TDButton
-import dev.robert.design_system.presentation.components.TDOutlinedTextField
+import dev.robert.design_system.presentation.components.TDFilledTextField
 import dev.robert.design_system.presentation.components.TDSpacer
 
 @Composable
@@ -53,97 +58,139 @@ fun RegisterScreen(
             .fillMaxSize()
             .padding(it)) {
             RegisterScreenContent(
-                scrollState = scrollState,
                 uiState = uiState,
                 onEmailChange = viewModel::onEmailChanged,
                 onPasswordChange = viewModel::onPasswordChanged,
                 onConfirmPasswordChange = viewModel::onConfirmPasswordChanged,
                 onNameChanged = viewModel::onNameChanged,
-                onSubmit = viewModel::register
+                onSubmit = viewModel::register,
+                modifier = Modifier.fillMaxSize().verticalScroll(scrollState),
+                onNavigateToLogin = onNavigateUp
             )
         }
     }
 }
 @Composable
 fun RegisterScreenContent(
-    scrollState: ScrollState,
+    modifier: Modifier,
     uiState: RegisterState,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onConfirmPasswordChange: (String) -> Unit,
     onNameChanged: (String) -> Unit,
-    onSubmit: () -> Unit
+    onSubmit: () -> Unit,
+    onNavigateToLogin: () -> Unit
 ) {
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .verticalScroll(scrollState)) {
-        TDOutlinedTextField(
-            onValueChange = onNameChanged,
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        TDFilledTextField(
             value = uiState.name,
-            isPassword = false,
+            onValueChange = onNameChanged,
             label = "Name",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(53.dp),
+            trailingIcon = {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.person_24dp),
+                    contentDescription = "Person Icon"
+                )
+            },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Next
             ),
-            isError = uiState.nameError != null,
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .height(53.dp),
         )
-        TDSpacer(modifier = Modifier.height(10.dp))
-        TDOutlinedTextField(
-            isPassword = false,
+        if (uiState.nameError != null) Text(text = uiState.nameError) else
+            TDSpacer(modifier = Modifier.height(10.dp))
+        TDFilledTextField(
             value = uiState.email,
+            onValueChange = onEmailChange,
             label = "Email",
             trailingIcon = {
                 Icon(
-                    painter = painterResource(R.drawable.mail_24px),
+                    imageVector = ImageVector.vectorResource(id = R.drawable.mail_24px),
                     contentDescription = "Email Icon"
                 )
             },
-            onValueChange = onEmailChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(53.dp),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Next
             ),
-            isError = uiState.emailError != null,
-        )
-        if (uiState.emailError != null) Text(text = uiState.emailError)
-        TDSpacer(modifier = Modifier.height(10.dp))
-        TDOutlinedTextField(
-            isPassword = true,
-            value = uiState.password,
-            label = "Password",
-            onValueChange = onPasswordChange,
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(0.9f)
                 .height(53.dp),
+        )
+        if (uiState.emailError != null) Text(text = uiState.emailError) else
+            TDSpacer(modifier = Modifier.height(10.dp))
+        TDFilledTextField(
+            value = uiState.password,
+            onValueChange = onPasswordChange,
+            label = "Password",
+            trailingIcon = {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.lock_24dp),
+                    contentDescription = "Password Icon"
+                )
+            },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done
+                imeAction = ImeAction.Next
             ),
-            isError = uiState.passwordError != null,
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .height(53.dp),
+            isPassword = true
         )
         if (uiState.passwordError != null) Text(text = uiState.passwordError)
-        TDOutlinedTextField(
-            isPassword = true,
+        else
+            TDSpacer(modifier = Modifier.height(10.dp))
+        TDFilledTextField(
             value = uiState.confirmPassword,
-            label = "Confirm Password",
             onValueChange = onConfirmPasswordChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(53.dp),
+            label = "Confirm password",
+            trailingIcon = {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.lock_24dp),
+                    contentDescription = "Password Icon"
+                )
+            },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Done
             ),
-            isError = uiState.confirmPasswordError != null,
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .height(53.dp),
+            isPassword = true
+        )
+        if (uiState.confirmPasswordError != null) Text(text = uiState.confirmPasswordError) else
+            TDSpacer(modifier = Modifier.height(10.dp))
+        TDButton(
+            onClick = onSubmit,
+            text = "Register",
+            enabled = true,
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+        )
+        TDSpacer(modifier = Modifier.height(20.dp))
+        Text(
+            text = "Already having an account?",
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(0.9f)
         )
         TDSpacer(modifier = Modifier.height(10.dp))
-        TDButton(onClick = onSubmit, text = "Register", enabled = uiState.buttonEnabled)
+        TextButton(
+            onClick = onNavigateToLogin,
+            modifier = Modifier.fillMaxWidth(0.9f)
+        ) {
+            Text(
+                text = "Login",
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
     }
 }

@@ -1,5 +1,6 @@
 package dev.robert.auth.presentation.screens.login
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,9 +24,14 @@ class LoginViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(LoginState())
     val uiState = _uiState.asStateFlow()
 
+    private val _authenticated = MutableStateFlow(false)
+    val authenticated = _authenticated.asStateFlow()
+
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
         _uiState.update { it.copy(error = exception.message) }
     }
+    val showDialog = mutableStateOf(false)
+
     private fun onEmailChange(email: String) = _uiState.update { uiState ->
         uiState.copy(email = email)
     }
@@ -33,11 +39,14 @@ class LoginViewModel @Inject constructor(
         uiState.copy(password = password)
     }
 
+    fun setAuthenticated(authenticated: Boolean) = _authenticated.update { authenticated }
+
     fun onEvent(event: LoginScreenEvents) {
         when (event) {
             is LoginScreenEvents.OnEmailChanged -> onEmailChange(event.email)
             is LoginScreenEvents.OnPasswordChanged -> onPasswordChange(event.password)
             is LoginScreenEvents.LoginEvent -> login()
+            is LoginScreenEvents.SignInWithGoogle -> signInWithGoogle()
         }
     }
 
@@ -60,5 +69,9 @@ class LoginViewModel @Inject constructor(
             repository.login(currentState.email, currentState.password)
             _uiState.update { it.copy(isLoading = false, isSuccess = true) }
         }
+    }
+
+    fun signInWithGoogle() {
+        val currentAuthState = authenticated.value
     }
 }
