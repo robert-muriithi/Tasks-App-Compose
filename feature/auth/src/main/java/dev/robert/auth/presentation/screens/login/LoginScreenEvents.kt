@@ -10,4 +10,6 @@ sealed class LoginScreenEvents {
     data class OnPasswordChanged(
         val password: String,
     ) : LoginScreenEvents()
+
+    data object SignInWithGoogle : LoginScreenEvents()
 }

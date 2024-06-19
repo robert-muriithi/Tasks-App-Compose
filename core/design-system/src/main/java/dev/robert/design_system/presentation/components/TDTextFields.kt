@@ -134,7 +134,11 @@ fun FilledTextFilled(
                 )
             }
         },
-        leadingIcon = leadingIcon
+        leadingIcon = leadingIcon,
+        visualTransformation = if (isPassword)
+            if (togglePassword) PasswordVisualTransformation()
+            else VisualTransformation.None
+        else VisualTransformation.None,
     )
 }
 

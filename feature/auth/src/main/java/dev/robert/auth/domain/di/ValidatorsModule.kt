@@ -1,4 +1,4 @@
-package dev.robert.auth.presentation.screens.di
+package dev.robert.auth.domain.di
 
 import dagger.Module
 import dagger.Provides
