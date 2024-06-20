@@ -15,4 +15,6 @@ dependencies {
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.androidx.compose.navigation)
     implementation(libs.androidx.hilt.navigation.compose)
+    // Splash
+    implementation (libs.androidx.core.splashscreen)
 }
