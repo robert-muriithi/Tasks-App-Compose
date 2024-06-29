@@ -22,7 +22,7 @@ object RepositoryBinding {
     Provides
     Singleton
     ]
-    fun bindAuthRepository(
+    fun provideAuthRepository(
         mAuth: FirebaseAuth
     ): AuthenticationRepository = AuthenticationRepositoryImpl(mAuth = mAuth)
 }

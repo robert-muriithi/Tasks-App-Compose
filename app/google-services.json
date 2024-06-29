@@ -12,7 +12,20 @@
           "package_name": "dev.robert.compose_todo"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "677533976670-lfdpgrrgvdjntr4lg2ljlrl44lp70m9a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dev.robert.compose_todo",
+            "certificate_hash": "82ed59c61aa4e9854a690ca78c0ff883483598ec"
+          }
+        },
+        {
+          "client_id": "677533976670-or9og6lg8bng7lfe9fpf1cp80208qc0b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAGix98WVQ_y9xovHXbBDFE8hQERvRAT-8"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "677533976670-or9og6lg8bng7lfe9fpf1cp80208qc0b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
