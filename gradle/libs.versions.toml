@@ -15,9 +15,11 @@ composeBom = "2024.05.00"
 appcompat = "1.7.0"
 material = "1.12.0"
 hilt = "2.49"
+playServicesAuth = "21.2.0"
 roomRuntime = "2.6.1"
 ktlint = "12.1.0"
 googleServices = "4.4.2"
+timber = "5.0.1"
 uiTextGoogleFonts = "1.6.7"
 navVersion = "2.8.0-beta02"
 kotlinx-json = "1.6.3"
@@ -61,6 +63,8 @@ kotlinx-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", ve
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

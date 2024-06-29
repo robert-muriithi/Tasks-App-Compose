@@ -59,5 +59,4 @@ android {
 dependencies {
     implementation(libs.kotlinx.json)
     implementation(project(path = ":core:design-system"))
-    implementation("com.github.stevdza-san:OneTapCompose:1.0.12")
 }
