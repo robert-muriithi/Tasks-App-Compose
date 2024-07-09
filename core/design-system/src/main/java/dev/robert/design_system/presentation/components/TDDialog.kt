@@ -104,7 +104,8 @@ fun TDResetPasswordDialogContent(
         TDButton(
             text = "Reset Password",
             onClick = { onSubmit(value) },
-            modifier = Modifier.fillMaxWidth(0.9f)
+            modifier = Modifier.fillMaxWidth(0.9f),
+            isLoading = false
         )
     }
 }

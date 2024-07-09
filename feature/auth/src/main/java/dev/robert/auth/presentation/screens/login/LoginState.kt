@@ -1,5 +1,7 @@
 package dev.robert.auth.presentation.screens.login
 
+import dev.robert.auth.domain.model.GoogleUser
+
 data class LoginState(
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
@@ -10,4 +12,5 @@ data class LoginState(
     val passwordError: String? = "",
     val buttonEnabled: Boolean = false,
     val error: String? = null,
+    val user: GoogleUser? = null
 )

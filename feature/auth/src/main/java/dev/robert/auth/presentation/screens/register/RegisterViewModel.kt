@@ -13,9 +13,11 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
@@ -51,7 +53,7 @@ class RegisterViewModel @Inject constructor(
             confirmPasswordValidator.validate(currentState.password, currentState.confirmPassword)
         val hasError =
             listOf(emailValid, passwordValid, confirmPasswordValid, nameValid).any { !it.isValid }
-        _uiState.update {
+        /*_uiState.update {
             it.copy(
                 buttonEnabled = listOf(
                     nameValid,
@@ -59,26 +61,42 @@ class RegisterViewModel @Inject constructor(
                     passwordValid,
                     confirmPasswordValid
                 ).all { it.isValid })
-        }
-        if (hasError) _uiState.update {
-            it.copy(
-                emailError = emailValid.message,
-                passwordError = passwordValid.message,
-                confirmPasswordError = confirmPasswordValid.message,
-                nameError = nameValid.message
-            )
+        }*/
+        if (hasError) {
+            _uiState.update {
+                it.copy(
+                    emailError = emailValid.message,
+                    passwordError = passwordValid.message,
+                    confirmPasswordError = confirmPasswordValid.message,
+                    nameError = nameValid.message
+                )
+            }
+            return
         }
         viewModelScope.launch(coroutineExceptionHandler) {
+//            resetState()
 //            validationEventChannel.send(ValidationEvent.Success)
             _uiState.update { it.copy(isLoading = true) }
             try {
-                repository.register(currentState.email, currentState.password)
-                _uiState.update { it.copy(isSuccess = true, isLoading = false) }
+                repository.register(currentState.email, currentState.password).collectLatest { result ->
+                    if (result.isSuccess) {
+                        val user = result.getOrNull()
+                        Timber.d("User created $user")
+                        _uiState.update { it.copy(isLoading = false, isSuccess = true, user = user) }
+                        _action.send(RegisterAction.NavigateToLogin)
+                    } else {
+                        _uiState.update { it.copy(error = result.exceptionOrNull()?.message) }
+                    }
+                }
                 _action.send(RegisterAction.NavigateToLogin)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
             }
         }
+    }
+
+    fun resetState() {
+        _uiState.update { RegisterState() }
     }
 }
 
