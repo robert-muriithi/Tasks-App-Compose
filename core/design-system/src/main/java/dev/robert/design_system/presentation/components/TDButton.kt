@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,18 +34,52 @@ fun TDButton(
     enabled: Boolean = false,
     onClick: () -> Unit,
     text: String,
+    isLoading: Boolean
 ) {
     Button(
         modifier = modifier,
         enabled = enabled,
         onClick = { onClick() },
     ) {
-        Text(text = text)
+        if (isLoading) Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            CircularProgressIndicator(
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.size(20.dp),
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Loading",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+        else Text(text = text, style = MaterialTheme.typography.bodySmall)
     }
 }
 @Composable
-fun SignInWithGoogleButton(onClick: () -> Unit) {
-    Row(
+fun SignInWithGoogleButton(
+    onClick: () -> Unit,
+    isLoading: Boolean,
+) {
+    if (isLoading) Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(4.dp))
+            .clickable(onClick = onClick)
+            .height(48.dp)
+            .fillMaxWidth(0.9f),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        CircularProgressIndicator(
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(20.dp),
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = "Loading",
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
+    else Row(
         modifier = Modifier
             .clip(RoundedCornerShape(4.dp))
             .clickable(onClick = onClick)
@@ -81,8 +116,9 @@ fun ButtonPreview() {
         TDButton(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             onClick = { },
-            text = "Button 1",
+            text = "g 1",
             enabled = true,
+            isLoading = true
         )
     }
 }
@@ -99,6 +135,7 @@ fun GButtonPreview() {
     ) {
         SignInWithGoogleButton(
             onClick = { },
+            isLoading = true,
         )
     }
 }

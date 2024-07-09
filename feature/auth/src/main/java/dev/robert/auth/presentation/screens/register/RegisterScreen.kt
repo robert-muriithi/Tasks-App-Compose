@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -21,8 +23,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -35,6 +40,7 @@ import dev.robert.design_system.presentation.components.TDButton
 import dev.robert.design_system.presentation.components.TDFilledTextField
 import dev.robert.design_system.presentation.components.TDSpacer
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     onNavigateUp: () -> Unit,
@@ -42,7 +48,7 @@ fun RegisterScreen(
     val viewModel = hiltViewModel<RegisterViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    LaunchedEffect(key1 = context) {
+    LaunchedEffect(key1 = uiState.isSuccess) {
         viewModel.action.collect {
             when (it) {
                 RegisterAction.NavigateToLogin -> {
@@ -53,10 +59,20 @@ fun RegisterScreen(
         }
     }
     val scrollState = rememberScrollState()
-    Scaffold {
+    Scaffold(
+        topBar = {
+        }
+    ) {
         Box(modifier = Modifier
             .fillMaxSize()
-            .padding(it)) {
+            .paint(
+                painter = painterResource(id = R.drawable.bg),
+                contentScale = ContentScale.FillBounds,
+                sizeToIntrinsics = true,
+                alpha = 0.2f
+            )
+            .padding(it)
+        ) {
             RegisterScreenContent(
                 uiState = uiState,
                 onEmailChange = viewModel::onEmailChanged,
@@ -64,7 +80,9 @@ fun RegisterScreen(
                 onConfirmPasswordChange = viewModel::onConfirmPasswordChanged,
                 onNameChanged = viewModel::onNameChanged,
                 onSubmit = viewModel::register,
-                modifier = Modifier.fillMaxSize().verticalScroll(scrollState),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState),
                 onNavigateToLogin = onNavigateUp
             )
         }
@@ -104,7 +122,10 @@ fun RegisterScreenContent(
                 .fillMaxWidth(0.9f)
                 .height(53.dp),
         )
-        if (uiState.nameError != null) Text(text = uiState.nameError) else
+        if (uiState.nameError != null)
+            Row(modifier = Modifier.fillMaxWidth(0.9f)) {
+                Text(text = uiState.nameError, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+            } else
             TDSpacer(modifier = Modifier.height(10.dp))
         TDFilledTextField(
             value = uiState.email,
@@ -124,7 +145,11 @@ fun RegisterScreenContent(
                 .fillMaxWidth(0.9f)
                 .height(53.dp),
         )
-        if (uiState.emailError != null) Text(text = uiState.emailError) else
+        if (uiState.emailError != null)
+            Row(modifier = Modifier.fillMaxWidth(0.9f)) {
+                Text(text = uiState.emailError, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+            }
+        else
             TDSpacer(modifier = Modifier.height(10.dp))
         TDFilledTextField(
             value = uiState.password,
@@ -145,8 +170,15 @@ fun RegisterScreenContent(
                 .height(53.dp),
             isPassword = true
         )
-        if (uiState.passwordError != null) Text(text = uiState.passwordError)
-        else
+        if (uiState.passwordError != null) {
+            Row(modifier = Modifier.fillMaxWidth(0.9f)) {
+                Text(
+                    text = uiState.passwordError,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        } else
             TDSpacer(modifier = Modifier.height(10.dp))
         TDFilledTextField(
             value = uiState.confirmPassword,
@@ -167,14 +199,23 @@ fun RegisterScreenContent(
                 .height(53.dp),
             isPassword = true
         )
-        if (uiState.confirmPasswordError != null) Text(text = uiState.confirmPasswordError) else
+        if (uiState.confirmPasswordError != null) {
+            Row(modifier = Modifier.fillMaxWidth(0.9f)) {
+                Text(
+                    text = uiState.confirmPasswordError,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        } else
             TDSpacer(modifier = Modifier.height(10.dp))
         TDButton(
             onClick = onSubmit,
             text = "Register",
             enabled = true,
             modifier = Modifier
-                .fillMaxWidth(0.9f)
+                .fillMaxWidth(0.9f),
+            isLoading = uiState.isLoading
         )
         TDSpacer(modifier = Modifier.height(20.dp))
         Text(

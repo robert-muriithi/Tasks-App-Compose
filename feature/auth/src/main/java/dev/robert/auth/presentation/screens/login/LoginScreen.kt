@@ -3,12 +3,12 @@ package dev.robert.auth.presentation.screens.login
 import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -47,6 +47,7 @@ import dev.robert.design_system.presentation.components.TDButton
 import dev.robert.design_system.presentation.components.TDFilledTextField
 import dev.robert.design_system.presentation.components.TDSpacer
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @Composable
 fun LoginScreen(
@@ -88,10 +89,12 @@ fun LoginScreen(
         }
     }
     LaunchedEffect(key1 = uiState.isAuthenticated) {
-        if (uiState.isAuthenticated) {
+        if (uiState.isAuthenticated && uiState.user != null) {
             Toast.makeText(applicationContext, "Log in success", Toast.LENGTH_SHORT).show()
             onNavigateToHome()
             viewModel.onEvent(LoginScreenEvents.OnResetState)
+        } else {
+            Timber.d("${uiState.error}")
         }
     }
 
@@ -127,11 +130,11 @@ fun LoginScreen(
                 onForgotPassword = onNavigateToForgotPassword,
                 onSignInWithGoogle = {
                     scope.launch {
-                        val signInIntentSender = googleAuthUiClient.sendIntent()
-                        launcher.launch(
-                            IntentSenderRequest.Builder(
-                                intentSender = signInIntentSender ?: return@launch,
-                            ).build()
+                        viewModel.onEvent(
+                            LoginScreenEvents.GoogleSignInEvent(
+                                client = googleAuthUiClient,
+                                launcher = launcher
+                            )
                         )
                     }
                 },
@@ -172,9 +175,19 @@ fun LoginScreenContent(
             ),
             modifier = Modifier
                 .fillMaxWidth(0.9f)
-                .height(53.dp)
+                .height(53.dp),
+            isError = uiState.emailError != null
         )
-        TDSpacer(modifier = Modifier.height(10.dp))
+        if (uiState.emailError != null) {
+            Row(modifier = Modifier.fillMaxWidth(0.9f)) {
+                Text(
+                    text = uiState.emailError,
+                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        } else TDSpacer(modifier = Modifier.height(10.dp))
         TDFilledTextField(
             value = uiState.password,
             onValueChange = onPasswordChange,
@@ -186,9 +199,19 @@ fun LoginScreenContent(
             ),
             modifier = Modifier
                 .fillMaxWidth(0.9f)
-                .height(53.dp)
+                .height(53.dp),
+            isError = uiState.passwordError != null
         )
-        TDSpacer(modifier = Modifier.height(10.dp))
+        if (uiState.passwordError != null)
+            Row(modifier = Modifier.fillMaxWidth(0.9f)) {
+                Text(
+                    text = uiState.passwordError,
+                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        else TDSpacer(modifier = Modifier.height(10.dp))
         Text(
             text = "Forgot Password?",
             textAlign = TextAlign.End,
@@ -201,13 +224,17 @@ fun LoginScreenContent(
         TDButton(
             onClick = onLogin,
             text = "Login",
-            enabled = true,
+            enabled = uiState.isLoading.not(),
             modifier = Modifier
-                .fillMaxWidth(0.9f)
+                .fillMaxWidth(0.9f),
+            isLoading = uiState.isLoading
         )
         TDSpacer(modifier = Modifier.height(10.dp))
         SignInWithGoogleButton(
-            onClick = onSignInWithGoogle
+            onClick = {
+                onSignInWithGoogle()
+            },
+            isLoading = uiState.isLoading
         )
         TDSpacer(modifier = Modifier.height(10.dp))
         Text(

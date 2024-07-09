@@ -1,19 +1,23 @@
 package dev.robert.auth.presentation.screens.login
 
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.robert.auth.domain.model.GoogleSignResult
 import dev.robert.auth.domain.repository.AuthenticationRepository
 import dev.robert.auth.presentation.utils.EmailValidator
+import dev.robert.auth.presentation.utils.GoogleAuthSignInClient
 import dev.robert.auth.presentation.utils.PasswordValidator
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -46,6 +50,21 @@ class LoginViewModel @Inject constructor(
             is LoginScreenEvents.LoginEvent -> login()
             is LoginScreenEvents.OnSignInWithGoogle -> onSignInWithGoogle(event.result)
             is LoginScreenEvents.OnResetState -> resetState()
+            is LoginScreenEvents.GoogleSignInEvent -> signInWithGoogle(event.client, event.launcher)
+        }
+    }
+    private fun signInWithGoogle(
+        client: GoogleAuthSignInClient,
+        launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>
+    ) {
+        _uiState.update { it.copy(isLoading = true) }
+        viewModelScope.launch(coroutineExceptionHandler) {
+            val intentSender = client.sendIntent()
+            launcher.launch(
+                IntentSenderRequest.Builder(
+                    intentSender = intentSender ?: return@launch,
+                ).build()
+            )
         }
     }
 
@@ -54,24 +73,31 @@ class LoginViewModel @Inject constructor(
         val emailValid = emailValidator.validate(currentState.email)
         val passwordValid = passwordValidator.validate(currentState.password)
         val hasError = listOf(emailValid, passwordValid).any { !it.isValid }
-        _uiState.update {
-            it.copy(
-                buttonEnabled = listOf(
-                    emailValid,
-                    passwordValid
-                ).all { it.isValid }
-            )
+        if (hasError) {
+            _uiState.update {
+                it.copy(
+                    emailError = emailValid.message,
+                    passwordError = passwordValid.message
+                )
+            }
+            return
         }
-        if (hasError) return
         viewModelScope.launch(coroutineExceptionHandler) {
+            resetState()
             _uiState.update { it.copy(isLoading = true) }
-            repository.login(currentState.email, currentState.password)
+            repository.login(currentState.email, currentState.password).collectLatest { result ->
+                if (result.isSuccess) {
+                    val user = result.getOrNull()
+                    _uiState.update { it.copy(isLoading = false, isAuthenticated = true, user = user) }
+                } else {
+                    _uiState.update { it.copy(error = result.exceptionOrNull()?.localizedMessage) }
+                }
+            }
             _uiState.update { it.copy(isLoading = false, isAuthenticated = true) }
         }
     }
 
     private fun onSignInWithGoogle(result: GoogleSignResult) {
-        Timber.d("Google sign in result: $result")
         _uiState.update {
             it.copy(
                 isAuthenticated = result.data != null,
