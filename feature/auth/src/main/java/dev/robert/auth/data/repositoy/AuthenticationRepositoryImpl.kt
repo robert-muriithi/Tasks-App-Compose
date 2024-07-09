@@ -51,20 +51,6 @@ class AuthenticationRepositoryImpl(
                 emit(Result.success(it.toGoogleUser()))
             }
         }
-        /*mAuth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isComplete){
-                    val user = task.await().user
-                    Timber.d("User created $user")
-                    val userDto = GoogleUserDto(
-                        email = user?.email ?: "",
-                        name = user?.displayName ?: "",
-                        photoUrl = user?.photoUrl?.toString() ?: "",
-                        id = user?.uid ?: ""
-                    )
-                    storeUserData(userDto)
-                }
-            }*/
     }.catch {
         emit(Result.failure(it))
     }
