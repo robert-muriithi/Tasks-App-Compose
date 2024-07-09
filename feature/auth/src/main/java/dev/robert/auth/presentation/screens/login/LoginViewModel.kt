@@ -1,9 +1,9 @@
 package dev.robert.auth.presentation.screens.login
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.robert.auth.domain.model.GoogleSignResult
 import dev.robert.auth.domain.repository.AuthenticationRepository
 import dev.robert.auth.presentation.utils.EmailValidator
 import dev.robert.auth.presentation.utils.PasswordValidator
@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -30,7 +31,6 @@ class LoginViewModel @Inject constructor(
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
         _uiState.update { it.copy(error = exception.message) }
     }
-    val showDialog = mutableStateOf(false)
 
     private fun onEmailChange(email: String) = _uiState.update { uiState ->
         uiState.copy(email = email)
@@ -39,14 +39,13 @@ class LoginViewModel @Inject constructor(
         uiState.copy(password = password)
     }
 
-    fun setAuthenticated(authenticated: Boolean) = _authenticated.update { authenticated }
-
     fun onEvent(event: LoginScreenEvents) {
         when (event) {
             is LoginScreenEvents.OnEmailChanged -> onEmailChange(event.email)
             is LoginScreenEvents.OnPasswordChanged -> onPasswordChange(event.password)
             is LoginScreenEvents.LoginEvent -> login()
-            is LoginScreenEvents.SignInWithGoogle -> signInWithGoogle()
+            is LoginScreenEvents.OnSignInWithGoogle -> onSignInWithGoogle(event.result)
+            is LoginScreenEvents.OnResetState -> resetState()
         }
     }
 
@@ -67,11 +66,21 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch(coroutineExceptionHandler) {
             _uiState.update { it.copy(isLoading = true) }
             repository.login(currentState.email, currentState.password)
-            _uiState.update { it.copy(isLoading = false, isSuccess = true) }
+            _uiState.update { it.copy(isLoading = false, isAuthenticated = true) }
         }
     }
 
-    fun signInWithGoogle() {
-        val currentAuthState = authenticated.value
+    private fun onSignInWithGoogle(result: GoogleSignResult) {
+        Timber.d("Google sign in result: $result")
+        _uiState.update {
+            it.copy(
+                isAuthenticated = result.data != null,
+                error = result.errorMsg
+            )
+        }
+    }
+
+    fun resetState() {
+        _uiState.update { LoginState() }
     }
 }

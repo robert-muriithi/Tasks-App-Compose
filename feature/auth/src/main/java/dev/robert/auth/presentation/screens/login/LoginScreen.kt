@@ -1,5 +1,10 @@
 package dev.robert.auth.presentation.screens.login
 
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,15 +20,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
@@ -33,16 +38,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.stevdzasan.onetap.GoogleUser
-import com.stevdzasan.onetap.OneTapSignInState
-import com.stevdzasan.onetap.OneTapSignInWithGoogle
-import com.stevdzasan.onetap.getUserFromTokenId
-import com.stevdzasan.onetap.rememberOneTapSignInState
+import com.google.android.gms.auth.api.identity.Identity
 import dev.robert.auth.R
+import dev.robert.auth.domain.model.GoogleSignResult
+import dev.robert.auth.presentation.utils.GoogleAuthSignInClient
 import dev.robert.design_system.presentation.components.SignInWithGoogleButton
 import dev.robert.design_system.presentation.components.TDButton
 import dev.robert.design_system.presentation.components.TDFilledTextField
 import dev.robert.design_system.presentation.components.TDSpacer
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
@@ -52,26 +56,44 @@ fun LoginScreen(
     onNavigateToForgotPassword: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val authState by viewModel.authenticated.collectAsStateWithLifecycle()
-    val oneTapSignInState = rememberOneTapSignInState()
-    var user: GoogleUser? by remember {
-        mutableStateOf(null)
-    }
-    val showDialog = remember {
-        mutableStateOf(false)
-    }
+    val applicationContext = LocalContext.current.applicationContext
 
-    OneTapSignInWithGoogle(
-        state = oneTapSignInState,
-        clientId = "180548915348-ma35li7i99ka5rog7rl5jrfl9q65da3t.apps.googleusercontent.com",
-        rememberAccount = false,
-        onTokenIdReceived = {
-            user = getUserFromTokenId(tokenId = it)
-            viewModel.setAuthenticated(authenticated = true)
-        },
-        onDialogDismissed = {
+    val googleAuthUiClient by lazy {
+        GoogleAuthSignInClient(
+            webClientId = applicationContext.getString(R.string.default_web_client_id),
+            oneTapClient = Identity.getSignInClient(applicationContext)
+        )
+    }
+    val scope = rememberCoroutineScope()
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+        when (result.resultCode) {
+            Activity.RESULT_OK -> {
+                scope.launch {
+                    result.data?.let { googleAuthUiClient.signInWithIntent(it) }?.run {
+                        viewModel.onEvent(
+                            LoginScreenEvents.OnSignInWithGoogle(
+                                this
+                            )
+                        )
+                    }
+                }
+            }
+            else -> {
+                viewModel.onEvent(
+                    LoginScreenEvents.OnSignInWithGoogle(
+                        GoogleSignResult(errorMsg = "Error")
+                    )
+                )
+            }
         }
-    )
+    }
+    LaunchedEffect(key1 = uiState.isAuthenticated) {
+        if (uiState.isAuthenticated) {
+            Toast.makeText(applicationContext, "Log in success", Toast.LENGTH_SHORT).show()
+            onNavigateToHome()
+            viewModel.onEvent(LoginScreenEvents.OnResetState)
+        }
+    }
 
     Scaffold { paddingValues ->
         Box(
@@ -103,8 +125,16 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxSize(),
                 onRegister = onNavigateToRegister,
                 onForgotPassword = onNavigateToForgotPassword,
-                onSignInWithGoogle = {},
-                oneTapSignInState = oneTapSignInState
+                onSignInWithGoogle = {
+                    scope.launch {
+                        val signInIntentSender = googleAuthUiClient.sendIntent()
+                        launcher.launch(
+                            IntentSenderRequest.Builder(
+                                intentSender = signInIntentSender ?: return@launch,
+                            ).build()
+                        )
+                    }
+                },
             )
         }
     }
@@ -120,7 +150,6 @@ fun LoginScreenContent(
     onRegister: () -> Unit,
     onForgotPassword: () -> Unit,
     onSignInWithGoogle: () -> Unit,
-    oneTapSignInState: OneTapSignInState
 ) {
     Column(
         modifier = modifier,
@@ -178,9 +207,7 @@ fun LoginScreenContent(
         )
         TDSpacer(modifier = Modifier.height(10.dp))
         SignInWithGoogleButton(
-            onClick = {
-                oneTapSignInState.open()
-            }
+            onClick = onSignInWithGoogle
         )
         TDSpacer(modifier = Modifier.height(10.dp))
         Text(

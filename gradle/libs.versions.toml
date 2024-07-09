@@ -1,6 +1,7 @@
 [versions]
 agp = "8.4.1"
 coreKtx = "1.13.1"
+coreSplashscreen = "1.0.1"
 firebaseBom = "33.1.0"
 gson = "2.10.1"
 kotlin = "2.0.0"
@@ -14,9 +15,11 @@ composeBom = "2024.05.00"
 appcompat = "1.7.0"
 material = "1.12.0"
 hilt = "2.49"
+playServicesAuth = "21.2.0"
 roomRuntime = "2.6.1"
 ktlint = "12.1.0"
 googleServices = "4.4.2"
+timber = "5.0.1"
 uiTextGoogleFonts = "1.6.7"
 navVersion = "2.8.0-beta02"
 kotlinx-json = "1.6.3"
@@ -28,6 +31,7 @@ moduleGraphVersion = "0.10.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-room-ktx = {module = "androidx.room:room-ktx", version.ref ="roomRuntime"}
@@ -59,6 +63,8 @@ kotlinx-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", ve
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

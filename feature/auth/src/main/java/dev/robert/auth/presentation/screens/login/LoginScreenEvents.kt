@@ -1,5 +1,7 @@
 package dev.robert.auth.presentation.screens.login
 
+import dev.robert.auth.domain.model.GoogleSignResult
+
 sealed class LoginScreenEvents {
     object LoginEvent : LoginScreenEvents()
 
@@ -11,5 +13,7 @@ sealed class LoginScreenEvents {
         val password: String,
     ) : LoginScreenEvents()
 
-    data object SignInWithGoogle : LoginScreenEvents()
+    data class OnSignInWithGoogle(val result: GoogleSignResult) : LoginScreenEvents()
+
+    data object OnResetState : LoginScreenEvents()
 }

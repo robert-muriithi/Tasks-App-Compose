@@ -11,13 +11,15 @@ import dev.robert.auth.presentation.navigation.AuthNavGraph
 import dev.robert.auth.presentation.navigation.RegisterScreen
 import dev.robert.auth.presentation.navigation.authNavGraph
 import dev.robert.design_system.presentation.theme.TodoTheme
-import dev.robert.onboarding.presentation.navigation.OnBoardingNavGraph
 import dev.robert.onboarding.presentation.navigation.onBoardingNavGraph
 import dev.robert.tasks.presentation.navigation.TasksNavGraph
 import dev.robert.tasks.presentation.navigation.tasksNavGraph
 
 @Composable
-fun TodoCoreNavigator(theme: Int) {
+fun TodoCoreNavigator(
+    theme: Int,
+    startDestination: Any
+) {
     TodoTheme(
         theme = theme,
     ) {
@@ -27,7 +29,7 @@ fun TodoCoreNavigator(theme: Int) {
         ) {
             NavHost(
                 navController = navController,
-                startDestination = OnBoardingNavGraph,
+                startDestination = startDestination,
             ) {
                 onBoardingNavGraph(
                     onCompleteOnBoarding = {
