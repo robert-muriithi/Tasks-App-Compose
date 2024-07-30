@@ -8,14 +8,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -59,33 +57,27 @@ fun RegisterScreen(
         }
     }
     val scrollState = rememberScrollState()
-    Scaffold(
-        topBar = {
-        }
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .paint(
+            painter = painterResource(id = R.drawable.bg),
+            contentScale = ContentScale.FillBounds,
+            sizeToIntrinsics = true,
+            alpha = 0.2f
+        )
     ) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .paint(
-                painter = painterResource(id = R.drawable.bg),
-                contentScale = ContentScale.FillBounds,
-                sizeToIntrinsics = true,
-                alpha = 0.2f
-            )
-            .padding(it)
-        ) {
-            RegisterScreenContent(
-                uiState = uiState,
-                onEmailChange = viewModel::onEmailChanged,
-                onPasswordChange = viewModel::onPasswordChanged,
-                onConfirmPasswordChange = viewModel::onConfirmPasswordChanged,
-                onNameChanged = viewModel::onNameChanged,
-                onSubmit = viewModel::register,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState),
-                onNavigateToLogin = onNavigateUp
-            )
-        }
+        RegisterScreenContent(
+            uiState = uiState,
+            onEmailChange = viewModel::onEmailChanged,
+            onPasswordChange = viewModel::onPasswordChanged,
+            onConfirmPasswordChange = viewModel::onConfirmPasswordChanged,
+            onNameChanged = viewModel::onNameChanged,
+            onSubmit = viewModel::register,
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState),
+            onNavigateToLogin = onNavigateUp
+        )
     }
 }
 @Composable

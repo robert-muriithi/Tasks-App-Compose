@@ -12,11 +12,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -98,48 +96,45 @@ fun LoginScreen(
         }
     }
 
-    Scaffold { paddingValues ->
-        Box(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .paint(
-                    painter = painterResource(id = R.drawable.bg),
-                    contentScale = ContentScale.FillBounds,
-                    sizeToIntrinsics = true,
-                    alpha = 0.2f
-                )
-        ) {
-            LoginScreenContent(
-                uiState = uiState,
-                onEmailChange = { email ->
-                    viewModel.onEvent(
-                        LoginScreenEvents.OnEmailChanged(email)
-                    )
-                },
-                onPasswordChange = { password ->
-                    viewModel.onEvent(
-                        LoginScreenEvents.OnPasswordChanged(password)
-                    )
-                },
-                onLogin = {
-                    viewModel.onEvent(LoginScreenEvents.LoginEvent)
-                },
-                modifier = Modifier.fillMaxSize(),
-                onRegister = onNavigateToRegister,
-                onForgotPassword = onNavigateToForgotPassword,
-                onSignInWithGoogle = {
-                    scope.launch {
-                        viewModel.onEvent(
-                            LoginScreenEvents.GoogleSignInEvent(
-                                client = googleAuthUiClient,
-                                launcher = launcher
-                            )
-                        )
-                    }
-                },
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .paint(
+                painter = painterResource(id = R.drawable.bg),
+                contentScale = ContentScale.FillBounds,
+                sizeToIntrinsics = true,
+                alpha = 0.2f
             )
-        }
+    ) {
+        LoginScreenContent(
+            uiState = uiState,
+            onEmailChange = { email ->
+                viewModel.onEvent(
+                    LoginScreenEvents.OnEmailChanged(email)
+                )
+            },
+            onPasswordChange = { password ->
+                viewModel.onEvent(
+                    LoginScreenEvents.OnPasswordChanged(password)
+                )
+            },
+            onLogin = {
+                viewModel.onEvent(LoginScreenEvents.LoginEvent)
+            },
+            modifier = Modifier.fillMaxSize(),
+            onRegister = onNavigateToRegister,
+            onForgotPassword = onNavigateToForgotPassword,
+            onSignInWithGoogle = {
+                scope.launch {
+                    viewModel.onEvent(
+                        LoginScreenEvents.GoogleSignInEvent(
+                            client = googleAuthUiClient,
+                            launcher = launcher
+                        )
+                    )
+                }
+            },
+        )
     }
 }
 
