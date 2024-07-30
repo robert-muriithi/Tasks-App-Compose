@@ -54,4 +54,6 @@ android {
 
 dependencies {
     implementation(libs.kotlinx.json)
+    implementation((project(path = ":core:database")))
+    implementation(project(path = ":core:design-system"))
 }
