@@ -9,10 +9,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import dev.robert.composetodo.navigation.TodoCoreNavigator
+import dev.robert.composetodo.navigation.MainApp
 import dev.robert.design_system.presentation.theme.Theme
+import dev.robert.design_system.presentation.theme.TodoTheme
+import dev.robert.tasks.presentation.navigation.TasksNavGraph
 import kotlinx.coroutines.Dispatchers
 
 @AndroidEntryPoint
@@ -41,10 +45,17 @@ class MainActivity : ComponentActivity() {
                 context = Dispatchers.Main.immediate,
             )
             val startDestination = viewModel.startDestination.value
-            TodoCoreNavigator(
+            val navController = rememberNavController()
+            val scope = rememberCoroutineScope()
+            TodoTheme(
                 theme = theme,
-                startDestination = startDestination
-            )
+            ) {
+                MainApp(
+                    startDestination = TasksNavGraph,
+                    navController = navController,
+                    scope = scope
+                )
+            }
         }
     }
 }
