@@ -12,8 +12,14 @@ data class TodoEntity(
     val description: String,
     val startDateTime: String,
     val endDateTime: String,
-    val category: String,
+    val category: TaskCategoryModel? = null,
     val isComplete: Boolean = false,
     val isSynced: Boolean = false,
 //    val attachment : Attachment? = null
+)
+
+data class TaskCategoryModel(
+    val id: Int,
+    val name: String,
+    val color: Int
 )
