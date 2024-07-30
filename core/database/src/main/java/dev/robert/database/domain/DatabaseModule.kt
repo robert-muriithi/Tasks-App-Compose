@@ -9,6 +9,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.robert.database.ConstUtils.TODO_DATABASE
+import dev.robert.database.TasksTypeConverter
 import dev.robert.database.data.todo.TodoDatabase
 import javax.inject.Singleton
 
@@ -31,13 +32,23 @@ object DatabaseModule {
     Provides
     Singleton
     ]
+    fun provideTypeConverters(gson: Gson) = TasksTypeConverter(gson)
+
+    @[
+    Provides
+    Singleton
+    ]
     fun provideTodoDatabase(
         @ApplicationContext context: Context,
+        converter: TasksTypeConverter
     ): TodoDatabase {
         return Room.databaseBuilder(
             context = context,
             TodoDatabase::class.java,
             TODO_DATABASE,
-        ).build()
+        ).addTypeConverter(converter)
+            .fallbackToDestructiveMigration()
+            .allowMainThreadQueries()
+            .build()
     }
 }
