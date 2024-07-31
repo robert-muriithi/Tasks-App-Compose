@@ -46,13 +46,13 @@ fun OnBoarding(
             state = pagerState,
             modifier = Modifier.fillMaxSize()
         ) { page ->
-            OnBordingScreenContent(page = pages[page], modifier = Modifier.fillMaxSize())
+            OnboardingScreenContent(page = pages[page], modifier = Modifier.fillMaxSize())
         }
         OnboardingPagerIndicator(
             pagerState = pagerState,
             onDoneClick = {
-                viewModel.onCompleteOnboarding()
-                onCompleteOnBoarding.invoke()
+                viewModel.onEvent(OnboardingScreenEvent.OnboardingCompleted)
+                onCompleteOnBoarding()
             },
             onboardingItems = pages,
             modifier = Modifier.align(Alignment.BottomCenter),
@@ -61,7 +61,7 @@ fun OnBoarding(
 }
 
 @Composable
-fun OnBordingScreenContent(
+fun OnboardingScreenContent(
     page: OnboardingItem,
     modifier: Modifier = Modifier,
 ) {
@@ -112,6 +112,6 @@ val onBoardingItems @Composable get() = listOf(
 @Composable
 fun OnBoardingScreenPreview() {
     TodoTheme(theme = Theme.LIGHT_THEME.themeValue) {
-        OnBordingScreenContent(page = onBoardingItems[0])
+        OnboardingScreenContent(page = onBoardingItems[0])
     }
 }
