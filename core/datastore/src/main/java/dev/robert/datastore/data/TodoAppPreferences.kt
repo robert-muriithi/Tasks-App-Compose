@@ -29,4 +29,13 @@ class TodoAppPreferences(
         prefs.data.map {
             it[ConstantUtils.ONBOARDING_COMPLETED] ?: false
         }
+
+    suspend fun saveUserLoggedIn(loggedIn: Boolean) = prefs.edit {
+        it[ConstantUtils.USER_LOGGED_IN] = loggedIn
+    }
+
+    val userLoggedIn =
+        prefs.data.map {
+            it[ConstantUtils.USER_LOGGED_IN] ?: false
+        }
 }

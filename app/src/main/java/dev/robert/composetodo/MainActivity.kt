@@ -16,7 +16,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import dev.robert.composetodo.navigation.MainApp
 import dev.robert.design_system.presentation.theme.Theme
 import dev.robert.design_system.presentation.theme.TodoTheme
-import dev.robert.tasks.presentation.navigation.TasksNavGraph
 import kotlinx.coroutines.Dispatchers
 
 @AndroidEntryPoint
@@ -51,7 +50,7 @@ class MainActivity : ComponentActivity() {
                 theme = theme,
             ) {
                 MainApp(
-                    startDestination = TasksNavGraph,
+                    startDestination = startDestination,
                     navController = navController,
                     scope = scope
                 )

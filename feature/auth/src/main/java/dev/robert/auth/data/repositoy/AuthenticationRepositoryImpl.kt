@@ -6,6 +6,7 @@ import dev.robert.auth.data.model.GoogleUserDto
 import dev.robert.auth.domain.mappers.toGoogleUser
 import dev.robert.auth.domain.model.GoogleUser
 import dev.robert.auth.domain.repository.AuthenticationRepository
+import dev.robert.datastore.data.TodoAppPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -14,7 +15,8 @@ import timber.log.Timber
 
 class AuthenticationRepositoryImpl(
     private val mAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val preferences: TodoAppPreferences
 ) : AuthenticationRepository {
     override fun login(email: String, password: String): Flow<Result<GoogleUser?>> = flow {
         val user = mAuth.signInWithEmailAndPassword(email, password).await().user
@@ -24,6 +26,7 @@ class AuthenticationRepositoryImpl(
             photoUrl = user?.photoUrl?.toString() ?: "",
             id = user?.uid ?: ""
         ).toGoogleUser().also {
+            preferences.saveUserLoggedIn(true)
             emit(Result.success(it))
         }
     }.catch {
@@ -31,13 +34,12 @@ class AuthenticationRepositoryImpl(
     }
 
     override suspend fun logout() {
+        mAuth.signOut()
+        preferences.saveUserLoggedIn(false)
     }
 
     override suspend fun register(email: String, password: String): Flow<Result<GoogleUser?>> = flow {
-        val user = mAuth.createUserWithEmailAndPassword(email, password)
-            .addOnSuccessListener {
-                Timber.d("User created ${it.user}")
-            }.await().user
+        val user = mAuth.createUserWithEmailAndPassword(email, password).await().user
         Timber.d("User created $user")
         if (user != null) {
             user.sendEmailVerification().await()
