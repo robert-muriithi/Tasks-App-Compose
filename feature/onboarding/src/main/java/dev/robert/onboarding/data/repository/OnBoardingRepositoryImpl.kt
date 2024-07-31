@@ -13,4 +13,7 @@ class OnBoardingRepositoryImpl(
     override suspend fun setOnboarded(isOnboarded: Boolean) {
         prefs.saveOnboardingCompleted(isOnboarded)
     }
+
+    override val isLoggedIn: Flow<Boolean>
+        get() = prefs.userLoggedIn
 }

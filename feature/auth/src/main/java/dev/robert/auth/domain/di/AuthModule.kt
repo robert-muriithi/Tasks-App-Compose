@@ -8,6 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dev.robert.auth.data.repositoy.AuthenticationRepositoryImpl
 import dev.robert.auth.domain.repository.AuthenticationRepository
+import dev.robert.datastore.data.TodoAppPreferences
 import javax.inject.Singleton
 
 @Module
@@ -31,6 +32,7 @@ object AuthModule {
     ]
     fun provideAuthRepository(
         mAuth: FirebaseAuth,
-        firestore: FirebaseFirestore
-    ): AuthenticationRepository = AuthenticationRepositoryImpl(mAuth = mAuth, firestore = firestore)
+        firestore: FirebaseFirestore,
+        prefs: TodoAppPreferences
+    ): AuthenticationRepository = AuthenticationRepositoryImpl(mAuth = mAuth, firestore = firestore, preferences = prefs)
 }
