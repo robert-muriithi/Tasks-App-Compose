@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
@@ -78,19 +77,20 @@ class RegisterViewModel @Inject constructor(
 //            validationEventChannel.send(ValidationEvent.Success)
             _uiState.update { it.copy(isLoading = true) }
             try {
-                repository.register(currentState.email, currentState.password).collectLatest { result ->
+                repository.register(currentState.email.trim(), currentState.password.trim()).collectLatest { result ->
                     if (result.isSuccess) {
                         val user = result.getOrNull()
-                        Timber.d("User created $user")
                         _uiState.update { it.copy(isLoading = false, isSuccess = true, user = user) }
                         _action.send(RegisterAction.NavigateToLogin)
                     } else {
-                        _uiState.update { it.copy(error = result.exceptionOrNull()?.message) }
+                        val message = result.exceptionOrNull()?.message ?: "An error occurred"
+                        _uiState.update { it.copy(error = message, isLoading = false) }
+                        _action.send(RegisterAction.ShowError(message))
                     }
                 }
-                _action.send(RegisterAction.NavigateToLogin)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
+                _action.send(RegisterAction.ShowError(e.message ?: "An error occurred"))
             }
         }
     }
@@ -102,4 +102,5 @@ class RegisterViewModel @Inject constructor(
 
 sealed class RegisterAction {
     data object NavigateToLogin : RegisterAction()
+    data class ShowError(val message: String) : RegisterAction()
 }

@@ -5,17 +5,21 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.robert.auth.domain.model.GoogleSignResult
+import dev.robert.auth.domain.model.GoogleUser
 import dev.robert.auth.domain.repository.AuthenticationRepository
 import dev.robert.auth.presentation.utils.EmailValidator
 import dev.robert.auth.presentation.utils.GoogleAuthSignInClient
 import dev.robert.auth.presentation.utils.PasswordValidator
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -29,8 +33,8 @@ class LoginViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(LoginState())
     val uiState = _uiState.asStateFlow()
 
-    private val _authenticated = MutableStateFlow(false)
-    val authenticated = _authenticated.asStateFlow()
+    private val _action = Channel<LoginAction>()
+    val action = _action.receiveAsFlow()
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
         _uiState.update { it.copy(error = exception.message) }
@@ -57,7 +61,7 @@ class LoginViewModel @Inject constructor(
         client: GoogleAuthSignInClient,
         launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>
     ) {
-        _uiState.update { it.copy(isLoading = true) }
+        _uiState.update { it.copy(isLoading = true, signInOption = SignInOption.Google) }
         viewModelScope.launch(coroutineExceptionHandler) {
             val intentSender = client.sendIntent()
             launcher.launch(
@@ -68,7 +72,7 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun login() {
+    private fun login() {
         val currentState = uiState.value
         val emailValid = emailValidator.validate(currentState.email)
         val passwordValid = passwordValidator.validate(currentState.password)
@@ -83,17 +87,21 @@ class LoginViewModel @Inject constructor(
             return
         }
         viewModelScope.launch(coroutineExceptionHandler) {
-            resetState()
-            _uiState.update { it.copy(isLoading = true) }
+            _uiState.update { it.copy(isLoading = true, signInOption = SignInOption.EmailAndPassword) }
             repository.login(currentState.email, currentState.password).collectLatest { result ->
                 if (result.isSuccess) {
                     val user = result.getOrNull()
                     _uiState.update { it.copy(isLoading = false, isAuthenticated = true, user = user) }
+                    _action.send(LoginAction.NavigateToHome(user!!))
                 } else {
-                    _uiState.update { it.copy(error = result.exceptionOrNull()?.localizedMessage) }
+                    val message = when (val exception = result.exceptionOrNull()) {
+                        is FirebaseAuthInvalidCredentialsException -> "Invalid email or password"
+                        else -> exception?.message
+                    }
+                    _uiState.update { it.copy(passwordError = message, isLoading = false) }
+                    _action.send(LoginAction.ShowError(message ?: "An error occurred"))
                 }
             }
-            _uiState.update { it.copy(isLoading = false, isAuthenticated = true) }
         }
     }
 
@@ -101,12 +109,17 @@ class LoginViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 isAuthenticated = result.data != null,
-                error = result.errorMsg
+                error = result.errorMsg,
+                user = result.data,
             )
         }
     }
 
-    fun resetState() {
+    private fun resetState() {
         _uiState.update { LoginState() }
     }
+}
+sealed class LoginAction {
+    data class NavigateToHome(val user: GoogleUser) : LoginAction()
+    data class ShowError(val message: String) : LoginAction()
 }
