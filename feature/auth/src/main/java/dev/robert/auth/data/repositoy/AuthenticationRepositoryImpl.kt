@@ -5,6 +5,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import dev.robert.auth.data.model.GoogleUserDto
 import dev.robert.auth.domain.mappers.toGoogleUser
 import dev.robert.auth.domain.model.GoogleUser
+import dev.robert.auth.domain.model.RegisterRequestBody
 import dev.robert.auth.domain.repository.AuthenticationRepository
 import dev.robert.datastore.data.TodoAppPreferences
 import kotlinx.coroutines.flow.Flow
@@ -38,15 +39,14 @@ class AuthenticationRepositoryImpl(
         preferences.saveUserLoggedIn(false)
     }
 
-    override suspend fun register(email: String, password: String): Flow<Result<GoogleUser?>> = flow {
-        val user = mAuth.createUserWithEmailAndPassword(email, password).await().user
-        Timber.d("User created $user")
+    override suspend fun register(body: RegisterRequestBody): Flow<Result<GoogleUser?>> = flow {
+        val user = mAuth.createUserWithEmailAndPassword(body.email, body.password).await().user
         if (user != null) {
             user.sendEmailVerification().await()
             Timber.d("Email verification sent")
             GoogleUserDto(
                 email = user.email ?: "",
-                name = user.displayName ?: "",
+                name = body.name,
                 photoUrl = user.photoUrl?.toString() ?: "",
                 id = user.uid
             ).also { storeUserData(it) }.also {
@@ -67,10 +67,6 @@ class AuthenticationRepositoryImpl(
     private suspend fun storeUserData(user: GoogleUserDto) {
         firestore.collection("users")
             .document(user.id)
-            .set(user)
-            .addOnSuccessListener {
-            }
-            .addOnFailureListener {
-            }
+            .set(user).await()
     }
 }

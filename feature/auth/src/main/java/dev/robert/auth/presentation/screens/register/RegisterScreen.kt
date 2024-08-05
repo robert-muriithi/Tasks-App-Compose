@@ -114,6 +114,7 @@ fun RegisterScreenContent(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .height(53.dp),
+            isLoading = uiState.isLoading
         )
         if (uiState.nameError != null && uiState.isLoading.not())
             Row(modifier = Modifier.fillMaxWidth(0.9f)) {
@@ -208,7 +209,7 @@ fun RegisterScreenContent(
         TDButton(
             onClick = onSubmit,
             text = "Register",
-            enabled = true,
+            enabled = uiState.isLoading.not(),
             modifier = Modifier
                 .fillMaxWidth(0.9f),
             isLoading = uiState.isLoading
