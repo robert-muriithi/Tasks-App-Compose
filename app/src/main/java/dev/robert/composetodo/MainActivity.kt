@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
                 initial = Theme.FOLLOW_SYSTEM.themeValue,
                 context = Dispatchers.Main.immediate,
             )
-            val startDestination = viewModel.startDestination.value
+            val startDestination by viewModel.startDestination.collectAsState()
             val navController = rememberNavController()
             val scope = rememberCoroutineScope()
             TodoTheme(
