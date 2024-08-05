@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import dev.robert.datastore.data.utils.ConstantUtils
 import dev.robert.datastore.data.utils.ConstantUtils.THEME_OPTIONS
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class TodoAppPreferences(
@@ -16,7 +17,7 @@ class TodoAppPreferences(
             it[THEME_OPTIONS] = theme
         }
 
-    val themeValue =
+    val themeValue: Flow<Int> =
         prefs.data.map {
             it[THEME_OPTIONS] ?: AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }
@@ -25,7 +26,7 @@ class TodoAppPreferences(
         it[ConstantUtils.ONBOARDING_COMPLETED] = complete
     }
 
-    val onboardingCompleted =
+    val onboardingCompleted: Flow<Boolean> =
         prefs.data.map {
             it[ConstantUtils.ONBOARDING_COMPLETED] ?: false
         }
@@ -34,7 +35,7 @@ class TodoAppPreferences(
         it[ConstantUtils.USER_LOGGED_IN] = loggedIn
     }
 
-    val userLoggedIn =
+    val userLoggedIn: Flow<Boolean> =
         prefs.data.map {
             it[ConstantUtils.USER_LOGGED_IN] ?: false
         }

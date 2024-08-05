@@ -5,6 +5,6 @@ import androidx.datastore.preferences.core.intPreferencesKey
 
 object ConstantUtils {
     val THEME_OPTIONS = intPreferencesKey(name = "theme_option")
-    val ONBOARDING_COMPLETED = booleanPreferencesKey(name = "onboarding_completed")
-    val USER_LOGGED_IN = booleanPreferencesKey(name = "onboarding_completed")
+    val ONBOARDING_COMPLETED = booleanPreferencesKey(name = "onboarded")
+    val USER_LOGGED_IN = booleanPreferencesKey(name = "user_is_logged_in")
 }

@@ -3,7 +3,6 @@ package dev.robert.onboarding.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.robert.datastore.data.TodoAppPreferences
 import dev.robert.onboarding.domain.repository.OnBoardingRepository
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
