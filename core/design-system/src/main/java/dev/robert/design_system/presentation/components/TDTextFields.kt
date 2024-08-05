@@ -12,9 +12,13 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -34,6 +38,7 @@ fun TDOutlinedTextField(
     leadingIcon: @Composable (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions(),
     maxLines: Int = 1,
+    isLoading: Boolean,
     isPassword: Boolean = false,
     content: @Composable () -> Unit = {
         OutlineTextInput(
@@ -46,7 +51,8 @@ fun TDOutlinedTextField(
             trailingIcon = trailingIcon,
             maxLines = maxLines,
             isPassword = isPassword,
-            leadingIcon = leadingIcon
+            leadingIcon = leadingIcon,
+            isLoading = isLoading
         )
     }
 ) {
@@ -64,6 +70,7 @@ fun TDFilledTextField(
     leadingIcon: @Composable (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions(),
     maxLines: Int = 1,
+    isLoading: Boolean = false,
     isPassword: Boolean = false,
     content: @Composable () -> Unit = {
         FilledTextFilled(
@@ -76,7 +83,8 @@ fun TDFilledTextField(
             maxLine = maxLines,
             label = label,
             isError = isError,
-            isPassword = isPassword
+            isPassword = isPassword,
+            isLoading = isLoading
         )
     }
 ) {
@@ -94,13 +102,22 @@ fun FilledTextFilled(
     maxLine: Int,
     label: String?,
     isError: Boolean,
-    isPassword: Boolean
+    isPassword: Boolean,
+    isLoading: Boolean
 ) {
     var togglePassword by rememberSaveable {
         mutableStateOf(true)
     }
+    var textFieldFocusState by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+
     TextField(
-        modifier = modifier,
+        enabled = !isLoading,
+        modifier = modifier
+            .onFocusChanged {
+                textFieldFocusState = it.isFocused
+            }
+            .focusRequester(focusRequester),
         value = value,
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = Color.Transparent,
@@ -153,11 +170,15 @@ fun OutlineTextInput(
     trailingIcon: @Composable (() -> Unit)?,
     leadingIcon: @Composable (() -> Unit)?,
     maxLines: Int,
-    isPassword: Boolean
+    isPassword: Boolean,
+    isLoading: Boolean
 ) {
     var togglePassword by rememberSaveable {
         mutableStateOf(true)
     }
+    var textFieldFocusState by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
@@ -171,7 +192,11 @@ fun OutlineTextInput(
                 )
             }
         },
-        modifier = modifier,
+        modifier = modifier
+            .onFocusChanged {
+                textFieldFocusState = it.isFocused
+            }
+            .focusRequester(focusRequester),
         keyboardOptions = keyboardOptions,
         trailingIcon = {
             if (isPassword) {
@@ -192,7 +217,8 @@ fun OutlineTextInput(
             if (togglePassword) PasswordVisualTransformation()
             else VisualTransformation.None
         else VisualTransformation.None,
-        leadingIcon = leadingIcon
+        leadingIcon = leadingIcon,
+        enabled = !isLoading
     )
 }
 
@@ -205,8 +231,8 @@ fun OutlineTextInput(
 fun a(modifier: Modifier = Modifier) {
     TDOutlinedTextField(onValueChange = {}, value = "fjkf", label = "jhbfjh", isPassword = false, trailingIcon = { Icon(
         painter = painterResource(R.drawable.visibility_on),
-        contentDescription = ""
-    ) })
+        contentDescription = "",
+    ) }, isLoading = false)
 }
 @Preview(
     name = "vjgj",
@@ -218,5 +244,5 @@ fun b(modifier: Modifier = Modifier) {
     TDFilledTextField(onValueChange = {}, value = "fjkf", label = "jhbfjh", isPassword = false, trailingIcon = { Icon(
         painter = painterResource(R.drawable.visibility_on),
         contentDescription = ""
-    ) })
+    ) }, isLoading = false)
 }

@@ -12,5 +12,10 @@ data class LoginState(
     val passwordError: String? = "",
     val buttonEnabled: Boolean = false,
     val error: String? = null,
-    val user: GoogleUser? = null
+    val user: GoogleUser? = null,
+    val signInOption: SignInOption = SignInOption.EmailAndPassword
 )
+enum class SignInOption {
+    EmailAndPassword,
+    Google
+}

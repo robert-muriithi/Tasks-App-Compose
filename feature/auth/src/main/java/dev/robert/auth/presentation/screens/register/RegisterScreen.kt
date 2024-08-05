@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,7 +37,6 @@ import dev.robert.design_system.presentation.components.TDButton
 import dev.robert.design_system.presentation.components.TDFilledTextField
 import dev.robert.design_system.presentation.components.TDSpacer
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     onNavigateUp: () -> Unit,
@@ -49,9 +47,12 @@ fun RegisterScreen(
     LaunchedEffect(key1 = uiState.isSuccess) {
         viewModel.action.collect {
             when (it) {
-                RegisterAction.NavigateToLogin -> {
+                is RegisterAction.NavigateToLogin -> {
                     Toast.makeText(context, "Registration success", Toast.LENGTH_SHORT).show()
                     onNavigateUp()
+                }
+                is RegisterAction.ShowError -> {
+                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -113,8 +114,9 @@ fun RegisterScreenContent(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .height(53.dp),
+            isLoading = uiState.isLoading
         )
-        if (uiState.nameError != null)
+        if (uiState.nameError != null && uiState.isLoading.not())
             Row(modifier = Modifier.fillMaxWidth(0.9f)) {
                 Text(text = uiState.nameError, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
             } else
@@ -136,8 +138,9 @@ fun RegisterScreenContent(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .height(53.dp),
+            isLoading = uiState.isLoading
         )
-        if (uiState.emailError != null)
+        if (uiState.emailError != null && uiState.isLoading.not())
             Row(modifier = Modifier.fillMaxWidth(0.9f)) {
                 Text(text = uiState.emailError, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
             }
@@ -160,9 +163,10 @@ fun RegisterScreenContent(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .height(53.dp),
-            isPassword = true
+            isPassword = true,
+            isLoading = uiState.isLoading
         )
-        if (uiState.passwordError != null) {
+        if (uiState.passwordError != null && uiState.isLoading.not()) {
             Row(modifier = Modifier.fillMaxWidth(0.9f)) {
                 Text(
                     text = uiState.passwordError,
@@ -189,9 +193,10 @@ fun RegisterScreenContent(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .height(53.dp),
-            isPassword = true
+            isPassword = true,
+            isLoading = uiState.isLoading
         )
-        if (uiState.confirmPasswordError != null) {
+        if (uiState.confirmPasswordError != null && uiState.isLoading.not()) {
             Row(modifier = Modifier.fillMaxWidth(0.9f)) {
                 Text(
                     text = uiState.confirmPasswordError,
@@ -204,7 +209,7 @@ fun RegisterScreenContent(
         TDButton(
             onClick = onSubmit,
             text = "Register",
-            enabled = true,
+            enabled = uiState.isLoading.not(),
             modifier = Modifier
                 .fillMaxWidth(0.9f),
             isLoading = uiState.isLoading

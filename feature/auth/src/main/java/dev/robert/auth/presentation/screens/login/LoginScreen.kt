@@ -44,6 +44,7 @@ import dev.robert.design_system.presentation.components.SignInWithGoogleButton
 import dev.robert.design_system.presentation.components.TDButton
 import dev.robert.design_system.presentation.components.TDFilledTextField
 import dev.robert.design_system.presentation.components.TDSpacer
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -69,6 +70,7 @@ fun LoginScreen(
             Activity.RESULT_OK -> {
                 scope.launch {
                     result.data?.let { googleAuthUiClient.signInWithIntent(it) }?.run {
+                        Timber.i("Google Sign In Result: $this")
                         viewModel.onEvent(
                             LoginScreenEvents.OnSignInWithGoogle(
                                 this
@@ -80,19 +82,24 @@ fun LoginScreen(
             else -> {
                 viewModel.onEvent(
                     LoginScreenEvents.OnSignInWithGoogle(
-                        GoogleSignResult(errorMsg = "Error")
+                        GoogleSignResult(errorMsg = "Error ${result.resultCode}")
                     )
                 )
             }
         }
     }
     LaunchedEffect(key1 = uiState.isAuthenticated) {
-        if (uiState.isAuthenticated && uiState.user != null) {
-            Toast.makeText(applicationContext, "Log in success", Toast.LENGTH_SHORT).show()
-            onNavigateToHome()
-            viewModel.onEvent(LoginScreenEvents.OnResetState)
-        } else {
-            Timber.d("${uiState.error}")
+        viewModel.action.collectLatest { value: LoginAction ->
+            when (value) {
+                is LoginAction.NavigateToHome -> {
+                    Toast.makeText(applicationContext, "Log in success", Toast.LENGTH_SHORT).show()
+                    uiState.user?.let { onNavigateToHome() }
+                    viewModel.onEvent(LoginScreenEvents.OnResetState)
+                }
+                is LoginAction.ShowError -> {
+                    Toast.makeText(applicationContext, value.message, Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -171,7 +178,8 @@ fun LoginScreenContent(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .height(53.dp),
-            isError = uiState.emailError != null
+            isError = uiState.emailError != null,
+            isLoading = uiState.isLoading
         )
         if (uiState.emailError != null) {
             Row(modifier = Modifier.fillMaxWidth(0.9f)) {
@@ -195,7 +203,8 @@ fun LoginScreenContent(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .height(53.dp),
-            isError = uiState.passwordError != null
+            isError = uiState.passwordError != null,
+            isLoading = uiState.isLoading
         )
         if (uiState.passwordError != null)
             Row(modifier = Modifier.fillMaxWidth(0.9f)) {
@@ -222,14 +231,16 @@ fun LoginScreenContent(
             enabled = uiState.isLoading.not(),
             modifier = Modifier
                 .fillMaxWidth(0.9f),
-            isLoading = uiState.isLoading
+            isLoading = uiState.isLoading &&
+                uiState.signInOption == SignInOption.EmailAndPassword
         )
         TDSpacer(modifier = Modifier.height(10.dp))
         SignInWithGoogleButton(
             onClick = {
                 onSignInWithGoogle()
             },
-            isLoading = uiState.isLoading
+            isLoading = uiState.isLoading &&
+                uiState.signInOption == SignInOption.Google
         )
         TDSpacer(modifier = Modifier.height(10.dp))
         Text(

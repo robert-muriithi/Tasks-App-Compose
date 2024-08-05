@@ -3,6 +3,7 @@ package dev.robert.auth.presentation.screens.register
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.robert.auth.domain.model.RegisterRequestBody
 import dev.robert.auth.domain.repository.AuthenticationRepository
 import dev.robert.auth.presentation.utils.EmailValidator
 import dev.robert.auth.presentation.utils.NameValidator
@@ -17,7 +18,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
@@ -53,15 +53,6 @@ class RegisterViewModel @Inject constructor(
             confirmPasswordValidator.validate(currentState.password, currentState.confirmPassword)
         val hasError =
             listOf(emailValid, passwordValid, confirmPasswordValid, nameValid).any { !it.isValid }
-        /*_uiState.update {
-            it.copy(
-                buttonEnabled = listOf(
-                    nameValid,
-                    emailValid,
-                    passwordValid,
-                    confirmPasswordValid
-                ).all { it.isValid })
-        }*/
         if (hasError) {
             _uiState.update {
                 it.copy(
@@ -74,23 +65,34 @@ class RegisterViewModel @Inject constructor(
             return
         }
         viewModelScope.launch(coroutineExceptionHandler) {
-//            resetState()
-//            validationEventChannel.send(ValidationEvent.Success)
             _uiState.update { it.copy(isLoading = true) }
             try {
-                repository.register(currentState.email, currentState.password).collectLatest { result ->
-                    if (result.isSuccess) {
-                        val user = result.getOrNull()
-                        Timber.d("User created $user")
-                        _uiState.update { it.copy(isLoading = false, isSuccess = true, user = user) }
-                        _action.send(RegisterAction.NavigateToLogin)
-                    } else {
-                        _uiState.update { it.copy(error = result.exceptionOrNull()?.message) }
+                val requestBody = RegisterRequestBody(
+                    email = currentState.email.trim(),
+                    password = currentState.password.trim(),
+                    name = currentState.name.trim()
+                )
+                repository.register(requestBody)
+                    .collectLatest { result ->
+                        if (result.isSuccess) {
+                            val user = result.getOrNull()
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    isSuccess = true,
+                                    user = user
+                                )
+                            }
+                            _action.send(RegisterAction.NavigateToLogin)
+                        } else {
+                            val message = result.exceptionOrNull()?.message ?: "An error occurred"
+                            _uiState.update { it.copy(error = message, isLoading = false) }
+                            _action.send(RegisterAction.ShowError(message))
+                        }
                     }
-                }
-                _action.send(RegisterAction.NavigateToLogin)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
+                _action.send(RegisterAction.ShowError(e.message ?: "An error occurred"))
             }
         }
     }
@@ -102,4 +104,5 @@ class RegisterViewModel @Inject constructor(
 
 sealed class RegisterAction {
     data object NavigateToLogin : RegisterAction()
+    data class ShowError(val message: String) : RegisterAction()
 }
