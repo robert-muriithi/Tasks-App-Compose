@@ -1,5 +1,4 @@
 dependencies {
-    // compose
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -15,6 +14,6 @@ dependencies {
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.androidx.compose.navigation)
     implementation(libs.androidx.hilt.navigation.compose)
-    // Splash
     implementation (libs.androidx.core.splashscreen)
+    implementation(libs.coil.compose)
 }
