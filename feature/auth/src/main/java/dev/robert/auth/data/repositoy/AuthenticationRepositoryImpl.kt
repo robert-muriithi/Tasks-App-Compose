@@ -69,4 +69,7 @@ class AuthenticationRepositoryImpl(
             .document(user.id)
             .set(user).await()
     }
+
+    override val userLoggedIn: Boolean
+        get() = mAuth.currentUser != null
 }

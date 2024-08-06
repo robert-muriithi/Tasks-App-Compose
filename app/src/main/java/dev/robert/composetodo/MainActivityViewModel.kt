@@ -4,6 +4,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.robert.auth.domain.repository.AuthenticationRepository
 import dev.robert.auth.presentation.navigation.AuthNavGraph
 import dev.robert.design_system.presentation.theme.Theme
 import dev.robert.onboarding.domain.repository.OnBoardingRepository
@@ -25,7 +26,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     themeRepository: ThemeRepository,
-    onBoardingRepository: OnBoardingRepository
+    onBoardingRepository: OnBoardingRepository,
+    private val authenticationRepository: AuthenticationRepository
 ) : ViewModel() {
 
     private var _startDestination = MutableStateFlow(Any())
@@ -66,12 +68,16 @@ class MainActivityViewModel @Inject constructor(
         initialValue = Pair(false, false)
     )
 
+    fun signOut() = viewModelScope.launch { authenticationRepository.logout() }
+
+    private val isUserLoggedIn = authenticationRepository.userLoggedIn
+
     init {
         viewModelScope.launch {
             combinedStatus.collectLatest { (onboarded, authenticated) ->
                 if (!onboarded) {
                     _startDestination.update { OnBoardingNavGraph }
-                } else if (authenticated) {
+                } else if (authenticated && isUserLoggedIn) {
                     _startDestination.update { TasksNavGraph }
                 } else {
                     _startDestination.update { AuthNavGraph }

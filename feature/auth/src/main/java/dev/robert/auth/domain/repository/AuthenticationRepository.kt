@@ -10,4 +10,5 @@ interface AuthenticationRepository {
     suspend fun register(body: RegisterRequestBody): Flow<Result<GoogleUser?>>
 
     fun resetPassword(email: String): Flow<Result<Unit>>
+    val userLoggedIn: Boolean
 }
