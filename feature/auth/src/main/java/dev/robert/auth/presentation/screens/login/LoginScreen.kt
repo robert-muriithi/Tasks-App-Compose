@@ -46,7 +46,6 @@ import dev.robert.design_system.presentation.components.TDFilledTextField
 import dev.robert.design_system.presentation.components.TDSpacer
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @Composable
 fun LoginScreen(
@@ -70,7 +69,6 @@ fun LoginScreen(
             Activity.RESULT_OK -> {
                 scope.launch {
                     result.data?.let { googleAuthUiClient.signInWithIntent(it) }?.run {
-                        Timber.i("Google Sign In Result: $this")
                         viewModel.onEvent(
                             LoginScreenEvents.OnSignInWithGoogle(
                                 this
