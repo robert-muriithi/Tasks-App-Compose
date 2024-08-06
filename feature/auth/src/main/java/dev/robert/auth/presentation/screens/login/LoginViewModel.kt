@@ -13,6 +13,7 @@ import dev.robert.auth.domain.repository.AuthenticationRepository
 import dev.robert.auth.presentation.utils.EmailValidator
 import dev.robert.auth.presentation.utils.GoogleAuthSignInClient
 import dev.robert.auth.presentation.utils.PasswordValidator
+import dev.robert.datastore.data.TodoAppPreferences
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
@@ -28,6 +29,7 @@ class LoginViewModel @Inject constructor(
     private val repository: AuthenticationRepository,
     private val passwordValidator: PasswordValidator,
     private val emailValidator: EmailValidator,
+    private val prefs: TodoAppPreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginState())
@@ -68,7 +70,9 @@ class LoginViewModel @Inject constructor(
                 IntentSenderRequest.Builder(
                     intentSender = intentSender ?: return@launch,
                 ).build()
-            )
+            ).also {
+                _uiState.update { it.copy(isLoading = false) }
+            }
         }
     }
 
@@ -108,10 +112,15 @@ class LoginViewModel @Inject constructor(
     private fun onSignInWithGoogle(result: GoogleSignResult) {
         _uiState.update {
             it.copy(
-                isAuthenticated = result.data != null,
                 error = result.errorMsg,
                 user = result.data,
+                isAuthenticated = result.data != null,
+                isLoading = false
             )
+        }
+        viewModelScope.launch {
+            _action.send(LoginAction.NavigateToHome(result.data!!))
+            prefs.saveUserLoggedIn(true)
         }
     }
 
