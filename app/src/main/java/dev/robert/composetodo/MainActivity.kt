@@ -52,7 +52,10 @@ class MainActivity : ComponentActivity() {
                 MainApp(
                     startDestination = startDestination,
                     navController = navController,
-                    scope = scope
+                    scope = scope,
+                    onSignOut = {
+                        viewModel::signOut
+                    }
                 )
             }
         }
