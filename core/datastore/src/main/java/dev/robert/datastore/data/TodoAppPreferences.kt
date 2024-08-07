@@ -39,4 +39,18 @@ class TodoAppPreferences(
         prefs.data.map {
             it[ConstantUtils.USER_LOGGED_IN] ?: false
         }
+
+    suspend fun saveLoginType(loginType: String) = prefs.edit {
+        it[ConstantUtils.LOGIN_TYPE] = loginType
+    }
+
+    val loginType: Flow<String> =
+        prefs.data.map {
+            it[ConstantUtils.LOGIN_TYPE] ?: ""
+        }
+
+    companion object {
+        const val LOGIN_TYPE_GOOGLE = "google"
+        const val LOGIN_TYPE_EMAIL = "email"
+    }
 }

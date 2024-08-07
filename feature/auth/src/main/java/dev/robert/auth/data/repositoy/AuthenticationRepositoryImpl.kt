@@ -27,7 +27,10 @@ class AuthenticationRepositoryImpl(
             photoUrl = user?.photoUrl?.toString() ?: "",
             id = user?.uid ?: ""
         ).toGoogleUser().also {
-            preferences.saveUserLoggedIn(true)
+            preferences.apply {
+                saveUserLoggedIn(true)
+                saveLoginType(TodoAppPreferences.LOGIN_TYPE_EMAIL)
+            }
             emit(Result.success(it))
         }
     }.catch {
