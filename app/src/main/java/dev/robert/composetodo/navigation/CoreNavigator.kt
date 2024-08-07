@@ -43,6 +43,9 @@ import dev.robert.design_system.presentation.components.UserObject
 import dev.robert.design_system.presentation.utils.scaleIntoContainer
 import dev.robert.design_system.presentation.utils.scaleOutOfContainer
 import dev.robert.onboarding.presentation.navigation.onBoardingNavGraph
+import dev.robert.profile.presentation.navigation.ProfileNavGraph
+import dev.robert.profile.presentation.navigation.ProfileScreen
+import dev.robert.profile.presentation.navigation.profileNavGraph
 import dev.robert.tasks.presentation.navigation.AddTaskScreen
 import dev.robert.tasks.presentation.navigation.TasksNavGraph
 import dev.robert.tasks.presentation.navigation.TasksScreen
@@ -100,6 +103,7 @@ fun TodoCoreNavigator(
                 navController.navigateUp()
             },
         )
+        profileNavGraph { navController.navigateUp() }
     }
 }
 
@@ -117,8 +121,6 @@ fun MainApp(
 
     val showDrawer = listOf(
         TasksScreen::class,
-        AddTaskScreen::class,
-        TodoItem::class
     ).any { currentDestination?.hasRoute(it) == true }
     val user = FirebaseAuth.getInstance().currentUser
     val userObject = UserObject(
@@ -146,9 +148,15 @@ fun MainApp(
                                     drawerState.close()
                                 }
                                 when (title) {
-                                    NavDrawerItem.Home.title -> navController.navigate(TasksScreen)
-                                    NavDrawerItem.Profile.title -> navController.navigate(AuthNavGraph)
-                                    NavDrawerItem.Settings.title -> navController.navigate(AuthNavGraph)
+                                    NavDrawerItem.Home.title -> navController.navigate(
+                                        TasksScreen
+                                    )
+                                    NavDrawerItem.Profile.title -> navController.navigate(
+                                        ProfileNavGraph
+                                    )
+                                    NavDrawerItem.Settings.title -> navController.navigate(
+                                        AuthNavGraph
+                                    )
                                     NavDrawerItem.Logout.title -> {
                                         onSignOut()
                                         navController.navigate(
@@ -167,15 +175,23 @@ fun MainApp(
             drawerState = drawerState,
             gesturesEnabled = showDrawer
         ) {
+            val showAppBar = listOf(
+                TasksScreen::class,
+                AddTaskScreen::class,
+                TodoItem::class,
+                ProfileScreen::class
+            ).any { currentDestination?.hasRoute(it) == true }
+
             Scaffold(
                 topBar = {
-                    if (showDrawer) TDAppBar(
+                    if (showAppBar) TDAppBar(
                         title = {
                             when (currentDestination?.route) {
                                 TasksScreen::class.qualifiedName -> Text(text = "Welcome, ${user?.displayName?.split(" ")?.first()}")
                                 AddTaskScreen::class.qualifiedName -> Text(text = "Add Task")
                                 TodoItem::class.qualifiedName -> Text(text = "Task Details")
-                                else -> Text(text = "Welcome User")
+                                ProfileScreen::class.qualifiedName -> Text(text = "Profile")
+                                else -> {}
                             }
                         },
                         navigationIcon = {
