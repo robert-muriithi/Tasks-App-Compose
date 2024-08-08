@@ -120,7 +120,10 @@ class LoginViewModel @Inject constructor(
         }
         viewModelScope.launch {
             _action.send(LoginAction.NavigateToHome(result.data!!))
-            prefs.saveUserLoggedIn(true)
+            prefs.apply {
+                saveUserLoggedIn(true)
+                saveLoginType(loginType = TodoAppPreferences.LOGIN_TYPE_GOOGLE)
+            }
         }
     }
 
