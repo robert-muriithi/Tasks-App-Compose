@@ -45,6 +45,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.robert.tasks.domain.model.TaskCategory
 import dev.robert.tasks.domain.model.TaskItem
 import dev.robert.tasks.presentation.components.CircularProgressbar
+import dev.robert.tasks.presentation.components.HomeShimmerLoading
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,14 +71,17 @@ fun TaskScreen(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        TasksLoadingState(state = tasks)
-        TaskSuccessState(
-            state = tasks,
-            onNavigateToDetails = onNavigateToDetails,
-            gridState = gridState,
-            categories = categories
-        )
-        TasksEmptyState(state = tasks)
+        HomeShimmerLoading(isLoading = tasks.isLoading) {
+            TaskSuccessState(
+                state = tasks,
+                onNavigateToDetails = onNavigateToDetails,
+                gridState = gridState,
+                categories = categories
+            )
+        }
+        // TasksLoadingState(state = tasks)
+
+        // TasksEmptyState(state = tasks)
     }
 }
 
@@ -120,7 +124,7 @@ fun TaskSuccessState(
     gridState: LazyGridState,
     categories: List<String>
 ) {
-    if (!state.isLoading && state.error == null && state.tasks.isNotEmpty()) {
+    if (!state.isLoading && state.error == null) {
         TasksList(
             tasks = state.tasks,
             onNavigateToDetails = onNavigateToDetails,
@@ -181,7 +185,7 @@ fun AnalyticsSection() {
             .fillMaxWidth()
             .wrapContentHeight()
             .clip(RoundedCornerShape(10.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .background(MaterialTheme.colorScheme.tertiaryContainer.copy(0.5f))
             .padding(16.dp)
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
@@ -319,8 +323,7 @@ fun TasksCategory(
         .clip(RoundedCornerShape(10.dp))
         .background(
             color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
-        )
-        .padding(8.dp)
+        ).padding(8.dp)
     ) {
         Text(
             text = category,
