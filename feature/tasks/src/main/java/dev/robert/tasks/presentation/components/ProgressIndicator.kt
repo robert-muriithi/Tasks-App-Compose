@@ -33,14 +33,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun CircularProgressbar(
     text: String = "",
     size: Dp = 110.dp,
-    foregroundIndicatorColor: Color = MaterialTheme.colorScheme.primary,
-    shadowColor: Color = Color.LightGray,
-    indicatorThickness: Dp = 8.dp,
+    foregroundIndicatorColor: Color = MaterialTheme.colorScheme.tertiaryContainer,
+    shadowColor: Color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f),
+    indicatorThickness: Dp = 10.dp,
     dataUsage: Float = 80f,
     animationDuration: Int = 1000,
 ) {
@@ -105,7 +106,10 @@ fun CircularProgressbar(
         DisplayText1(
             name = text,
             animateNumber = dataUsageAnimate,
-            dataTextStyle = MaterialTheme.typography.labelSmall,
+            dataTextStyle = MaterialTheme.typography.bodyMedium.copy(
+                color = MaterialTheme.colorScheme.inversePrimary,
+                fontSize = 18.sp
+            ),
         )
     }
 
