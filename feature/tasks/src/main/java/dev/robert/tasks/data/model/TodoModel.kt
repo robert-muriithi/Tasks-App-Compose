@@ -12,7 +12,5 @@ data class TodoModel(
 )
 
 data class TaskCategoryModel(
-    val id: Int,
     val name: String,
-    val color: Int
 )

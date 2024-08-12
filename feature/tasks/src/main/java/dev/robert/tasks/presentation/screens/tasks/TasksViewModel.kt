@@ -3,6 +3,7 @@ package dev.robert.tasks.presentation.screens.tasks
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.robert.tasks.domain.model.TaskCategory
 import dev.robert.tasks.domain.usecase.GetTasksUseCase
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -29,6 +30,14 @@ class TasksViewModel @Inject constructor(
         }
     }
 
+    private val _categories = listOf(
+        TaskCategory("All"),
+        TaskCategory("Personal"),
+        TaskCategory("Work"),
+        TaskCategory("Shopping"),
+        TaskCategory("Others")
+    )
+
     private fun getTasks() {
         _uiState.update {
             it.copy(
@@ -37,10 +46,11 @@ class TasksViewModel @Inject constructor(
         }
         viewModelScope.launch(coroutineExceptionHandler) {
             getTasksUseCase().collectLatest { tasks ->
-                _uiState.update {
-                    it.copy(
+                _uiState.update { state ->
+                    state.copy(
                         tasks = tasks,
-                        isLoading = false
+                        isLoading = false,
+                        category = _categories.map { it }
                     )
                 }
             }

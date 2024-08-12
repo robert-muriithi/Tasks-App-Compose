@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="no_tasks_available_add_a_task_to_get_started">No tasks available 😭 \n Add a task to get started</string>
+    <string name="empty_state_image">Empty state image</string>
+    <string name="an_error_occurred">An error occurred</string>
+</resources>
