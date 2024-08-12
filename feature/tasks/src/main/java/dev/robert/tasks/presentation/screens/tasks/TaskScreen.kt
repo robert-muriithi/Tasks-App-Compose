@@ -1,5 +1,7 @@
 package dev.robert.tasks.presentation.screens.tasks
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,13 +22,14 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,20 +37,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dev.robert.tasks.domain.model.TaskCategory
+import dev.robert.tasks.R
 import dev.robert.tasks.domain.model.TaskItem
 import dev.robert.tasks.presentation.components.CircularProgressbar
 import dev.robert.tasks.presentation.components.HomeShimmerLoading
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
     onNavigateToDetails: (String, Int) -> Unit,
@@ -56,63 +63,145 @@ fun TaskScreen(
 ) {
     val tasks by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val categories = listOf(
-        "All",
-        "Completed",
-        "In progress",
-        "Done"
-    )
     val gridState = rememberLazyGridState()
 
     LaunchedEffect(key1 = Unit) {
         viewModel.onEvent(TaskScreenEvents.LoadTasks)
     }
 
+    val scrollState = rememberScrollState()
+    val showDialog = remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        HomeShimmerLoading(isLoading = tasks.isLoading) {
-            TaskSuccessState(
-                state = tasks,
-                onNavigateToDetails = onNavigateToDetails,
-                gridState = gridState,
-                categories = categories
-            )
-        }
-        // TasksLoadingState(state = tasks)
+        HomeShimmerLoading(
+            uiState = tasks,
+            successContent = {
+                TaskSuccessState(
+                    state = tasks,
+                    onNavigateToDetails = onNavigateToDetails,
+                    gridState = gridState,
+                    categories = tasks.category.map { it.name }
+                )
+            },
+            errorContent = {
+                DialogErrorState(
+                    state = tasks,
+                    onRetry = {
+                        viewModel.onEvent(TaskScreenEvents.LoadTasks)
+                        showDialog.value = false
+                    },
+                    showDialog = showDialog
+                )
+            },
+            emptyContent = {
+                TasksEmptyState(
+                    state = tasks,
+                    scrollState = scrollState
+                )
+            },
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+}
 
-        // TasksEmptyState(state = tasks)
+@Composable
+fun DialogErrorState(
+    modifier: Modifier = Modifier,
+    state: TasksScreenState,
+    onRetry: () -> Unit,
+    showDialog: MutableState<Boolean>
+) {
+    if (state.error != null) {
+        showDialog.value = true
+    }
+
+    if (showDialog.value) {
+        Dialog(
+            properties = DialogProperties(dismissOnBackPress = true),
+            onDismissRequest = {
+                showDialog.value = false
+            },
+            content = {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.surface)
+                            .clip(RoundedCornerShape(16.dp))
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Error",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight(800)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = state.error?.message ?: stringResource(R.string.an_error_occurred),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Retry",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.clickable {
+                                onRetry()
+                            }
+                        )
+                    }
+                }
+            }
+        )
     }
 }
 
 @Composable
 fun TasksEmptyState(
     state: TasksScreenState,
+    scrollState: ScrollState
 ) {
     if (!state.isLoading && state.error == null && state.tasks.isEmpty()) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Text(
-                text = "No tasks available :)",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight(800)
+            AnalyticsSection(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.tertiaryContainer.copy(0.5f))
+                    .padding(16.dp)
             )
-        }
-    }
-}
-
-@Composable
-fun TasksLoadingState(
-    state: TasksScreenState
-) {
-    if (state.isLoading) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.empty_state_image),
+                        contentDescription = stringResource(R.string.empty_state_image),
+                        modifier = Modifier.size(250.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.no_tasks_available_add_a_task_to_get_started),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight(800)),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         }
     }
 }
@@ -155,7 +244,14 @@ fun TasksList(
                 GridItemSpan(maxLineSpan)
             }
         ) {
-            AnalyticsSection()
+            AnalyticsSection(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.tertiaryContainer.copy(0.5f))
+                    .padding(16.dp)
+            )
         }
         item(
             span = {
@@ -170,7 +266,7 @@ fun TasksList(
             TaskCardItem(
                 modifier = Modifier,
                 onClick = {
-                    onNavigateToDetails(task.name, task.id)
+                    task.id?.let { it1 -> onNavigateToDetails(task.name, it1) }
                 },
                 task = task
             )
@@ -179,19 +275,16 @@ fun TasksList(
 }
 
 @Composable
-fun AnalyticsSection() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .clip(RoundedCornerShape(10.dp))
-            .background(MaterialTheme.colorScheme.tertiaryContainer.copy(0.5f))
-            .padding(16.dp)
-    ) {
+fun AnalyticsSection(
+    modifier: Modifier
+) {
+    Box(modifier = modifier) {
         Row(modifier = Modifier.fillMaxSize()) {
-            Column(modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 2.dp)) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 2.dp)
+            ) {
                 Text(
                     text = "Congrats, You have 55 completed tasks", style = TextStyle(
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
@@ -322,13 +415,16 @@ fun TasksCategory(
         }
         .clip(RoundedCornerShape(10.dp))
         .background(
-            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
-        ).padding(8.dp)
+            color = if (selected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.tertiaryContainer.copy(
+                alpha = 0.7f
+            )
+        )
+        .padding(8.dp)
     ) {
         Text(
             text = category,
-            color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer,
-            style = MaterialTheme.typography.labelSmall,
+            color = if (selected) Color.White else Color.White.copy(alpha = 0.7f),
+            style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 1.dp)
         )
     }
@@ -347,9 +443,11 @@ fun TaskCardItem(modifier: Modifier = Modifier, onClick: (TaskItem) -> Unit, tas
             .background(MaterialTheme.colorScheme.primaryContainer)
 
     ) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(end = 16.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(end = 16.dp)
+        ) {
             Box(
                 modifier = Modifier
                     .height(16.dp)
@@ -411,10 +509,3 @@ fun TaskScreenPreview() {
         onNavigateToAddTask = {},
     )
 }
-
-val taskCategories = listOf(
-    TaskCategory(1, "Work", 0xFF4CAF50.toInt()), // Green
-    TaskCategory(2, "Personal", 0xFF2196F3.toInt()), // Blue
-    TaskCategory(3, "Health", 0xFFF44336.toInt()), // Red
-    TaskCategory(4, "Study", 0xFFFF9800.toInt()) // Orange
-)

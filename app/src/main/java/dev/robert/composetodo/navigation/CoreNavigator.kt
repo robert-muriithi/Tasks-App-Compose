@@ -177,7 +177,6 @@ fun MainApp(
         ) {
             val showAppBar = listOf(
                 TasksScreen::class,
-                AddTaskScreen::class,
                 TodoItem::class,
                 ProfileScreen::class
             ).any { currentDestination?.hasRoute(it) == true }

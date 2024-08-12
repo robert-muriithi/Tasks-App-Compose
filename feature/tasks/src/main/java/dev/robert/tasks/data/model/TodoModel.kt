@@ -1,7 +1,7 @@
 package dev.robert.tasks.data.model
 
 data class TodoModel(
-    val id: Int,
+    val id: Int? = null,
     val name: String,
     val description: String,
     val startDateTime: String,
@@ -12,7 +12,5 @@ data class TodoModel(
 )
 
 data class TaskCategoryModel(
-    val id: Int,
     val name: String,
-    val color: Int
 )

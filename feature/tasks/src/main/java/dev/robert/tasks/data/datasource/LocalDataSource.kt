@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.map
 interface LocalDataSource {
     val tasks: Flow<List<TodoModel>>
     fun getTaskById(id: Int): Flow<TodoModel>
-    suspend fun saveTask(task: TodoModel)
+    suspend fun saveTask(task: TodoModel): Result<Boolean>
     suspend fun deleteTask(taskId: Int)
 }
 
@@ -35,9 +35,10 @@ class LocalDataStoreImpl @Inject constructor(
             throw e
         }
 
-    override suspend fun saveTask(task: TodoModel) =
+    override suspend fun saveTask(task: TodoModel): Result<Boolean> =
         try {
             taskDao.saveTodo(task.toEntity())
+            Result.success(true)
         } catch (e: Exception) {
             throw e
         }

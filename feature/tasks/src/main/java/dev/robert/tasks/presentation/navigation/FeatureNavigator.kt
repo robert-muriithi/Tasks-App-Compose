@@ -28,7 +28,7 @@ data class TodoItem(val name: String,
 fun NavGraphBuilder.tasksNavGraph(
     onNavigateToDetails: (String, Int) -> Unit,
     onNavigateToAddTask: () -> Unit,
-    onNavigateUp: () -> Unit,
+    onNavigateUp: () -> Unit
 ) {
     navigation<TasksNavGraph>(
         startDestination = TasksScreen,
@@ -59,7 +59,6 @@ fun NavGraphBuilder.tasksNavGraph(
         composable<TodoItem> { backStackEntry ->
             val item: TodoItem = backStackEntry.toRoute()
             TaskDetailsScreen(
-                onNavigateBack = onNavigateUp,
                 user = item.name,
             )
         }
@@ -86,7 +85,7 @@ fun NavGraphBuilder.tasksNavGraph(
             }
         ) {
             AddTaskScreen(
-                onNavigateBack = onNavigateUp
+                onNavigateUp = onNavigateUp
             )
         }
     }

@@ -7,7 +7,7 @@ import dev.robert.database.ConstUtils.TODO_TABLE_NAME
 @Entity(tableName = TODO_TABLE_NAME)
 data class TodoEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: Int? = null,
     val name: String,
     val description: String,
     val startDateTime: String,

@@ -47,7 +47,5 @@ fun TaskItem.toTodoModel() = TodoModel(
 )
 
 fun TaskCategoryModel.toDomain() = TaskCategory(
-    id = id,
     name = name,
-    color = color
 )
