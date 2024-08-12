@@ -27,8 +27,8 @@ class TasksRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun saveTask(task: TaskItem) {
-        dataSource.saveTask(task.toTodoModel())
+    override suspend fun saveTask(task: TaskItem): Result<Boolean> {
+        return dataSource.saveTask(task.toTodoModel())
     }
 
     override suspend fun deleteTask(taskId: Int) {
