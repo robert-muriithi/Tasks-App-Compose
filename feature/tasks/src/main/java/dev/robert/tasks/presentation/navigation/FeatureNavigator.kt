@@ -1,16 +1,25 @@
 package dev.robert.tasks.presentation.navigation
 
+import android.os.Build
+import android.os.Bundle
+import android.os.Parcelable
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import dev.robert.design_system.presentation.utils.scaleIntoContainer
 import dev.robert.design_system.presentation.utils.scaleOutOfContainer
+import dev.robert.tasks.domain.model.TaskItem
 import dev.robert.tasks.presentation.screens.details.TaskDetailsScreen
 import dev.robert.tasks.presentation.screens.tasks.TaskScreen
 import dev.robert.tasks.presentation.screens.tasks.add.AddTaskScreen
+import kotlin.reflect.KClass
+import kotlin.reflect.typeOf
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 @Serializable
 object TasksNavGraph
@@ -22,8 +31,7 @@ object TasksScreen
 object AddTaskScreen
 
 @Serializable
-data class TodoItem(val name: String,
-    val age: Int)
+data class TodoItem(val task: TaskItem)
 
 fun NavGraphBuilder.tasksNavGraph(
     onNavigateToDetails: (String, Int) -> Unit,
@@ -56,11 +64,13 @@ fun NavGraphBuilder.tasksNavGraph(
                 onNavigateToAddTask = onNavigateToAddTask,
             )
         }
-        composable<TodoItem> { backStackEntry ->
+        composable<TodoItem>(
+            typeMap = mapOf(typeOf<TaskItem>() to CustomNavType(TaskItem::class, TaskItem.serializer()))
+        ) { backStackEntry ->
             val item: TodoItem = backStackEntry.toRoute()
             TaskDetailsScreen(
                 onNavigateBack = onNavigateUp,
-                user = item.name,
+                task = item.task,
             )
         }
         composable<AddTaskScreen>(
@@ -89,5 +99,32 @@ fun NavGraphBuilder.tasksNavGraph(
                 onNavigateBack = onNavigateUp
             )
         }
+    }
+}
+
+class CustomNavType<T : Parcelable>(
+    private val kClass: KClass<T>,
+    private val kSerializer: KSerializer<T>,
+    isNullable: Boolean = false
+) : NavType<T>(isNullable) {
+
+    override fun get(bundle: Bundle, key: String): T? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            bundle.getParcelable(key, kClass.java)
+        } else {
+            bundle.getParcelable(key)
+        }
+    }
+
+    override fun parseValue(value: String): T {
+        return Json.decodeFromString(kSerializer, value)
+    }
+
+    override fun put(bundle: Bundle, key: String, value: T) {
+        bundle.putParcelable(key, value)
+    }
+
+    override fun serializeAsValue(value: T): String {
+        return Json.encodeToString(kSerializer, value)
     }
 }

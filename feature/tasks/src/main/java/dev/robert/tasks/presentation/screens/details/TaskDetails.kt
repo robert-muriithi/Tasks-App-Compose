@@ -8,14 +8,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import dev.robert.tasks.domain.model.TaskItem
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun TaskDetailsScreen(
     onNavigateBack: () -> Unit,
-    user: String
+    task: TaskItem
 ) {
-    val b = user
+    val b = task
     Scaffold(
         floatingActionButton = {
             IconButton(onClick = { /*TODO*/ }) {
