@@ -22,11 +22,11 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,12 +34,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.robert.tasks.domain.model.TaskCategory
@@ -47,7 +50,6 @@ import dev.robert.tasks.domain.model.TaskItem
 import dev.robert.tasks.presentation.components.CircularProgressbar
 import dev.robert.tasks.presentation.components.HomeShimmerLoading
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
     onNavigateToDetails: (String, Int) -> Unit,
@@ -68,20 +70,92 @@ fun TaskScreen(
         viewModel.onEvent(TaskScreenEvents.LoadTasks)
     }
 
+    val showDialog = remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        HomeShimmerLoading(isLoading = tasks.isLoading) {
-            TaskSuccessState(
-                state = tasks,
-                onNavigateToDetails = onNavigateToDetails,
-                gridState = gridState,
-                categories = categories
-            )
-        }
-        // TasksLoadingState(state = tasks)
+        HomeShimmerLoading(
+            uiState = tasks,
+            successContent = {
+                TaskSuccessState(
+                    state = tasks,
+                    onNavigateToDetails = onNavigateToDetails,
+                    gridState = gridState,
+                    categories = categories
+                )
+            },
+            errorContent = {
+                DialogErrorState(
+                    state = tasks,
+                    onRetry = {
+                        viewModel.onEvent(TaskScreenEvents.LoadTasks)
+                        showDialog.value = false
+                    },
+                    showDialog = showDialog
+                )
+            },
+            emptyContent = {
+                TasksEmptyState(
+                    state = tasks
+                )
+            },
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+}
 
-        // TasksEmptyState(state = tasks)
+@Composable
+fun DialogErrorState(
+    modifier: Modifier = Modifier,
+    state: TasksScreenState,
+    onRetry: () -> Unit,
+    showDialog: MutableState<Boolean>
+) {
+    if (state.error != null) {
+        showDialog.value = true
+    }
+
+    if (showDialog.value) {
+        Dialog(
+            properties = DialogProperties(dismissOnBackPress = true),
+            onDismissRequest = {
+                showDialog.value = false
+            },
+            content = {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.surface)
+                            .clip(RoundedCornerShape(16.dp))
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Error",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight(800)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = state.error?.message ?: "An error occurred",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Retry",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.clickable {
+                                onRetry()
+                            }
+                        )
+                    }
+                }
+            }
+        )
     }
 }
 
@@ -170,7 +244,7 @@ fun TasksList(
             TaskCardItem(
                 modifier = Modifier,
                 onClick = {
-                    onNavigateToDetails(task.name, task.id)
+                    task.id?.let { it1 -> onNavigateToDetails(task.name, it1) }
                 },
                 task = task
             )
@@ -322,13 +396,16 @@ fun TasksCategory(
         }
         .clip(RoundedCornerShape(10.dp))
         .background(
-            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
-        ).padding(8.dp)
+            color = if (selected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.tertiaryContainer.copy(
+                alpha = 0.7f
+            )
+        )
+        .padding(8.dp)
     ) {
         Text(
             text = category,
-            color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer,
-            style = MaterialTheme.typography.labelSmall,
+            color = if (selected) Color.White else Color.White.copy(alpha = 0.7f),
+            style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 1.dp)
         )
     }

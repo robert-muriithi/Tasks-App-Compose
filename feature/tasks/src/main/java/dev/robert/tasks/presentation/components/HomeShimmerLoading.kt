@@ -16,16 +16,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import dev.robert.tasks.presentation.screens.tasks.TasksScreenState
 
 @Composable
 fun HomeShimmerLoading(
     modifier: Modifier = Modifier,
-    isLoading: Boolean,
-    content: @Composable () -> Unit
+    uiState: TasksScreenState,
+    successContent: @Composable () -> Unit,
+    errorContent: @Composable () -> Unit,
+    emptyContent: @Composable () -> Unit
 ) {
     val gridState = rememberLazyGridState()
-    if (isLoading)
-        Column(modifier = Modifier.fillMaxSize()) {
+    if (uiState.isLoading)
+        Column(modifier = modifier) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -76,6 +79,7 @@ fun HomeShimmerLoading(
             }
         }
 
-    else
-        content()
+    if (!uiState.isLoading && uiState.error == null && uiState.tasks.isNotEmpty()) successContent()
+    if (!uiState.isLoading && uiState.error == null && uiState.tasks.isEmpty()) emptyContent()
+    else errorContent()
 }

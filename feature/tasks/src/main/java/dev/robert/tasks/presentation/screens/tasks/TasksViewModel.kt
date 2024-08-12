@@ -23,7 +23,8 @@ class TasksViewModel @Inject constructor(
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
         _uiState.update {
             it.copy(
-                error = exception
+                error = exception,
+                isLoading = false
             )
         }
     }
