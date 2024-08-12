@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun TaskDetailsScreen(
-    onNavigateBack: () -> Unit,
     user: String
 ) {
     val b = user
