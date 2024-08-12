@@ -8,6 +8,7 @@ import dev.robert.tasks.domain.repository.TasksRepository
 import dev.robert.tasks.domain.usecase.DeleteTaskUseCase
 import dev.robert.tasks.domain.usecase.GetTasksUseCase
 import dev.robert.tasks.domain.usecase.SaveTaskUseCase
+import dev.robert.tasks.presentation.utils.Validator
 import javax.inject.Singleton
 
 @Module
@@ -37,4 +38,9 @@ object TasksModule {
     fun provideSaveTaskUseCase(
         repository: TasksRepository
     ): SaveTaskUseCase = SaveTaskUseCase(tasksRepository = repository)
+
+    @[
+    Provides
+    ]
+    fun provideValidator(): Validator = Validator()
 }
