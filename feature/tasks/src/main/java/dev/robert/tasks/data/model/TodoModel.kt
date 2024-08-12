@@ -1,7 +1,7 @@
 package dev.robert.tasks.data.model
 
 data class TodoModel(
-    val id: Int,
+    val id: Int? = null,
     val name: String,
     val description: String,
     val startDateTime: String,

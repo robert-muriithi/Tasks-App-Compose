@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 // @Parcelize
 data class TaskItem(
-    val id: Int,
+    val id: Int? = null,
     val name: String,
     val description: String,
     val startDateTime: String,
