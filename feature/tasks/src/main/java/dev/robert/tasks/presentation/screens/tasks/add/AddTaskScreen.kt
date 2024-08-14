@@ -168,12 +168,12 @@ fun AddTaskContent(
                     value = uiState.taskDescription,
                     onValueChange = onTaskDescriptionChange,
                     label = "Description",
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().height(200.dp),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next
+                        imeAction = ImeAction.Done
                     ),
-                    maxLines = 5
+                    maxLines = 4
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text("Category")
@@ -187,7 +187,7 @@ fun AddTaskContent(
                     onClick = {
                         onEvent(AddTaskEvents.AddTask)
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().align(Alignment.End)
                 ) {
                     Text("Create Task")
                 }
