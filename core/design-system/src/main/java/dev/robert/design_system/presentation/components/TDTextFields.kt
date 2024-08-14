@@ -126,7 +126,7 @@ fun FilledTextFilled(
         ),
         onValueChange = onValueChange,
         shape = RoundedCornerShape(8.dp),
-        singleLine = true,
+        singleLine = maxLine == 1,
         trailingIcon = {
             if (isPassword) {
                 val icon = if (togglePassword) painterResource(R.drawable.visibility_on)
