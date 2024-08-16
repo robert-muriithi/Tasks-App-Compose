@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlinx.serialization)
+    id("kotlin-parcelize")
 }
 apply {
     from("$rootDir/compose-dependencies.gradle")

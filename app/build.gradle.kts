@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.google.services)
     alias(libs.plugins.kotlinx.serialization)
+    id("kotlin-parcelize")
 }
 
 apply {

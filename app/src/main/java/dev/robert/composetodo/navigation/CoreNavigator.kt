@@ -93,8 +93,7 @@ fun TodoCoreNavigator(
             }
         )
         tasksNavGraph(
-            onNavigateToDetails = { name, age ->
-                navController.navigate(route = TodoItem(name = name, age = age))
+            onNavigateToDetails = { taskItem ->
             },
             onNavigateToAddTask = {
                 navController.navigate(AddTaskScreen)

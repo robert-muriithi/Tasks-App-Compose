@@ -1,9 +1,11 @@
 package dev.robert.tasks.domain.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
 @Serializable
-// @Parcelize
+@Parcelize
 data class TaskItem(
     val id: Int? = null,
     val name: String,
@@ -13,4 +15,4 @@ data class TaskItem(
     val isComplete: Boolean,
     val isSynced: Boolean,
     val category: TaskCategory? = null
-)
+) : Parcelable
