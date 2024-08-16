@@ -11,10 +11,7 @@ import androidx.compose.runtime.Composable
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun TaskDetailsScreen(
-    user: String
-) {
-    val b = user
+fun TaskDetailsScreen() {
     Scaffold(
         floatingActionButton = {
             IconButton(onClick = { /*TODO*/ }) {
