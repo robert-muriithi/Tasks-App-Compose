@@ -16,17 +16,31 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,15 +51,58 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.robert.design_system.presentation.components.AdvancedTimePickerExample
+import dev.robert.design_system.presentation.components.TDButton
 import dev.robert.design_system.presentation.components.TDFilledTextField
+import dev.robert.design_system.presentation.components.TDSpacer
 import dev.robert.design_system.presentation.components.TDSurface
+import dev.robert.design_system.presentation.utils.convertMillisToDate
+import dev.robert.design_system.presentation.utils.formatTimeToAmPm
+import dev.robert.tasks.presentation.screens.tasks.TasksCategory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collectLatest
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTaskScreen(
     viewModel: AddTaskViewModel = hiltViewModel(),
     onNavigateUp: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var showBottomSheet by remember {
+        mutableStateOf(false)
+    }
+    var showDatePicker by remember {
+        mutableStateOf(false)
+    }
+    var showTimePicker by remember {
+        mutableStateOf(false)
+    }
+    var action by remember {
+        mutableStateOf(TIME.START_TIME)
+    }
+
+    var showDialog by remember {
+        mutableStateOf(false)
+    }
+
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(key1 = Unit) {
+        viewModel.actions.collectLatest {
+            when (it) {
+                is Action.AddCategory -> {
+                    showBottomSheet = true
+                }
+                is Action.ShowDialog -> {
+                    val result = it.result
+                    showDialogState(result, showDialog)
+                }
+                else -> {}
+            }
+        }
+    }
+
     AddTaskContent(
         uiState = uiState,
         onTaskTitleChange = viewModel::onTitleChanged,
@@ -55,8 +112,66 @@ fun AddTaskScreen(
         onNavigateUp = onNavigateUp,
         onEvent = viewModel::onEvent,
         onTaskStartTimeChanged = viewModel::onTaskStartTimeChanged,
-        onTaskEndTimeChanged = viewModel::onTaskEndTimeChanged
+        onTaskEndTimeChanged = viewModel::onTaskEndTimeChanged,
+        onInitDatePicker = { showDatePicker = true },
+        onInitTimePicker = { timeAction ->
+            showTimePicker = true
+            action = timeAction
+        }
     )
+
+    if (showBottomSheet) {
+        AddCategoryBottomSheet(
+            onDismiss = {
+                showBottomSheet = false
+            },
+            onCategoryAdded = {
+                viewModel.onEvent(AddTaskEvents.GetCategoriesEvent)
+            },
+            scope = scope,
+            sheetState = sheetState
+        )
+    }
+
+    if (showDatePicker) {
+        DatePickerModal(
+            onDateSelected = {
+                viewModel.onStartDateChanged(convertMillisToDate(it ?: 0))
+                showDatePicker = false
+            },
+            onDismiss = {
+                showDatePicker = false
+            }
+        )
+    }
+
+    if (showTimePicker) {
+        AdvancedTimePickerExample(
+            onConfirm = {
+                when (action) {
+                    TIME.START_TIME -> viewModel.onTaskStartTimeChanged(formatTimeToAmPm(it))
+                    TIME.END_TIME -> viewModel.onTaskEndTimeChanged(formatTimeToAmPm(it))
+                }
+                showTimePicker = false
+            },
+            onDismiss = {
+                showTimePicker = false
+            }
+        )
+    }
+}
+
+enum class TIME {
+    START_TIME,
+    END_TIME
+}
+
+fun showDialogState(result: ActionResult, showDialog: Boolean): @Composable () -> Unit {
+    return {
+        if (showDialog) {
+            Column {}
+        }
+    }
 }
 
 @Composable
@@ -69,7 +184,9 @@ fun AddTaskContent(
     onNavigateUp: () -> Unit,
     onEvent: (AddTaskEvents) -> Unit,
     onTaskStartTimeChanged: (String) -> Unit,
-    onTaskEndTimeChanged: (String) -> Unit
+    onTaskEndTimeChanged: (String) -> Unit,
+    onInitDatePicker: () -> Unit,
+    onInitTimePicker: (TIME) -> Unit
 ) {
     val scrollState = rememberScrollState()
     Box(
@@ -96,7 +213,9 @@ fun AddTaskContent(
                         .padding(8.dp)
                 )
                 Box(modifier = Modifier.fillMaxHeight(0.5f)) {
-                    Column(modifier = Modifier.fillMaxWidth().align(Alignment.Center)) {
+                    Column(modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.Center)) {
                         TDFilledTextField(
                             value = uiState.taskTitle,
                             onValueChange = onTaskTitleChange,
@@ -105,19 +224,34 @@ fun AddTaskContent(
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Next
-                            )
+                            ),
+                            isLoading = uiState.isLoading
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        if (uiState.taskTitleError != null && uiState.isLoading.not())
+                            Row(modifier = Modifier.fillMaxWidth(0.9f)) {
+                                Text(text = uiState.taskTitleError, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.errorContainer)
+                            }
+                        else TDSpacer(modifier = Modifier.height(10.dp))
                         TDFilledTextField(
                             value = uiState.taskStartDate,
                             onValueChange = onTaskStartDateChange,
                             label = "Date",
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth()
+                                .clickable {
+                                    onInitDatePicker()
+                                },
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Next
-                            )
+                            ),
+                            isLoading = uiState.isLoading,
+                            enabled = false,
                         )
+                        if (uiState.taskStartDateError != null && uiState.isLoading.not())
+                            Row(modifier = Modifier.fillMaxWidth(0.9f)) {
+                                Text(text = uiState.taskStartDateError, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.errorContainer)
+                            }
+                        else TDSpacer(modifier = Modifier.height(10.dp))
                     }
                 }
             }
@@ -125,7 +259,7 @@ fun AddTaskContent(
         Box(
             modifier = Modifier
                 .padding(top = 250.dp)
-                .clip(shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                .clip(shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp))
                 .background(
                     color = MaterialTheme.colorScheme.background
                 )
@@ -133,7 +267,7 @@ fun AddTaskContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp)
+                    .padding(horizontal = 16.dp, vertical = 30.dp)
             ) {
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -145,54 +279,129 @@ fun AddTaskContent(
                         value = uiState.startTime,
                         onValueChange = onTaskStartTimeChanged,
                         label = "Start time",
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f)
+                            .clickable {
+                                onInitTimePicker(TIME.START_TIME)
+                            },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Next
-                        )
+                        ),
+                        isLoading = uiState.isLoading,
+                        enabled = false,
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    TDSpacer(modifier = Modifier.width(10.dp))
                     TDFilledTextField(
                         value = uiState.endTime,
                         onValueChange = onTaskEndTimeChanged,
                         label = "End time",
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f)
+                            .clickable {
+                                onInitTimePicker(TIME.END_TIME)
+                            },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Next
-                        )
+                        ),
+                        isLoading = uiState.isLoading,
+                        enabled = false
                     )
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+                TDSpacer(modifier = Modifier.height(10.dp))
                 TDFilledTextField(
                     value = uiState.taskDescription,
                     onValueChange = onTaskDescriptionChange,
                     label = "Description",
-                    modifier = Modifier.fillMaxWidth().height(200.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Done
                     ),
-                    maxLines = 4
+                    maxLines = 4,
+                    isLoading = uiState.isLoading
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                if (uiState.taskDescriptionError != null && uiState.isLoading.not())
+                    Row(modifier = Modifier.fillMaxWidth(0.9f)) {
+                        Text(text = uiState.taskDescriptionError, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+                    }
+                else TDSpacer(modifier = Modifier.height(10.dp))
                 Text("Category")
-                Row(
+                LazyRow(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    items(uiState.categories.size) { index ->
+                        val category = uiState.categories[index]
+                        if (index == uiState.categories.size - 1)
+                            Box(modifier = Modifier
+                                .padding(top = 8.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .clickable {
+                                    onEvent(AddTaskEvents.AddCategoryEvent)
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Add Category",
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .align(Alignment.Center)
+                                )
+                            }
+                        else TasksCategory(
+                            category = category.name,
+                            onClick = {
+                                onEvent(AddTaskEvents.SelectCategoryEvent(category))
+                            },
+                            selected = uiState.category?.name == category.name,
+                            modifier = Modifier.padding(end = 8.dp, top = 8.dp)
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(
+                TDButton(
                     onClick = {
-                        onEvent(AddTaskEvents.AddTask)
+                        onEvent(AddTaskEvents.CreateTaskEvent)
                     },
-                    modifier = Modifier.fillMaxWidth().align(Alignment.End)
-                ) {
-                    Text("Create Task")
-                }
+                    text = "Create task",
+                    enabled = uiState.isLoading.not(),
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    isLoading = uiState.isLoading
+                )
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DatePickerModal(
+    onDateSelected: (Long?) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val datePickerState = rememberDatePickerState()
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                onDateSelected(datePickerState.selectedDateMillis)
+                onDismiss()
+            }) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    ) {
+        DatePicker(state = datePickerState)
     }
 }
 
@@ -233,6 +442,27 @@ fun AddTaskAppBar(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddCategoryBottomSheet(
+    modifier: Modifier = Modifier,
+    onDismiss: () -> Unit,
+    onCategoryAdded: () -> Unit,
+    sheetState: SheetState,
+    scope: CoroutineScope
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss
+    ) {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+        }
+    }
+}
+
 @Preview
 @Composable
 fun AddTaskScreenPreview() {
@@ -246,7 +476,9 @@ fun AddTaskScreenPreview() {
             onNavigateUp = {},
             onEvent = {},
             onTaskStartTimeChanged = {},
-            onTaskEndTimeChanged = {}
+            onTaskEndTimeChanged = {},
+            onInitDatePicker = {},
+            onInitTimePicker = {}
         )
     }
 }

@@ -3,15 +3,19 @@ package dev.robert.tasks.presentation.screens.tasks.add
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.robert.tasks.domain.model.TaskCategory
 import dev.robert.tasks.domain.model.TaskItem
 import dev.robert.tasks.domain.repository.TasksRepository
 import dev.robert.tasks.presentation.utils.Validator
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @HiltViewModel
 class AddTaskViewModel @Inject constructor(
@@ -22,8 +26,12 @@ class AddTaskViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(AddTaskState())
     val uiState = _uiState.asStateFlow()
 
+    private val _actions = Channel<Action?>()
+    val actions = _actions.receiveAsFlow()
+
     private val handler = CoroutineExceptionHandler { _, exception ->
         _uiState.update { it.copy(error = exception.message ?: "An error occurred") }
+        Timber.e(exception.message)
     }
 
     fun onTitleChanged(title: String) = _uiState.update { it.copy(taskTitle = title) }
@@ -34,25 +42,49 @@ class AddTaskViewModel @Inject constructor(
     fun onTaskEndTimeChanged(endTime: String) = _uiState.update { it.copy(endTime = endTime) }
     fun onTaskStartTimeChanged(startTime: String) = _uiState.update { it.copy(startTime = startTime) }
 
-    // private fun onCategoryChanged(category: String) = _uiState.update { it.copy(category = category) }
-
     fun onEvent(event: AddTaskEvents) = when (event) {
-        AddTaskEvents.AddTask -> addTask()
+        is AddTaskEvents.CreateTaskEvent -> addTask()
+        is AddTaskEvents.SelectCategoryEvent -> setSelectCategory(event.category)
+        is AddTaskEvents.GetCategoriesEvent -> getCategories()
+        is AddTaskEvents.AddCategoryEvent -> addCategory()
+    }
+
+    private fun setSelectCategory(category: TaskCategory) {
+        _uiState.update { it.copy(category = category) }
+    }
+
+    private fun getCategories() {
+        val taskCategories = listOf(
+            TaskCategory("Personal"),
+            TaskCategory("Work"),
+            TaskCategory("Shopping"),
+            TaskCategory("Health"),
+            TaskCategory("Finance"),
+            TaskCategory("Home"),
+            TaskCategory("School"),
+            TaskCategory("Other")
+        )
+        _uiState.update { it.copy(categories = taskCategories) }
+    }
+
+    private fun addCategory() {
+        viewModelScope.launch { _actions.send(Action.AddCategory) }
     }
 
     private fun addTask() {
         val currentState = uiState.value
         val titleValid = validator.validateTaskTitle(currentState.taskTitle)
         val descriptionValid = validator.validateTaskDescription(currentState.taskDescription)
+        val taskDateValid = validator.validateTaskDueDate(currentState.taskStartDate)
         val endDateValid = validator.validateTaskDueDate(currentState.taskEndDate)
-        val hasError = listOf(titleValid, descriptionValid, endDateValid).any { !it.isValid }
+        val hasError = listOf(titleValid, descriptionValid, taskDateValid).any { !it.isValid }
 
         if (hasError) {
             _uiState.update {
                 it.copy(
                     taskTitleError = titleValid.message,
                     taskDescriptionError = descriptionValid.message,
-                    taskEndDateError = endDateValid.message,
+                    taskStartDateError = taskDateValid.message
                 )
             }
             return
@@ -73,9 +105,28 @@ class AddTaskViewModel @Inject constructor(
                 )
             )
             when (result.isSuccess) {
-                true -> _uiState.update { it.copy(isLoading = false) }
-                false -> _uiState.update { it.copy(error = "An error occurred", isLoading = false) }
+                true -> {
+                    _uiState.update { it.copy(isLoading = false) }
+                    _actions.send(Action.ShowDialog(ActionResult.Success))
+                }
+                false -> {
+                    _uiState.update { it.copy(error = "An error occurred", isLoading = false) }
+                    _actions.send(Action.ShowDialog(ActionResult.Error))
+                }
             }
         }
     }
+    init {
+        getCategories()
+    }
+}
+
+enum class ActionResult {
+    Success,
+    Error
+}
+
+sealed class Action {
+    data object AddCategory : Action()
+    data class ShowDialog(val result: ActionResult) : Action()
 }
