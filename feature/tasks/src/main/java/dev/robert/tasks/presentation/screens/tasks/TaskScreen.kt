@@ -396,7 +396,8 @@ fun TasksCategories(categories: List<String>, onClick: (String) -> Unit) {
                         selectedCategory.value = categories[index]
                         onClick(categories[index])
                     },
-                    selected = selectedCategory.value == categories[index]
+                    selected = selectedCategory.value == categories[index],
+                    modifier = Modifier
                 )
             }
         }
@@ -407,9 +408,10 @@ fun TasksCategories(categories: List<String>, onClick: (String) -> Unit) {
 fun TasksCategory(
     category: String,
     onClick: (String) -> Unit,
-    selected: Boolean
+    selected: Boolean,
+    modifier: Modifier
 ) {
-    Box(modifier = Modifier
+    Box(modifier = modifier
         .clickable {
             onClick(category)
         }

@@ -21,5 +21,4 @@ data class TodoEntity(
 data class TaskCategoryModel(
     val id: Int,
     val name: String,
-    val color: Int
 )
