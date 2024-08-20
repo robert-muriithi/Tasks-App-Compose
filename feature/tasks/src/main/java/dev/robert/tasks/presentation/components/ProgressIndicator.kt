@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -37,10 +36,9 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun CircularProgressbar(
-    text: String = "",
     size: Dp = 110.dp,
-    foregroundIndicatorColor: Color = MaterialTheme.colorScheme.tertiaryContainer,
-    shadowColor: Color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f),
+    foregroundIndicatorColor: Color = MaterialTheme.colorScheme.surface,
+    shadowColor: Color = Color.White.copy(alpha = 0.6f),
     indicatorThickness: Dp = 10.dp,
     dataUsage: Float = 80f,
     animationDuration: Int = 1000,
@@ -60,6 +58,7 @@ fun CircularProgressbar(
         dataUsageRemember = dataUsage
     }
 
+    val circleColor = MaterialTheme.colorScheme.tertiaryContainer
     Box(
         modifier = Modifier
             .size(size)
@@ -71,7 +70,7 @@ fun CircularProgressbar(
         ) {
             drawCircle(
                 brush = Brush.radialGradient(
-                    colors = listOf(shadowColor, Color.White),
+                    colors = listOf(shadowColor, circleColor),
                     center = Offset(x = this.size.width / 2, y = this.size.height / 2),
                     radius = this.size.height / 2
                 ),
@@ -80,7 +79,7 @@ fun CircularProgressbar(
             )
 
             drawCircle(
-                color = Color.White,
+                color = circleColor,
                 radius = (size / 2 - indicatorThickness).toPx(),
                 center = Offset(x = this.size.width / 2, y = this.size.height / 2)
             )
@@ -104,11 +103,11 @@ fun CircularProgressbar(
         }
 
         DisplayText1(
-            name = text,
             animateNumber = dataUsageAnimate,
             dataTextStyle = MaterialTheme.typography.bodyMedium.copy(
-                color = MaterialTheme.colorScheme.inversePrimary,
-                fontSize = 18.sp
+                color = MaterialTheme.colorScheme.surface,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
             ),
         )
     }
@@ -118,7 +117,6 @@ fun CircularProgressbar(
 
 @Composable
 private fun DisplayText1(
-    name: String,
     animateNumber: State<Float>,
     dataTextStyle: TextStyle,
 ) {
@@ -128,16 +126,9 @@ private fun DisplayText1(
         modifier = Modifier.padding(8.dp)
     ) {
         Text(
-            text = name,
-            fontWeight = FontWeight.Bold,
-            style = dataTextStyle,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        Text(
             text = (animateNumber.value).toInt().toString() + "%",
-            style = dataTextStyle
+            style = dataTextStyle,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         )
     }
 }
@@ -146,7 +137,6 @@ private fun DisplayText1(
 @Composable
 fun CircularProgressbarPreview() {
     CircularProgressbar(
-        text = "Data",
         foregroundIndicatorColor = MaterialTheme.colorScheme.primary,
         shadowColor = Color.LightGray,
         indicatorThickness = 8.dp,
