@@ -82,7 +82,7 @@ class MainActivityViewModel @Inject constructor(
                 } else {
                     _startDestination.update { AuthNavGraph }
                 }
-                delay(200)
+                delay(2000)
                 _showSplashScreen.value = false
             }
         }
