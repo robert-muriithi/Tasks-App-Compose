@@ -178,7 +178,7 @@ fun TasksEmptyState(
                     .fillMaxWidth()
                     .height(200.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.tertiaryContainer.copy(0.5f))
+                    .background(MaterialTheme.colorScheme.tertiaryContainer)
                     .padding(16.dp)
             )
             Box(
@@ -236,8 +236,8 @@ fun TasksList(
             .padding(16.dp),
         state = gridState,
         columns = GridCells.Adaptive(180.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         item(
             span = {
@@ -249,7 +249,7 @@ fun TasksList(
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .clip(RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.tertiaryContainer.copy(0.5f))
+                    .background(MaterialTheme.colorScheme.tertiaryContainer)
                     .padding(16.dp)
             )
         }
@@ -261,7 +261,10 @@ fun TasksList(
             TasksCategories(categories = categories) { category ->
             }
         }
-        items(tasks.size) { index: Int ->
+        items(
+            count = tasks.size,
+            key = { index -> tasks[index].id.toString() }
+        ) { index: Int ->
             val task = tasks[index]
             TaskCardItem(
                 modifier = Modifier,
@@ -290,6 +293,7 @@ fun AnalyticsSection(
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
                         fontWeight = FontWeight(800),
                         textAlign = TextAlign.Start,
+                        color = Color.White
                     )
                 )
                 Spacer(modifier = Modifier.height(5.dp))
@@ -298,6 +302,7 @@ fun AnalyticsSection(
                         fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                         fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
                         textAlign = TextAlign.Start,
+                        color = Color.White
                     )
                 )
                 Spacer(modifier = Modifier.height(5.dp))
@@ -308,7 +313,7 @@ fun AnalyticsSection(
                     Box(
                         modifier = Modifier
                             .size(10.dp)
-                            .background(MaterialTheme.colorScheme.onSurfaceVariant)
+                            .background(color = Color.White)
                             .clip(RoundedCornerShape(5.dp))
                             .shadow(
                                 elevation = 2.dp,
@@ -318,7 +323,7 @@ fun AnalyticsSection(
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
                         text = "Total tasks: 50",
-                        style = MaterialTheme.typography.titleSmall,
+                        style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
                         fontWeight = FontWeight(600)
                     )
                 }
@@ -330,7 +335,7 @@ fun AnalyticsSection(
                     Box(
                         modifier = Modifier
                             .size(10.dp)
-                            .background(MaterialTheme.colorScheme.onSurfaceVariant)
+                            .background(color = Color.White)
                             .clip(RoundedCornerShape(5.dp))
                             .shadow(
                                 elevation = 2.dp
@@ -339,7 +344,7 @@ fun AnalyticsSection(
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
                         text = "Complete tasks: 4",
-                        style = MaterialTheme.typography.titleSmall,
+                        style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
                         fontWeight = FontWeight(600)
                     )
                 }
@@ -351,7 +356,7 @@ fun AnalyticsSection(
                     Box(
                         modifier = Modifier
                             .size(10.dp)
-                            .background(MaterialTheme.colorScheme.onSurfaceVariant)
+                            .background(color = Color.White)
                             .clip(RoundedCornerShape(5.dp))
                             .shadow(
                                 elevation = 2.dp
@@ -360,14 +365,12 @@ fun AnalyticsSection(
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
                         text = "Complete tasks: 4",
-                        style = MaterialTheme.typography.titleSmall,
+                        style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
                         fontWeight = FontWeight(600)
                     )
                 }
             }
-            CircularProgressbar(
-                text = "60%"
-            )
+            CircularProgressbar()
         }
     }
 }
@@ -383,11 +386,11 @@ fun TasksCategories(categories: List<String>, onClick: (String) -> Unit) {
                 fontWeight = FontWeight(800),
                 textAlign = TextAlign.Start,
             ),
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.padding(vertical = 10.dp)
         )
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
         ) {
             items(categories.size) { index ->
                 TasksCategory(
@@ -417,16 +420,16 @@ fun TasksCategory(
         }
         .clip(RoundedCornerShape(10.dp))
         .background(
-            color = if (selected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.tertiaryContainer.copy(
-                alpha = 0.7f
+            color = if (selected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondary.copy(
+                alpha = 0.2f
             )
         )
         .padding(8.dp)
     ) {
         Text(
             text = category,
-            color = if (selected) Color.White else Color.White.copy(alpha = 0.7f),
-            style = MaterialTheme.typography.bodySmall,
+            color = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight(800)),
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 1.dp)
         )
     }
@@ -437,12 +440,12 @@ fun TaskCardItem(modifier: Modifier = Modifier, onClick: (TaskItem) -> Unit, tas
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(210.dp)
             .clickable {
                 onClick(task)
             }
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f))
 
     ) {
         Box(
@@ -452,15 +455,15 @@ fun TaskCardItem(modifier: Modifier = Modifier, onClick: (TaskItem) -> Unit, tas
         ) {
             Box(
                 modifier = Modifier
-                    .height(16.dp)
-                    .width(5.dp)
+                    .height(20.dp)
+                    .width(8.dp)
                     .clip(
                         shape = RoundedCornerShape(
                             bottomEnd = 16.dp,
                             bottomStart = 16.dp
                         )
                     )
-                    .background(MaterialTheme.colorScheme.onSurfaceVariant)
+                    .background(MaterialTheme.colorScheme.tertiaryContainer)
                     .align(Alignment.TopEnd)
                     .padding(10.dp)
             )
@@ -471,18 +474,18 @@ fun TaskCardItem(modifier: Modifier = Modifier, onClick: (TaskItem) -> Unit, tas
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = task.name, style = TextStyle(
+                    text = "Created on ${task.taskDate}", style = TextStyle(
                         fontSize = MaterialTheme.typography.labelSmall.fontSize,
                         fontWeight = MaterialTheme.typography.labelSmall.fontWeight,
-
-                    ), modifier = Modifier.padding(vertical = 5.dp)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    )
                 )
                 Text(
                     text = task.name, style = TextStyle(
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
                         fontWeight = FontWeight(800),
                         textAlign = TextAlign.Start,
-                    ), modifier = Modifier.padding(bottom = 5.dp)
+                    ), modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
                 )
                 Text(
                     text = task.description, style = TextStyle(
@@ -506,8 +509,12 @@ fun TaskCardItem(modifier: Modifier = Modifier, onClick: (TaskItem) -> Unit, tas
 @Preview(showBackground = true)
 @Composable
 fun TaskScreenPreview() {
-    TaskScreen(
-        onNavigateToDetails = { _, _ -> },
-        onNavigateToAddTask = {},
+    AnalyticsSection(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .padding(16.dp)
     )
 }

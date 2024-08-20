@@ -21,9 +21,11 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
@@ -34,6 +36,7 @@ import com.google.firebase.auth.FirebaseAuth
 import dev.robert.auth.presentation.navigation.AuthNavGraph
 import dev.robert.auth.presentation.navigation.RegisterScreen
 import dev.robert.auth.presentation.navigation.authNavGraph
+import dev.robert.compose_todo.R
 import dev.robert.design_system.presentation.components.NavDrawerItem
 import dev.robert.design_system.presentation.components.NavigationDrawerContent
 import dev.robert.design_system.presentation.components.TDAppBar
@@ -56,6 +59,7 @@ fun TodoCoreNavigator(
     startDestination: Any,
     modifier: Modifier,
     navController: NavHostController = rememberNavController(),
+    onUpdateGridState: (Boolean) -> Unit
 ) {
     NavHost(
         navController = navController,
@@ -126,6 +130,8 @@ fun MainApp(
     )
     var selectedIndex by remember {
         mutableIntStateOf(0)
+    }
+    val onUpdateGridState: (Boolean) -> Unit = {
     }
     TDSurface(
         modifier = Modifier.fillMaxSize()
@@ -204,6 +210,11 @@ fun MainApp(
                                     contentDescription = null
                                 )
                             }
+                        },
+                        actions = {
+                            if (currentDestination?.hasRoute(TasksScreen::class) == true) {
+                                ViewSwapIcon(onUpdateGridState = onUpdateGridState)
+                            }
                         }
                     )
                 },
@@ -225,8 +236,27 @@ fun MainApp(
                     navController = navController,
                     startDestination = startDestination,
                     modifier = Modifier.padding(paddingValues),
+                    onUpdateGridState = onUpdateGridState
                 )
             }
         }
+    }
+}
+
+@Composable
+fun ViewSwapIcon(
+    onUpdateGridState: (Boolean) -> Unit,
+) {
+    var isGridView by remember { mutableStateOf(true) }
+    IconButton(
+        onClick = {
+            isGridView = !isGridView
+            onUpdateGridState(isGridView)
+        }
+    ) {
+        Icon(
+            painter = painterResource(id = if (isGridView) R.drawable.baseline_grid_view_24 else R.drawable.baseline_list_24),
+            contentDescription = null
+        )
     }
 }
