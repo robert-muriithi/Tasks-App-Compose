@@ -53,7 +53,7 @@ class AddTaskViewModel @Inject constructor(
         _uiState.update { it.copy(category = category) }
     }
 
-    private fun getCategories() {
+    fun getCategories() {
         val taskCategories = listOf(
             TaskCategory("Personal"),
             TaskCategory("Work"),
@@ -97,11 +97,12 @@ class AddTaskViewModel @Inject constructor(
                 task = TaskItem(
                     name = currentState.taskTitle,
                     description = currentState.taskDescription,
-                    startDateTime = currentState.taskStartDate,
-                    endDateTime = currentState.taskEndDate,
+                    startDateTime = currentState.startTime,
+                    endDateTime = currentState.endTime,
                     category = currentState.category,
                     isSynced = false,
-                    isComplete = false
+                    isComplete = false,
+                    taskDate = currentState.taskStartDate
                 )
             )
             when (result.isSuccess) {
@@ -115,9 +116,6 @@ class AddTaskViewModel @Inject constructor(
                 }
             }
         }
-    }
-    init {
-        getCategories()
     }
 }
 
