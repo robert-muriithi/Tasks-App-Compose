@@ -1,6 +1,5 @@
 package dev.robert.composetodo.navigation
 
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,8 +39,6 @@ import dev.robert.design_system.presentation.components.NavigationDrawerContent
 import dev.robert.design_system.presentation.components.TDAppBar
 import dev.robert.design_system.presentation.components.TDSurface
 import dev.robert.design_system.presentation.components.UserObject
-import dev.robert.design_system.presentation.utils.scaleIntoContainer
-import dev.robert.design_system.presentation.utils.scaleOutOfContainer
 import dev.robert.onboarding.presentation.navigation.onBoardingNavGraph
 import dev.robert.profile.presentation.navigation.ProfileNavGraph
 import dev.robert.profile.presentation.navigation.ProfileScreen
@@ -213,8 +210,6 @@ fun MainApp(
                 floatingActionButton = {
                     AnimatedVisibility(
                         visible = currentDestination?.hasRoute(TasksScreen::class) == true,
-                        enter = scaleIntoContainer(direction = AnimatedContentTransitionScope.SlideDirection.Right),
-                        exit = scaleOutOfContainer(direction = AnimatedContentTransitionScope.SlideDirection.Left)
                     ) {
                         FloatingActionButton(
                             onClick = {

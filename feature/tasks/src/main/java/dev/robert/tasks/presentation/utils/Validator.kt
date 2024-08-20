@@ -14,7 +14,7 @@ class Validator {
     }
 
     fun validateTaskDueDate(dueDate: String): ValidatorResult = if (dueDate.isEmpty()) {
-        ValidatorResult(false, "Due date cannot be empty")
+        ValidatorResult(false, "date cannot be empty")
     } else {
         ValidatorResult(true)
     }

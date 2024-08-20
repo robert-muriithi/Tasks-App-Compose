@@ -8,7 +8,8 @@ data class TodoModel(
     val endDateTime: String,
     val isComplete: Boolean,
     val isSynced: Boolean,
-    val category: TaskCategoryModel? = null
+    val category: TaskCategoryModel? = null,
+    val taskDate: String
 )
 
 data class TaskCategoryModel(

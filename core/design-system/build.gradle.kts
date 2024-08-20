@@ -3,8 +3,6 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
 }
 
 apply {
@@ -13,10 +11,6 @@ apply {
 apply {
     from("$rootDir/testing-dependencies.gradle")
 }
-apply {
-    from("$rootDir/core-dependencies.gradle")
-}
-
 android {
     namespace = "dev.robert.design_system"
     compileSdk = 34
@@ -54,4 +48,6 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.appcompat)
+    implementation(libs.threetenabp)
 }

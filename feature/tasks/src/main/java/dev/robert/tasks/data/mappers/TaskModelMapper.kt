@@ -14,6 +14,7 @@ fun TodoEntity.toTodoModel() = TodoModel(
     endDateTime = endDateTime,
     isComplete = isComplete,
     isSynced = isSynced,
+    taskDate = taskDate
 )
 
 fun TodoModel.toEntity() = TodoEntity(
@@ -24,6 +25,7 @@ fun TodoModel.toEntity() = TodoEntity(
     endDateTime = endDateTime,
     isComplete = isComplete,
     isSynced = isSynced,
+    taskDate = taskDate
 )
 
 fun TodoModel.toTodoItem() = TaskItem(
@@ -34,6 +36,7 @@ fun TodoModel.toTodoItem() = TaskItem(
     endDateTime = endDateTime,
     isComplete = isComplete,
     isSynced = isSynced,
+    taskDate = taskDate
 )
 
 fun TaskItem.toTodoModel() = TodoModel(
@@ -44,6 +47,7 @@ fun TaskItem.toTodoModel() = TodoModel(
     endDateTime = endDateTime,
     isComplete = isComplete,
     isSynced = isSynced,
+    taskDate = taskDate
 )
 
 fun TaskCategoryModel.toDomain() = TaskCategory(

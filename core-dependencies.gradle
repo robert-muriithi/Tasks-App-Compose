@@ -5,4 +5,6 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.datastore.preferences)
     implementation(libs.timber)
+    implementation ("com.jakewharton.threetenabp:threetenabp:1.2.1")
+
 }

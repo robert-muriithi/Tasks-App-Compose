@@ -18,4 +18,5 @@ data class AddTaskState(
     val categoryError: String? = null,
     val startTime: String = "",
     val endTime: String = "",
+    val categories: List<TaskCategory> = emptyList()
 )

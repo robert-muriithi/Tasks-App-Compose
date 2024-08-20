@@ -39,15 +39,31 @@ android {
             useSupportLibrary = true
         }
     }
+    signingConfigs {
+        getByName("debug") {
+            keyAlias = "key1"
+            keyPassword = "90899089"
+            storeFile = file("/Users/robertmurithi/Keys")
+            storePassword = "90899089"
+        }
+        create("release") {
+            keyAlias = "key1"
+            keyPassword = "90899089"
+            storeFile = file("/Users/robertmurithi/Keys")
+            storePassword = "90899089"
+        }
+    }
 
     buildTypes {
-        release {
+        getByName("release") {
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
-            )
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("release")
+            isDebuggable = false
+        }
+        getByName("debug") {
             signingConfig = signingConfigs.getByName("debug")
+            isDebuggable = true
         }
     }
     compileOptions {

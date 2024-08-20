@@ -72,6 +72,8 @@ fun TDFilledTextField(
     maxLines: Int = 1,
     isLoading: Boolean = false,
     isPassword: Boolean = false,
+    readOnly: Boolean = false,
+    enabled: Boolean = true,
     content: @Composable () -> Unit = {
         FilledTextFilled(
             modifier = modifier,
@@ -84,7 +86,9 @@ fun TDFilledTextField(
             label = label,
             isError = isError,
             isPassword = isPassword,
-            isLoading = isLoading
+            isLoading = isLoading,
+            readOnly = readOnly,
+            enabled = enabled
         )
     }
 ) {
@@ -103,7 +107,9 @@ fun FilledTextFilled(
     label: String?,
     isError: Boolean,
     isPassword: Boolean,
-    isLoading: Boolean
+    isLoading: Boolean,
+    readOnly: Boolean,
+    enabled: Boolean
 ) {
     var togglePassword by rememberSaveable {
         mutableStateOf(true)
@@ -112,7 +118,7 @@ fun FilledTextFilled(
     val focusRequester = remember { FocusRequester() }
 
     TextField(
-        enabled = !isLoading,
+        enabled = !isLoading && enabled,
         modifier = modifier
             .onFocusChanged {
                 textFieldFocusState = it.isFocused
@@ -127,6 +133,7 @@ fun FilledTextFilled(
         onValueChange = onValueChange,
         shape = RoundedCornerShape(8.dp),
         singleLine = maxLine == 1,
+        readOnly = readOnly,
         trailingIcon = {
             if (isPassword) {
                 val icon = if (togglePassword) painterResource(R.drawable.visibility_on)

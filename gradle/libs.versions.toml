@@ -20,6 +20,7 @@ playServicesAuth = "21.2.0"
 roomRuntime = "2.6.1"
 ktlint = "12.1.0"
 googleServices = "4.4.2"
+threetenabp = "1.2.1"
 timber = "5.0.1"
 uiTextGoogleFonts = "1.6.7"
 navVersion = "2.8.0-beta06"
@@ -68,6 +69,7 @@ androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "d
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 [plugins]
