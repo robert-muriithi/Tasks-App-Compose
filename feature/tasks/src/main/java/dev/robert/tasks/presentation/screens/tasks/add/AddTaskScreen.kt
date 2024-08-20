@@ -2,8 +2,6 @@ package dev.robert.tasks.presentation.screens.tasks.add
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -51,7 +48,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dev.robert.design_system.presentation.components.AdvancedTimePickerExample
+import dev.robert.design_system.presentation.components.AdvancedTimePicker
+import dev.robert.design_system.presentation.components.CustomDialog
 import dev.robert.design_system.presentation.components.TDButton
 import dev.robert.design_system.presentation.components.TDFilledTextField
 import dev.robert.design_system.presentation.components.TDSpacer
@@ -85,19 +83,24 @@ fun AddTaskScreen(
     var showDialog by remember {
         mutableStateOf(false)
     }
-
+    var result by remember {
+        mutableStateOf(ActionResult.Success)
+    }
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     LaunchedEffect(key1 = Unit) {
+        viewModel.getCategories()
         viewModel.actions.collectLatest {
             when (it) {
                 is Action.AddCategory -> {
                     showBottomSheet = true
                 }
+
                 is Action.ShowDialog -> {
-                    val result = it.result
-                    showDialogState(result, showDialog)
+                    result = it.result
+                    showDialog = true
                 }
+
                 else -> {}
             }
         }
@@ -120,45 +123,51 @@ fun AddTaskScreen(
         }
     )
 
-    if (showBottomSheet) {
-        AddCategoryBottomSheet(
-            onDismiss = {
-                showBottomSheet = false
-            },
-            onCategoryAdded = {
-                viewModel.onEvent(AddTaskEvents.GetCategoriesEvent)
-            },
-            scope = scope,
-            sheetState = sheetState
-        )
-    }
+    if (showBottomSheet) AddCategoryBottomSheet(
+        onDismiss = {
+            showBottomSheet = false
+        },
+        onCategoryAdded = {
+            viewModel.onEvent(AddTaskEvents.GetCategoriesEvent)
+        },
+        scope = scope,
+        sheetState = sheetState
+    )
 
-    if (showDatePicker) {
-        DatePickerModal(
-            onDateSelected = {
-                viewModel.onStartDateChanged(convertMillisToDate(it ?: 0))
-                showDatePicker = false
-            },
-            onDismiss = {
-                showDatePicker = false
-            }
-        )
-    }
+    if (showDatePicker) DatePickerModal(
+        onDateSelected = {
+            viewModel.onStartDateChanged(convertMillisToDate(it ?: 0))
+            showDatePicker = false
+        },
+        onDismiss = {
+            showDatePicker = false
+        }
+    )
 
-    if (showTimePicker) {
-        AdvancedTimePickerExample(
-            onConfirm = {
-                when (action) {
-                    TIME.START_TIME -> viewModel.onTaskStartTimeChanged(formatTimeToAmPm(it))
-                    TIME.END_TIME -> viewModel.onTaskEndTimeChanged(formatTimeToAmPm(it))
-                }
-                showTimePicker = false
-            },
-            onDismiss = {
-                showTimePicker = false
+    if (showTimePicker) AdvancedTimePicker(
+        onConfirm = {
+            when (action) {
+                TIME.START_TIME -> viewModel.onTaskStartTimeChanged(formatTimeToAmPm(it))
+                TIME.END_TIME -> viewModel.onTaskEndTimeChanged(formatTimeToAmPm(it))
             }
-        )
-    }
+            showTimePicker = false
+        },
+        onDismiss = {
+            showTimePicker = false
+        }
+    )
+
+    if (showDialog) CustomDialog(
+        onConfirm = {
+            showDialog = false
+            onNavigateUp()
+        },
+        onDismiss = {
+            showDialog = false
+        },
+        title = if (result.name == ActionResult.Success.name) "Success" else "Error",
+        message = if (result.name == ActionResult.Success.name) "Task created successfully" else "An error occurred"
+    )
 }
 
 enum class TIME {
@@ -169,7 +178,6 @@ enum class TIME {
 fun showDialogState(result: ActionResult, showDialog: Boolean): @Composable () -> Unit {
     return {
         if (showDialog) {
-            Column {}
         }
     }
 }
@@ -188,11 +196,9 @@ fun AddTaskContent(
     onInitDatePicker: () -> Unit,
     onInitTimePicker: (TIME) -> Unit
 ) {
-    val scrollState = rememberScrollState()
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .scrollable(state = scrollState, orientation = Orientation.Vertical)
     ) {
         Box(
             modifier = Modifier
@@ -213,9 +219,11 @@ fun AddTaskContent(
                         .padding(8.dp)
                 )
                 Box(modifier = Modifier.fillMaxHeight(0.5f)) {
-                    Column(modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.Center)) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.Center)
+                    ) {
                         TDFilledTextField(
                             value = uiState.taskTitle,
                             onValueChange = onTaskTitleChange,
@@ -229,14 +237,19 @@ fun AddTaskContent(
                         )
                         if (uiState.taskTitleError != null && uiState.isLoading.not())
                             Row(modifier = Modifier.fillMaxWidth(0.9f)) {
-                                Text(text = uiState.taskTitleError, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.errorContainer)
+                                Text(
+                                    text = uiState.taskTitleError,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.errorContainer
+                                )
                             }
                         else TDSpacer(modifier = Modifier.height(10.dp))
                         TDFilledTextField(
                             value = uiState.taskStartDate,
                             onValueChange = onTaskStartDateChange,
                             label = "Date",
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
                                 .clickable {
                                     onInitDatePicker()
                                 },
@@ -249,7 +262,11 @@ fun AddTaskContent(
                         )
                         if (uiState.taskStartDateError != null && uiState.isLoading.not())
                             Row(modifier = Modifier.fillMaxWidth(0.9f)) {
-                                Text(text = uiState.taskStartDateError, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.errorContainer)
+                                Text(
+                                    text = uiState.taskStartDateError,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.errorContainer
+                                )
                             }
                         else TDSpacer(modifier = Modifier.height(10.dp))
                     }
@@ -279,7 +296,8 @@ fun AddTaskContent(
                         value = uiState.startTime,
                         onValueChange = onTaskStartTimeChanged,
                         label = "Start time",
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
                             .clickable {
                                 onInitTimePicker(TIME.START_TIME)
                             },
@@ -295,7 +313,8 @@ fun AddTaskContent(
                         value = uiState.endTime,
                         onValueChange = onTaskEndTimeChanged,
                         label = "End time",
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
                             .clickable {
                                 onInitTimePicker(TIME.END_TIME)
                             },
@@ -324,7 +343,11 @@ fun AddTaskContent(
                 )
                 if (uiState.taskDescriptionError != null && uiState.isLoading.not())
                     Row(modifier = Modifier.fillMaxWidth(0.9f)) {
-                        Text(text = uiState.taskDescriptionError, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+                        Text(
+                            text = uiState.taskDescriptionError,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
                     }
                 else TDSpacer(modifier = Modifier.height(10.dp))
                 Text("Category")
