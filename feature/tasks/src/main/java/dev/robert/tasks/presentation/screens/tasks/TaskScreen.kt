@@ -65,7 +65,7 @@ fun TaskScreen(
 
     val gridState = rememberLazyGridState()
 
-    LaunchedEffect(key1 = Unit) {
+    LaunchedEffect(key1 = true) {
         viewModel.onEvent(TaskScreenEvents.LoadTasks)
     }
 

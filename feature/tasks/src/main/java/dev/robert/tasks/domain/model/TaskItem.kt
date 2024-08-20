@@ -14,5 +14,6 @@ data class TaskItem(
     val endDateTime: String,
     val isComplete: Boolean,
     val isSynced: Boolean,
-    val category: TaskCategory? = null
+    val category: TaskCategory? = null,
+    val taskDate: String,
 ) : Parcelable
