@@ -56,6 +56,7 @@ import dev.robert.design_system.presentation.components.TDSpacer
 import dev.robert.design_system.presentation.components.TDSurface
 import dev.robert.design_system.presentation.utils.convertMillisToDate
 import dev.robert.design_system.presentation.utils.formatTimeToAmPm
+import dev.robert.tasks.domain.model.TaskCategory
 import dev.robert.tasks.presentation.screens.tasks.TasksCategory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
@@ -120,7 +121,8 @@ fun AddTaskScreen(
         onInitTimePicker = { timeAction ->
             showTimePicker = true
             action = timeAction
-        }
+        },
+        onSetCategory = viewModel::setSelectCategory
     )
 
     if (showBottomSheet) AddCategoryBottomSheet(
@@ -194,7 +196,8 @@ fun AddTaskContent(
     onTaskStartTimeChanged: (String) -> Unit,
     onTaskEndTimeChanged: (String) -> Unit,
     onInitDatePicker: () -> Unit,
-    onInitTimePicker: (TIME) -> Unit
+    onInitTimePicker: (TIME) -> Unit,
+    onSetCategory: (TaskCategory) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -377,7 +380,7 @@ fun AddTaskContent(
                         else TasksCategory(
                             category = category.name,
                             onClick = {
-                                onEvent(AddTaskEvents.SelectCategoryEvent(category))
+                                onSetCategory(category)
                             },
                             selected = uiState.category?.name == category.name,
                             modifier = Modifier.padding(end = 8.dp, top = 8.dp)
@@ -501,7 +504,8 @@ fun AddTaskScreenPreview() {
             onTaskStartTimeChanged = {},
             onTaskEndTimeChanged = {},
             onInitDatePicker = {},
-            onInitTimePicker = {}
+            onInitTimePicker = {},
+            onSetCategory = {}
         )
     }
 }
