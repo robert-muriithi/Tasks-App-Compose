@@ -1,5 +1,6 @@
 package dev.robert.auth.presentation.screens.login
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -259,6 +261,7 @@ fun LoginScreenContent(
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Preview(
     name = "Login",
     device = "spec:shape=Normal,width=360,height=840,unit=dp,dpi=480",
@@ -266,5 +269,28 @@ fun LoginScreenContent(
 )
 @Composable
 fun LoginScreenPreview(modifier: Modifier = Modifier) {
-    LoginScreen()
+    Scaffold {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .paint(
+                    painter = painterResource(id = R.drawable.bg),
+                    contentScale = ContentScale.FillBounds,
+                    sizeToIntrinsics = true,
+                    alpha = 0.2f
+                )
+        ) {
+            LoginScreenContent(
+                uiState = LoginState(),
+                onEmailChange = {},
+                onPasswordChange = {},
+                onLogin = {},
+                onRegister = {},
+                onForgotPassword = {},
+                onSignInWithGoogle = {},
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+    }
+
 }

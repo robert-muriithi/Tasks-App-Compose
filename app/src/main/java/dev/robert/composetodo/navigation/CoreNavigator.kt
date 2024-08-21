@@ -4,10 +4,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
@@ -47,9 +48,9 @@ import dev.robert.profile.presentation.navigation.ProfileNavGraph
 import dev.robert.profile.presentation.navigation.ProfileScreen
 import dev.robert.profile.presentation.navigation.profileNavGraph
 import dev.robert.tasks.presentation.navigation.AddTaskScreen
+import dev.robert.tasks.presentation.navigation.Task
 import dev.robert.tasks.presentation.navigation.TasksNavGraph
 import dev.robert.tasks.presentation.navigation.TasksScreen
-import dev.robert.tasks.presentation.navigation.TodoItem
 import dev.robert.tasks.presentation.navigation.tasksNavGraph
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -95,6 +96,7 @@ fun TodoCoreNavigator(
         )
         tasksNavGraph(
             onNavigateToDetails = { taskItem ->
+                navController.navigate(Task(item = taskItem))
             },
             onNavigateToAddTask = {
                 navController.navigate(AddTaskScreen)
@@ -179,7 +181,7 @@ fun MainApp(
         ) {
             val showAppBar = listOf(
                 TasksScreen::class,
-                TodoItem::class,
+                Task::class,
                 ProfileScreen::class
             ).any { currentDestination?.hasRoute(it) == true }
 
@@ -190,7 +192,7 @@ fun MainApp(
                             when (currentDestination?.route) {
                                 TasksScreen::class.qualifiedName -> Text(text = "Welcome, ${user?.displayName?.split(" ")?.first()}")
                                 AddTaskScreen::class.qualifiedName -> Text(text = "Add Task")
-                                TodoItem::class.qualifiedName -> Text(text = "Task Details")
+                                Task::class.qualifiedName -> Text(text = "Task Details")
                                 ProfileScreen::class.qualifiedName -> Text(text = "Profile")
                                 else -> {}
                             }
@@ -206,14 +208,25 @@ fun MainApp(
                                     else navController.navigateUp()
                                 }) {
                                 Icon(
-                                    imageVector = if (currentDestination?.hasRoute(TasksScreen::class) == true) Icons.Default.Menu else Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = null
+                                    painter = painterResource(id = if (currentDestination?.hasRoute(TasksScreen::class) == true) R.drawable.bars_staggered_solid else R.drawable.arrow_left_solid),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
                                 )
                             }
                         },
                         actions = {
                             if (currentDestination?.hasRoute(TasksScreen::class) == true) {
                                 ViewSwapIcon(onUpdateGridState = onUpdateGridState)
+                            }
+
+                            if (currentDestination?.hasRoute(Task::class) == true) {
+                                IconButton(
+                                    onClick = {
+                                        // navController.navigate(AddTaskScreen)
+                                    }
+                                ) {
+                                    Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                                }
                             }
                         }
                     )

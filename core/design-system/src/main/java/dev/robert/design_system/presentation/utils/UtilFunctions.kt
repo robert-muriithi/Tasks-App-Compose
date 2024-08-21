@@ -9,7 +9,9 @@ import org.threeten.bp.LocalTime
 import org.threeten.bp.format.DateTimeFormatter
 
 fun convertMillisToDate(millis: Long): String {
-    val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+    val formatter = SimpleDateFormat(
+        "E, MMM dd, yyyy",
+        Locale.getDefault())
     return formatter.format(Date(millis))
 }
 @OptIn(ExperimentalMaterial3Api::class)
@@ -19,5 +21,5 @@ fun formatTimeToAmPm(timePickerState: TimePickerState): String {
 
     val localTime = LocalTime.of(hour, minute)
     val formatter = DateTimeFormatter.ofPattern("h:mm a")
-    return localTime.format(formatter)
+    return localTime.format(formatter).replace(" ", "")
 }

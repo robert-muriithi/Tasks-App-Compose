@@ -44,12 +44,11 @@ class AddTaskViewModel @Inject constructor(
 
     fun onEvent(event: AddTaskEvents) = when (event) {
         is AddTaskEvents.CreateTaskEvent -> addTask()
-        is AddTaskEvents.SelectCategoryEvent -> setSelectCategory(event.category)
         is AddTaskEvents.GetCategoriesEvent -> getCategories()
         is AddTaskEvents.AddCategoryEvent -> addCategory()
     }
 
-    private fun setSelectCategory(category: TaskCategory) {
+    fun setSelectCategory(category: TaskCategory) {
         _uiState.update { it.copy(category = category) }
     }
 

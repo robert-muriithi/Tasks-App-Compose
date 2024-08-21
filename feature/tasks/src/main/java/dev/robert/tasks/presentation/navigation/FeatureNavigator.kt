@@ -16,7 +16,6 @@ import kotlin.reflect.KClass
 import kotlin.reflect.typeOf
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @Serializable
@@ -29,7 +28,7 @@ object TasksScreen
 object AddTaskScreen
 
 @Serializable
-data class TodoItem(val item: TaskItem)
+data class Task(val item: TaskItem)
 
 fun NavGraphBuilder.tasksNavGraph(
     onNavigateToDetails: (TaskItem) -> Unit,
@@ -41,15 +40,18 @@ fun NavGraphBuilder.tasksNavGraph(
     ) {
         composable<TasksScreen> {
             TaskScreen(
-                onNavigateToDetails = { _, _ -> },
+                onNavigateToDetails = onNavigateToDetails,
                 onNavigateToAddTask = onNavigateToAddTask,
             )
         }
-        composable<TodoItem>(
+        composable<Task>(
             typeMap = mapOf(typeOf<TaskItem>() to todoItem)
         ) { backStackEntry ->
-            val item: TodoItem = backStackEntry.toRoute()
-            TaskDetailsScreen()
+            val item: Task = backStackEntry.toRoute()
+            TaskDetailsScreen(
+                onNavigateUp = onNavigateUp,
+                taskItem = item.item
+            )
         }
         composable<AddTaskScreen> {
             AddTaskScreen(

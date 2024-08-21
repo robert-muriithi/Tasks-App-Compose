@@ -57,7 +57,7 @@ import dev.robert.tasks.presentation.components.HomeShimmerLoading
 
 @Composable
 fun TaskScreen(
-    onNavigateToDetails: (String, Int) -> Unit,
+    onNavigateToDetails: (TaskItem) -> Unit,
     onNavigateToAddTask: () -> Unit,
     viewModel: TasksViewModel = hiltViewModel(),
 ) {
@@ -141,7 +141,8 @@ fun DialogErrorState(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = state.error?.message ?: stringResource(R.string.an_error_occurred),
+                            text = state.error?.message
+                                ?: stringResource(R.string.an_error_occurred),
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(modifier = Modifier.height(8.dp))
@@ -209,7 +210,7 @@ fun TasksEmptyState(
 @Composable
 fun TaskSuccessState(
     state: TasksScreenState,
-    onNavigateToDetails: (String, Int) -> Unit,
+    onNavigateToDetails: (TaskItem) -> Unit,
     gridState: LazyGridState,
     categories: List<String>
 ) {
@@ -226,7 +227,7 @@ fun TaskSuccessState(
 @Composable
 fun TasksList(
     tasks: List<TaskItem>,
-    onNavigateToDetails: (String, Int) -> Unit,
+    onNavigateToDetails: (TaskItem) -> Unit,
     gridState: LazyGridState,
     categories: List<String>
 ) {
@@ -269,7 +270,7 @@ fun TasksList(
             TaskCardItem(
                 modifier = Modifier,
                 onClick = {
-                    task.id?.let { it1 -> onNavigateToDetails(task.name, it1) }
+                    onNavigateToDetails(task)
                 },
                 task = task
             )
@@ -289,7 +290,7 @@ fun AnalyticsSection(
                     .padding(horizontal = 2.dp)
             ) {
                 Text(
-                    text = "Congrats, You have 55 completed tasks", style = TextStyle(
+                    text = "Congrats, You have 3 completed tasks", style = TextStyle(
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
                         fontWeight = FontWeight(800),
                         textAlign = TextAlign.Start,
@@ -322,7 +323,7 @@ fun AnalyticsSection(
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        text = "Total tasks: 50",
+                        text = "Total tasks: 3",
                         style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
                         fontWeight = FontWeight(600)
                     )
@@ -343,7 +344,7 @@ fun AnalyticsSection(
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        text = "Complete tasks: 4",
+                        text = "Complete tasks: 3",
                         style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
                         fontWeight = FontWeight(600)
                     )
@@ -364,7 +365,7 @@ fun AnalyticsSection(
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        text = "Complete tasks: 4",
+                        text = "Complete tasks: 3",
                         style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
                         fontWeight = FontWeight(600)
                     )
