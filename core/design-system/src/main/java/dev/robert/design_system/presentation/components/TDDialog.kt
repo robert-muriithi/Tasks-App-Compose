@@ -29,12 +29,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import dev.robert.design_system.R
 
 @Composable
 fun TDResetPasswordDialog(
@@ -80,12 +82,12 @@ fun TDResetPasswordDialogContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Reset Password",
+                text = stringResource(R.string.reset_password),
                 style = MaterialTheme.typography.displayMedium
             )
             Icon(
                 imageVector = Icons.Default.Close,
-                contentDescription = "Close",
+                contentDescription = stringResource(R.string.close),
                 modifier = Modifier
                     .width(20.dp)
                     .height(20.dp)
@@ -104,7 +106,7 @@ fun TDResetPasswordDialogContent(
             leadingIcon = {
                 Icon(
                     imageVector = icon,
-                    contentDescription = "Email Icon"
+                    contentDescription = stringResource(R.string.email_icon)
                 )
             },
             modifier = Modifier
@@ -113,7 +115,7 @@ fun TDResetPasswordDialogContent(
         )
         TDSpacer(modifier = Modifier.height(20.dp))
         TDButton(
-            text = "Reset Password",
+            text = stringResource(R.string.reset_password),
             onClick = { onSubmit(value) },
             modifier = Modifier.fillMaxWidth(0.9f),
             isLoading = false
@@ -123,11 +125,13 @@ fun TDResetPasswordDialogContent(
 
 @Composable
 fun CustomDialog(
-    onDismiss: () -> Unit, onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
     title: String,
     message: String,
-    showCancel: Boolean = true
+    showCancel: Boolean = true,
+    type: DialogType = DialogType.SUCCESS
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Box(
@@ -161,8 +165,7 @@ fun CustomDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-
-                    if(showCancel) {
+                    if (showCancel) {
                         Button(
                             onClick = onDismiss,
                             modifier = Modifier.weight(1f),
@@ -195,11 +198,15 @@ fun CustomDialog(
                     .size(100.dp)
                     .offset(y = (-50).dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF66BB6A)),
+                    .background(
+                        if (type == DialogType.SUCCESS) Color(0xFF66BB6A) else Color(
+                            0xFFEF5350
+                        )
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "✓",
+                    text = if (type == DialogType.SUCCESS) "✔" else "✖",
                     style = MaterialTheme.typography.titleLarge,
                     color = Color.White,
                     textAlign = TextAlign.Center
@@ -207,6 +214,11 @@ fun CustomDialog(
             }
         }
     }
+}
+
+enum class DialogType {
+    SUCCESS,
+    ERROR
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
