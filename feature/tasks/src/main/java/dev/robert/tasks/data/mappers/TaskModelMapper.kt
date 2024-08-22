@@ -1,5 +1,6 @@
 package dev.robert.tasks.data.mappers
 
+import dev.robert.database.data.todo.TaskCategoryModelEntity
 import dev.robert.database.data.todo.TodoEntity
 import dev.robert.tasks.data.model.TaskCategoryModel
 import dev.robert.tasks.data.model.TodoModel
@@ -14,7 +15,16 @@ fun TodoEntity.toTodoModel() = TodoModel(
     endDateTime = endDateTime,
     isComplete = isComplete,
     isSynced = isSynced,
-    taskDate = taskDate
+    taskDate = taskDate,
+    category = category?.toDomain()
+)
+
+fun TaskCategoryModelEntity.toDomain() = TaskCategoryModel(
+    name = name,
+)
+
+fun TaskCategoryModel.toEntity() = TaskCategoryModelEntity(
+    name = name,
 )
 
 fun TodoModel.toEntity() = TodoEntity(
@@ -25,7 +35,8 @@ fun TodoModel.toEntity() = TodoEntity(
     endDateTime = endDateTime,
     isComplete = isComplete,
     isSynced = isSynced,
-    taskDate = taskDate
+    taskDate = taskDate,
+    category = category?.toEntity()
 )
 
 fun TodoModel.toTodoItem() = TaskItem(
@@ -36,7 +47,8 @@ fun TodoModel.toTodoItem() = TaskItem(
     endDateTime = endDateTime,
     isComplete = isComplete,
     isSynced = isSynced,
-    taskDate = taskDate
+    taskDate = taskDate,
+    category = category?.toDomain()
 )
 
 fun TaskItem.toTodoModel() = TodoModel(
@@ -47,9 +59,14 @@ fun TaskItem.toTodoModel() = TodoModel(
     endDateTime = endDateTime,
     isComplete = isComplete,
     isSynced = isSynced,
-    taskDate = taskDate
+    taskDate = taskDate,
+    category = category?.toModel()
 )
 
 fun TaskCategoryModel.toDomain() = TaskCategory(
+    name = name,
+)
+
+fun TaskCategory.toModel() = TaskCategoryModel(
     name = name,
 )

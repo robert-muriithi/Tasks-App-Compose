@@ -7,5 +7,6 @@ data class TasksScreenState(
     val tasks: List<TaskItem> = emptyList(),
     val isLoading: Boolean = false,
     val error: Throwable? = null,
-    val category: List<TaskCategory> = emptyList()
+    val category: List<TaskCategory?> = emptyList(),
+    val update: Boolean = false
 )
