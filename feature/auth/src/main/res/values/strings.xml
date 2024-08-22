@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="default_web_client_id">677533976670-or9og6lg8bng7lfe9fpf1cp80208qc0b.apps.googleusercontent.com</string>
+    <string name="name">Name</string>
+    <string name="email_icon">Email Icon</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="password_icon">Password Icon</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="register">Register</string>
+    <string name="already_having_an_account">Already having an account?</string>
+    <string name="person_icon">Person Icon</string>
 </resources>
