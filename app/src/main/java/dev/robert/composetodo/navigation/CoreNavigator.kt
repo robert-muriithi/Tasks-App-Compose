@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -21,7 +22,6 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -213,7 +213,9 @@ fun MainApp(
                         },
                         actions = {
                             if (currentDestination?.hasRoute(TasksScreen::class) == true) {
-                                ViewSwapIcon(onUpdateGridState = onUpdateGridState)
+                                IconButton(onClick = { }) {
+                                    Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
+                                }
                             }
 
                             if (currentDestination?.hasRoute(Task::class) == true) {
@@ -250,23 +252,5 @@ fun MainApp(
                 )
             }
         }
-    }
-}
-
-@Composable
-fun ViewSwapIcon(
-    onUpdateGridState: (Boolean) -> Unit,
-) {
-    var isGridView by remember { mutableStateOf(true) }
-    IconButton(
-        onClick = {
-            isGridView = !isGridView
-            onUpdateGridState(isGridView)
-        }
-    ) {
-        Icon(
-            painter = painterResource(id = if (isGridView) R.drawable.baseline_grid_view_24 else R.drawable.baseline_list_24),
-            contentDescription = null
-        )
     }
 }

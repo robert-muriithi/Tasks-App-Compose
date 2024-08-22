@@ -25,6 +25,8 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +35,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,6 +58,7 @@ import dev.robert.tasks.domain.model.TaskItem
 import dev.robert.tasks.presentation.components.CircularProgressbar
 import dev.robert.tasks.presentation.components.HomeShimmerLoading
 import java.util.Date
+import timber.log.Timber
 
 @Composable
 fun TaskScreen(
@@ -85,6 +89,9 @@ fun TaskScreen(
                     categories = tasks.category.map { it?.name ?: "" },
                     onFilter = { category ->
                         viewModel.onEvent(TaskScreenEvents.FilterTasks(category))
+                    },
+                    onToggleGrid = {
+                        viewModel.onEvent(TaskScreenEvents.ToggleGrid(it))
                     }
                 )
             },
@@ -184,7 +191,8 @@ fun TaskSuccessState(
     onNavigateToDetails: (TaskItem) -> Unit,
     gridState: LazyGridState,
     categories: List<String>?,
-    onFilter: (String) -> Unit
+    onFilter: (String) -> Unit,
+    onToggleGrid: (Boolean) -> Unit
 ) {
     if (!state.isLoading && state.error == null) {
         TasksList(
@@ -192,7 +200,8 @@ fun TaskSuccessState(
             onNavigateToDetails = onNavigateToDetails,
             gridState = gridState,
             categories = categories,
-            onFilter = onFilter
+            onFilter = onFilter,
+            onToggleGrid = onToggleGrid
         )
     }
 }
@@ -203,14 +212,17 @@ fun TasksList(
     onNavigateToDetails: (TaskItem) -> Unit,
     gridState: LazyGridState,
     categories: List<String>?,
-    onFilter: (String) -> Unit
+    onFilter: (String) -> Unit,
+    onToggleGrid: (Boolean) -> Unit
 ) {
+    val isGridView = state.isGridView
+    Timber.d("isGridView: $isGridView")
     LazyVerticalGrid(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         state = gridState,
-        columns = GridCells.Adaptive(180.dp),
+        columns = if (isGridView) GridCells.Adaptive(180.dp) else GridCells.Fixed(2),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
@@ -234,13 +246,20 @@ fun TasksList(
                 GridItemSpan(maxLineSpan)
             }
         ) {
-            TasksCategories(categories = categories) { category ->
-                onFilter(category)
-            }
+            TasksCategories(
+                categories = categories,
+                onUpdateGridState = {
+                    onToggleGrid(it)
+                },
+                onClick = onFilter
+            )
         }
         items(
             count = state.tasks.size,
-            key = { index -> state.tasks[index].id.toString() }
+            key = { index -> state.tasks[index].id.toString() },
+            span = {
+                GridItemSpan(if (isGridView) 1 else 2)
+            }
         ) { index: Int ->
             val task = state.tasks[index]
             TaskCardItem(
@@ -269,7 +288,9 @@ fun AnalyticsSection(
                     .padding(horizontal = 2.dp)
             ) {
                 Text(
-                    text = "Congrats, You have ${state.tasks.count { it.isComplete }} completed tasks",
+                    text = stringResource(
+                        R.string.congrats_you_have_completed_tasks,
+                        state.tasks.count { it.isComplete }),
                     style = TextStyle(
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
                         fontWeight = FontWeight(800),
@@ -279,7 +300,8 @@ fun AnalyticsSection(
                 )
                 Spacer(modifier = Modifier.height(5.dp))
                 Text(
-                    text = "Complete today's task to keep the streak ongoing", style = TextStyle(
+                    text = stringResource(R.string.complete_today_s_task_to_keep_the_streak_ongoing),
+                    style = TextStyle(
                         fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                         fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
                         textAlign = TextAlign.Start,
@@ -303,7 +325,7 @@ fun AnalyticsSection(
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        text = "Total tasks: ${state.tasks.size}",
+                        text = stringResource(R.string.total_tasks, state.tasks.size),
                         style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
                         fontWeight = FontWeight(600)
                     )
@@ -367,18 +389,29 @@ fun AnalyticsSection(
 }
 
 @Composable
-fun TasksCategories(categories: List<String>?, onClick: (String) -> Unit) {
+fun TasksCategories(categories: List<String>?, onClick: (String) -> Unit, onUpdateGridState: (Boolean) -> Unit) {
     val selectedCategory = remember { mutableStateOf(categories?.firstOrNull()) }
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
-        Text(
-            text = "Categories",
-            style = TextStyle(
-                fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                fontWeight = FontWeight(800),
-                textAlign = TextAlign.Start,
-            ),
-            modifier = Modifier.padding(vertical = 10.dp)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+
+        ) {
+            Text(
+                text = stringResource(R.string.categories),
+                style = TextStyle(
+                    fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                    fontWeight = FontWeight(800),
+                    textAlign = TextAlign.Start,
+                ),
+                modifier = Modifier.padding(vertical = 10.dp)
+            )
+            ViewSwapIcon(
+                onUpdateGridState = { isGridView ->
+                    onUpdateGridState(isGridView)
+                }
+            )
+        }
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(5.dp),
@@ -424,6 +457,24 @@ fun TasksCategory(
             color = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight(800)),
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 1.dp)
+        )
+    }
+}
+
+@Composable
+fun ViewSwapIcon(
+    onUpdateGridState: (Boolean) -> Unit,
+) {
+    var isGridView by remember { mutableStateOf(true) }
+    IconButton(
+        onClick = {
+            isGridView = !isGridView
+            onUpdateGridState(isGridView)
+        }
+    ) {
+        Icon(
+            painter = painterResource(id = if (isGridView) R.drawable.baseline_grid_view_24 else R.drawable.baseline_list_24),
+            contentDescription = null
         )
     }
 }

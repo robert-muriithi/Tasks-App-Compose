@@ -9,4 +9,5 @@ object ConstantUtils {
     val ONBOARDING_COMPLETED = booleanPreferencesKey(name = "onboarded")
     val USER_LOGGED_IN = booleanPreferencesKey(name = "user_is_logged_in")
     val LOGIN_TYPE = stringPreferencesKey(name = "login_type")
+    val IS_GRID_VIEW = booleanPreferencesKey(name = "grid_view")
 }
