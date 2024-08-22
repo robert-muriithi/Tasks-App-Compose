@@ -3,4 +3,20 @@
     <string name="no_tasks_available_add_a_task_to_get_started">No tasks available 😭 \n Add a task to get started</string>
     <string name="empty_state_image">Empty state image</string>
     <string name="an_error_occurred">An error occurred</string>
+    <string name="success">Success</string>
+    <string name="error">Error</string>
+    <string name="task_created_successfully">Task created successfully</string>
+    <string name="description">Description</string>
+    <string name="end_time">End time</string>
+    <string name="date">Date</string>
+    <string name="title">Title</string>
+    <string name="create_new_task">Create New Task</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="back">Back</string>
+    <string name="start_time">Start time</string>
+    <string name="category">Category</string>
+    <string name="total_incomplete_tasks">Total Incomplete tasks: %1$s</string>
+    <string name="add_category">Add Category</string>
+    <string name="today_s_complete_tasks">Today\'s Complete tasks: %1$s</string>
 </resources>

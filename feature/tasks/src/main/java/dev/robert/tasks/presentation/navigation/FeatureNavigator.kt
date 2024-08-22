@@ -32,7 +32,6 @@ data class Task(val item: TaskItem)
 
 fun NavGraphBuilder.tasksNavGraph(
     onNavigateToDetails: (TaskItem) -> Unit,
-    onNavigateToAddTask: () -> Unit,
     onNavigateUp: () -> Unit
 ) {
     navigation<TasksNavGraph>(
@@ -41,7 +40,6 @@ fun NavGraphBuilder.tasksNavGraph(
         composable<TasksScreen> {
             TaskScreen(
                 onNavigateToDetails = onNavigateToDetails,
-                onNavigateToAddTask = onNavigateToAddTask,
             )
         }
         composable<Task>(

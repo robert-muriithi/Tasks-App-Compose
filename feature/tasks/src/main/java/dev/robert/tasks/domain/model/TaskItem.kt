@@ -16,4 +16,5 @@ data class TaskItem(
     val isSynced: Boolean,
     val category: TaskCategory? = null,
     val taskDate: String,
+    val completionDate: String? = null
 ) : Parcelable

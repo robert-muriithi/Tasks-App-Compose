@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="email_icon">Email Icon</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="close">Close</string>
+</resources>

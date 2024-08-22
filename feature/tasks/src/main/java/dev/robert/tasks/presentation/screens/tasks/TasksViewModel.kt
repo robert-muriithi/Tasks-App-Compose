@@ -30,14 +30,6 @@ class TasksViewModel @Inject constructor(
         }
     }
 
-    private val _categories = listOf(
-        TaskCategory("All"),
-        TaskCategory("Personal"),
-        TaskCategory("Work"),
-        TaskCategory("Shopping"),
-        TaskCategory("Others")
-    )
-
     private fun getTasks() {
         _uiState.update {
             it.copy(
@@ -50,7 +42,29 @@ class TasksViewModel @Inject constructor(
                     state.copy(
                         tasks = tasks,
                         isLoading = false,
-                        category = _categories.map { it }
+                        category = tasks.map { it.category }
+                            .distinct()
+                            .toMutableList()
+                            .apply { add(0, TaskCategory("All")) }
+                            .filterNotNull()
+                    )
+                }
+            }
+        }
+    }
+
+    private fun filterTask(filterString: String) {
+        viewModelScope.launch(coroutineExceptionHandler) {
+            getTasksUseCase().collectLatest { tasks ->
+                _uiState.update { state ->
+                    state.copy(
+                        tasks = if (filterString == "All") tasks
+                        else tasks.filter { category -> filterString.let { categoryName ->
+                            category.category?.name?.contains(
+                                categoryName,
+                                ignoreCase = true
+                            )
+                        } == true },
                     )
                 }
             }
@@ -60,7 +74,7 @@ class TasksViewModel @Inject constructor(
     fun onEvent(event: TaskScreenEvents) {
         when (event) {
             is TaskScreenEvents.LoadTasks -> getTasks()
-            is TaskScreenEvents.RefreshTasks -> getTasks()
+            is TaskScreenEvents.FilterTasks -> filterTask(event.filterString)
             is TaskScreenEvents.NavigateToDetails -> {
                 // Navigate to details
             }

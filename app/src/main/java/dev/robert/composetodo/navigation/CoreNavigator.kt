@@ -98,9 +98,6 @@ fun TodoCoreNavigator(
             onNavigateToDetails = { taskItem ->
                 navController.navigate(Task(item = taskItem))
             },
-            onNavigateToAddTask = {
-                navController.navigate(AddTaskScreen)
-            },
             onNavigateUp = {
                 navController.navigateUp()
             },

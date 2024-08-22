@@ -42,7 +42,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -50,12 +52,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.robert.design_system.presentation.components.AdvancedTimePicker
 import dev.robert.design_system.presentation.components.CustomDialog
+import dev.robert.design_system.presentation.components.DialogType
 import dev.robert.design_system.presentation.components.TDButton
 import dev.robert.design_system.presentation.components.TDFilledTextField
 import dev.robert.design_system.presentation.components.TDSpacer
 import dev.robert.design_system.presentation.components.TDSurface
 import dev.robert.design_system.presentation.utils.convertMillisToDate
 import dev.robert.design_system.presentation.utils.formatTimeToAmPm
+import dev.robert.tasks.R
 import dev.robert.tasks.domain.model.TaskCategory
 import dev.robert.tasks.presentation.screens.tasks.TasksCategory
 import kotlinx.coroutines.CoroutineScope
@@ -167,8 +171,14 @@ fun AddTaskScreen(
         onDismiss = {
             showDialog = false
         },
-        title = if (result.name == ActionResult.Success.name) "Success" else "Error",
-        message = if (result.name == ActionResult.Success.name) "Task created successfully" else "An error occurred"
+        title = if (result.name == ActionResult.Success.name) stringResource(R.string.success) else stringResource(
+            R.string.error
+        ),
+        message = if (result.name == ActionResult.Success.name) stringResource(R.string.task_created_successfully) else stringResource(
+            R.string.an_error_occurred
+        ),
+        showCancel = result.name != ActionResult.Success.name,
+        type = if (result.name == ActionResult.Success.name) DialogType.SUCCESS else DialogType.ERROR
     )
 }
 
@@ -215,7 +225,7 @@ fun AddTaskContent(
                     .padding(16.dp)
             ) {
                 AddTaskAppBar(
-                    title = "Create New Task",
+                    title = stringResource(R.string.create_new_task),
                     onBackClick = onNavigateUp,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -230,13 +240,15 @@ fun AddTaskContent(
                         TDFilledTextField(
                             value = uiState.taskTitle,
                             onValueChange = onTaskTitleChange,
-                            label = "Title",
+                            label = stringResource(R.string.title),
                             modifier = Modifier.fillMaxWidth(),
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Text,
-                                imeAction = ImeAction.Next
+                                imeAction = ImeAction.Next,
+                                capitalization = KeyboardCapitalization.Words
                             ),
-                            isLoading = uiState.isLoading
+                            isLoading = uiState.isLoading,
+                            enabled = uiState.isLoading.not()
                         )
                         if (uiState.taskTitleError != null && uiState.isLoading.not())
                             Row(modifier = Modifier.fillMaxWidth(0.9f)) {
@@ -250,7 +262,7 @@ fun AddTaskContent(
                         TDFilledTextField(
                             value = uiState.taskStartDate,
                             onValueChange = onTaskStartDateChange,
-                            label = "Date",
+                            label = stringResource(R.string.date),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
@@ -298,7 +310,7 @@ fun AddTaskContent(
                     TDFilledTextField(
                         value = uiState.startTime,
                         onValueChange = onTaskStartTimeChanged,
-                        label = "Start time",
+                        label = stringResource(R.string.start_time),
                         modifier = Modifier
                             .weight(1f)
                             .clickable {
@@ -315,7 +327,7 @@ fun AddTaskContent(
                     TDFilledTextField(
                         value = uiState.endTime,
                         onValueChange = onTaskEndTimeChanged,
-                        label = "End time",
+                        label = stringResource(R.string.end_time),
                         modifier = Modifier
                             .weight(1f)
                             .clickable {
@@ -333,16 +345,18 @@ fun AddTaskContent(
                 TDFilledTextField(
                     value = uiState.taskDescription,
                     onValueChange = onTaskDescriptionChange,
-                    label = "Description",
+                    label = stringResource(R.string.description),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Done
+                        imeAction = ImeAction.Next,
+                        capitalization = KeyboardCapitalization.Sentences
                     ),
-                    maxLines = 4,
-                    isLoading = uiState.isLoading
+                    maxLines = 10,
+                    isLoading = uiState.isLoading,
+                    enabled = uiState.isLoading.not()
                 )
                 if (uiState.taskDescriptionError != null && uiState.isLoading.not())
                     Row(modifier = Modifier.fillMaxWidth(0.9f)) {
@@ -353,7 +367,7 @@ fun AddTaskContent(
                         )
                     }
                 else TDSpacer(modifier = Modifier.height(10.dp))
-                Text("Category")
+                Text(stringResource(R.string.category))
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -371,7 +385,7 @@ fun AddTaskContent(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Add Category",
+                                    contentDescription = stringResource(R.string.add_category),
                                     modifier = Modifier
                                         .size(24.dp)
                                         .align(Alignment.Center)
@@ -418,12 +432,12 @@ fun DatePickerModal(
                 onDateSelected(datePickerState.selectedDateMillis)
                 onDismiss()
             }) {
-                Text("OK")
+                Text(stringResource(R.string.ok))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     ) {
@@ -452,7 +466,7 @@ fun AddTaskAppBar(
         ) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = stringResource(R.string.back),
                 modifier = Modifier
                     .size(24.dp)
                     .align(Alignment.Center),
@@ -485,6 +499,7 @@ fun AddCategoryBottomSheet(
                 .fillMaxWidth()
                 .padding(8.dp)
         ) {
+            // TODO: Implement add category functionality to customize categories
         }
     }
 }

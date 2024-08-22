@@ -46,19 +46,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.robert.design_system.presentation.components.CustomDialog
+import dev.robert.design_system.presentation.components.DialogType
 import dev.robert.tasks.R
 import dev.robert.tasks.domain.model.TaskItem
 import dev.robert.tasks.presentation.components.CircularProgressbar
 import dev.robert.tasks.presentation.components.HomeShimmerLoading
+import java.util.Date
 
 @Composable
 fun TaskScreen(
     onNavigateToDetails: (TaskItem) -> Unit,
-    onNavigateToAddTask: () -> Unit,
     viewModel: TasksViewModel = hiltViewModel(),
 ) {
     val tasks by viewModel.uiState.collectAsStateWithLifecycle()
@@ -82,7 +82,10 @@ fun TaskScreen(
                     state = tasks,
                     onNavigateToDetails = onNavigateToDetails,
                     gridState = gridState,
-                    categories = tasks.category.map { it.name }
+                    categories = tasks.category.map { it?.name ?: "" },
+                    onFilter = { category ->
+                        viewModel.onEvent(TaskScreenEvents.FilterTasks(category))
+                    }
                 )
             },
             errorContent = {
@@ -108,7 +111,6 @@ fun TaskScreen(
 
 @Composable
 fun DialogErrorState(
-    modifier: Modifier = Modifier,
     state: TasksScreenState,
     onRetry: () -> Unit,
     showDialog: MutableState<Boolean>
@@ -118,45 +120,13 @@ fun DialogErrorState(
     }
 
     if (showDialog.value) {
-        Dialog(
-            properties = DialogProperties(dismissOnBackPress = true),
-            onDismissRequest = {
-                showDialog.value = false
-            },
-            content = {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .background(MaterialTheme.colorScheme.surface)
-                            .clip(RoundedCornerShape(16.dp))
-                            .padding(16.dp)
-                    ) {
-                        Text(
-                            text = "Error",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight(800)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = state.error?.message
-                                ?: stringResource(R.string.an_error_occurred),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Retry",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.clickable {
-                                onRetry()
-                            }
-                        )
-                    }
-                }
-            }
+        CustomDialog(
+            onDismiss = { showDialog.value = false },
+            onConfirm = onRetry,
+            title = stringResource(R.string.error),
+            message = state.error?.message ?: stringResource(R.string.an_error_occurred),
+            showCancel = false,
+            type = DialogType.ERROR
         )
     }
 }
@@ -180,7 +150,8 @@ fun TasksEmptyState(
                     .height(200.dp)
                     .clip(RoundedCornerShape(10.dp))
                     .background(MaterialTheme.colorScheme.tertiaryContainer)
-                    .padding(16.dp)
+                    .padding(16.dp),
+                state = state
             )
             Box(
                 modifier = Modifier.fillMaxSize()
@@ -212,24 +183,27 @@ fun TaskSuccessState(
     state: TasksScreenState,
     onNavigateToDetails: (TaskItem) -> Unit,
     gridState: LazyGridState,
-    categories: List<String>
+    categories: List<String>?,
+    onFilter: (String) -> Unit
 ) {
     if (!state.isLoading && state.error == null) {
         TasksList(
-            tasks = state.tasks,
+            state = state,
             onNavigateToDetails = onNavigateToDetails,
             gridState = gridState,
-            categories = categories
+            categories = categories,
+            onFilter = onFilter
         )
     }
 }
 
 @Composable
 fun TasksList(
-    tasks: List<TaskItem>,
+    state: TasksScreenState,
     onNavigateToDetails: (TaskItem) -> Unit,
     gridState: LazyGridState,
-    categories: List<String>
+    categories: List<String>?,
+    onFilter: (String) -> Unit
 ) {
     LazyVerticalGrid(
         modifier = Modifier
@@ -251,7 +225,8 @@ fun TasksList(
                     .wrapContentHeight()
                     .clip(RoundedCornerShape(10.dp))
                     .background(MaterialTheme.colorScheme.tertiaryContainer)
-                    .padding(16.dp)
+                    .padding(16.dp),
+                state = state
             )
         }
         item(
@@ -260,13 +235,14 @@ fun TasksList(
             }
         ) {
             TasksCategories(categories = categories) { category ->
+                onFilter(category)
             }
         }
         items(
-            count = tasks.size,
-            key = { index -> tasks[index].id.toString() }
+            count = state.tasks.size,
+            key = { index -> state.tasks[index].id.toString() }
         ) { index: Int ->
-            val task = tasks[index]
+            val task = state.tasks[index]
             TaskCardItem(
                 modifier = Modifier,
                 onClick = {
@@ -280,8 +256,11 @@ fun TasksList(
 
 @Composable
 fun AnalyticsSection(
-    modifier: Modifier
+    modifier: Modifier,
+    state: TasksScreenState
 ) {
+    val completeTask = state.tasks.count { it.isComplete }
+    val todaysCompleteTasks = state.tasks.count { it.completionDate == Date().toString() }
     Box(modifier = modifier) {
         Row(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -290,7 +269,8 @@ fun AnalyticsSection(
                     .padding(horizontal = 2.dp)
             ) {
                 Text(
-                    text = "Congrats, You have 3 completed tasks", style = TextStyle(
+                    text = "Congrats, You have ${state.tasks.count { it.isComplete }} completed tasks",
+                    style = TextStyle(
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
                         fontWeight = FontWeight(800),
                         textAlign = TextAlign.Start,
@@ -323,7 +303,7 @@ fun AnalyticsSection(
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        text = "Total tasks: 3",
+                        text = "Total tasks: ${state.tasks.size}",
                         style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
                         fontWeight = FontWeight(600)
                     )
@@ -344,7 +324,9 @@ fun AnalyticsSection(
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        text = "Complete tasks: 3",
+                        text = stringResource(R.string.today_s_complete_tasks,
+                            state.tasks.count { it.completionDate == Date().toString() }
+                        ),
                         style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
                         fontWeight = FontWeight(600)
                     )
@@ -365,20 +347,28 @@ fun AnalyticsSection(
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        text = "Complete tasks: 3",
+                        text = stringResource(
+                            R.string.total_incomplete_tasks,
+                            state.tasks.count { !it.isComplete }),
                         style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
                         fontWeight = FontWeight(600)
                     )
                 }
             }
-            CircularProgressbar()
+            val percentage =
+                if (state.tasks.isNotEmpty())
+                    (completeTask.toFloat() / state.tasks.size.toFloat()) * 100
+                else 0f
+            CircularProgressbar(
+                dataUsage = percentage,
+            )
         }
     }
 }
 
 @Composable
-fun TasksCategories(categories: List<String>, onClick: (String) -> Unit) {
-    val selectedCategory = remember { mutableStateOf(categories.firstOrNull()) }
+fun TasksCategories(categories: List<String>?, onClick: (String) -> Unit) {
+    val selectedCategory = remember { mutableStateOf(categories?.firstOrNull()) }
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
         Text(
             text = "Categories",
@@ -393,16 +383,18 @@ fun TasksCategories(categories: List<String>, onClick: (String) -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(5.dp),
         ) {
-            items(categories.size) { index ->
-                TasksCategory(
-                    category = categories[index],
-                    onClick = {
-                        selectedCategory.value = categories[index]
-                        onClick(categories[index])
-                    },
-                    selected = selectedCategory.value == categories[index],
-                    modifier = Modifier
-                )
+            categories?.let { cat ->
+                items(cat.size) { index ->
+                    TasksCategory(
+                        category = cat[index],
+                        onClick = {
+                            selectedCategory.value = cat[index]
+                            onClick(cat[index])
+                        },
+                        selected = selectedCategory.value == cat[index],
+                        modifier = Modifier
+                    )
+                }
             }
         }
     }
@@ -499,8 +491,10 @@ fun TaskCardItem(modifier: Modifier = Modifier, onClick: (TaskItem) -> Unit, tas
                 Text(
                     text = task.category?.name ?: "", style = TextStyle(
                         fontSize = MaterialTheme.typography.labelSmall.fontSize,
-                        fontWeight = MaterialTheme.typography.labelSmall.fontWeight
-                    )
+                        fontWeight = FontWeight(800),
+                        color = MaterialTheme.colorScheme.primary
+                    ),
+                    modifier = Modifier.padding(5.dp)
                 )
             }
         }
@@ -516,6 +510,7 @@ fun TaskScreenPreview() {
             .height(200.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.primaryContainer)
-            .padding(16.dp)
+            .padding(16.dp),
+        state = TasksScreenState()
     )
 }

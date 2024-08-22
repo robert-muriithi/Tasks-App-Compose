@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -100,11 +101,11 @@ fun RegisterScreenContent(
         TDFilledTextField(
             value = uiState.name,
             onValueChange = onNameChanged,
-            label = "Name",
+            label = stringResource(R.string.name),
             trailingIcon = {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.person_24dp),
-                    contentDescription = "Person Icon"
+                    contentDescription = stringResource(R.string.person_icon)
                 )
             },
             keyboardOptions = KeyboardOptions(
@@ -124,11 +125,11 @@ fun RegisterScreenContent(
         TDFilledTextField(
             value = uiState.email,
             onValueChange = onEmailChange,
-            label = "Email",
+            label = stringResource(R.string.email),
             trailingIcon = {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.mail_24px),
-                    contentDescription = "Email Icon"
+                    contentDescription = stringResource(R.string.email_icon)
                 )
             },
             keyboardOptions = KeyboardOptions(
@@ -149,11 +150,11 @@ fun RegisterScreenContent(
         TDFilledTextField(
             value = uiState.password,
             onValueChange = onPasswordChange,
-            label = "Password",
+            label = stringResource(R.string.password),
             trailingIcon = {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.lock_24dp),
-                    contentDescription = "Password Icon"
+                    contentDescription = stringResource(R.string.password_icon)
                 )
             },
             keyboardOptions = KeyboardOptions(
@@ -179,11 +180,11 @@ fun RegisterScreenContent(
         TDFilledTextField(
             value = uiState.confirmPassword,
             onValueChange = onConfirmPasswordChange,
-            label = "Confirm password",
+            label = stringResource(R.string.confirm_password),
             trailingIcon = {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.lock_24dp),
-                    contentDescription = "Password Icon"
+                    contentDescription = stringResource(R.string.password_icon)
                 )
             },
             keyboardOptions = KeyboardOptions(
@@ -208,7 +209,7 @@ fun RegisterScreenContent(
             TDSpacer(modifier = Modifier.height(10.dp))
         TDButton(
             onClick = onSubmit,
-            text = "Register",
+            text = stringResource(R.string.register),
             enabled = uiState.isLoading.not(),
             modifier = Modifier
                 .fillMaxWidth(0.9f),
@@ -216,7 +217,7 @@ fun RegisterScreenContent(
         )
         TDSpacer(modifier = Modifier.height(20.dp))
         Text(
-            text = "Already having an account?",
+            text = stringResource(R.string.already_having_an_account),
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(0.9f)
         )
