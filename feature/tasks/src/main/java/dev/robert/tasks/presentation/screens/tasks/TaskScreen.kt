@@ -58,7 +58,6 @@ import dev.robert.tasks.domain.model.TaskItem
 import dev.robert.tasks.presentation.components.CircularProgressbar
 import dev.robert.tasks.presentation.components.HomeShimmerLoading
 import java.util.Date
-import timber.log.Timber
 
 @Composable
 fun TaskScreen(
@@ -216,7 +215,6 @@ fun TasksList(
     onToggleGrid: (Boolean) -> Unit
 ) {
     val isGridView = state.isGridView
-    Timber.d("isGridView: $isGridView")
     LazyVerticalGrid(
         modifier = Modifier
             .fillMaxSize()
@@ -251,7 +249,8 @@ fun TasksList(
                 onUpdateGridState = {
                     onToggleGrid(it)
                 },
-                onClick = onFilter
+                onClick = onFilter,
+                state = state
             )
         }
         items(
@@ -389,7 +388,7 @@ fun AnalyticsSection(
 }
 
 @Composable
-fun TasksCategories(categories: List<String>?, onClick: (String) -> Unit, onUpdateGridState: (Boolean) -> Unit) {
+fun TasksCategories(categories: List<String>?, onClick: (String) -> Unit, onUpdateGridState: (Boolean) -> Unit, state: TasksScreenState) {
     val selectedCategory = remember { mutableStateOf(categories?.firstOrNull()) }
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
         Row(
@@ -409,7 +408,8 @@ fun TasksCategories(categories: List<String>?, onClick: (String) -> Unit, onUpda
             ViewSwapIcon(
                 onUpdateGridState = { isGridView ->
                     onUpdateGridState(isGridView)
-                }
+                },
+                state = state
             )
         }
         LazyRow(
@@ -464,6 +464,7 @@ fun TasksCategory(
 @Composable
 fun ViewSwapIcon(
     onUpdateGridState: (Boolean) -> Unit,
+    state: TasksScreenState
 ) {
     var isGridView by remember { mutableStateOf(true) }
     IconButton(
@@ -473,7 +474,7 @@ fun ViewSwapIcon(
         }
     ) {
         Icon(
-            painter = painterResource(id = if (isGridView) R.drawable.baseline_grid_view_24 else R.drawable.baseline_list_24),
+            painter = painterResource(id = if (state.isGridView) R.drawable.baseline_grid_view_24 else R.drawable.baseline_list_24),
             contentDescription = null
         )
     }
