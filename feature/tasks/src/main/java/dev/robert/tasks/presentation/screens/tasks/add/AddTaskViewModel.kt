@@ -10,6 +10,7 @@ import dev.robert.tasks.presentation.utils.Validator
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -38,18 +39,14 @@ class AddTaskViewModel @Inject constructor(
     fun onDescriptionChanged(description: String) = _uiState.update { it.copy(taskDescription = description) }
     fun onStartDateChanged(startDate: String) = _uiState.update { it.copy(taskStartDate = startDate) }
     fun onEndDateChanged(endDate: String) = _uiState.update { it.copy(taskEndDate = endDate) }
-    fun onPriorityChanged(priority: String) = _uiState.update { it.copy(taskPriority = priority) }
     fun onTaskEndTimeChanged(endTime: String) = _uiState.update { it.copy(endTime = endTime) }
     fun onTaskStartTimeChanged(startTime: String) = _uiState.update { it.copy(startTime = startTime) }
+    fun setSelectCategory(category: TaskCategory) { _uiState.update { it.copy(category = category) } }
 
     fun onEvent(event: AddTaskEvents) = when (event) {
         is AddTaskEvents.CreateTaskEvent -> addTask()
         is AddTaskEvents.GetCategoriesEvent -> getCategories()
         is AddTaskEvents.AddCategoryEvent -> addCategory()
-    }
-
-    fun setSelectCategory(category: TaskCategory) {
-        _uiState.update { it.copy(category = category) }
     }
 
     fun getCategories() {
@@ -66,9 +63,7 @@ class AddTaskViewModel @Inject constructor(
         _uiState.update { it.copy(categories = taskCategories) }
     }
 
-    private fun addCategory() {
-        viewModelScope.launch { _actions.send(Action.AddCategory) }
-    }
+    private fun addCategory() { viewModelScope.launch { _actions.send(Action.AddCategory) } }
 
     private fun addTask() {
         val currentState = uiState.value
@@ -104,6 +99,8 @@ class AddTaskViewModel @Inject constructor(
                     taskDate = currentState.taskStartDate
                 )
             )
+            // Delay to show loading
+            delay(100)
             when (result.isSuccess) {
                 true -> {
                     _uiState.update { it.copy(isLoading = false) }
