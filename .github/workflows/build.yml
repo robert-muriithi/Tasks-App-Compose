@@ -33,26 +33,15 @@ jobs:
           name: app-release.apk
           path: app/build/outputs/apk/release/app-release.apk
 
-  merge:
+  automerge:
     needs: build
     runs-on: ubuntu-latest
     if: ${{ github.event.pull_request.merged == false }}  # Only run if the PR is not yet merged
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - id: automerge
+        name: automerge
+        uses: "pascalgn/automerge-action@v0.16.3"
+        env:
+          GITHUB_TOKEN: "${{ secrets.TOKEN_SECRETS }}"
 
-      - name: Merge the PR
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout ${{ github.event.pull_request.head.ref }}
-          git pull origin ${{ github.event.pull_request.base.ref }}
-          git merge --no-ff ${{ github.event.pull_request.base.ref }}
-          git push origin ${{ github.event.pull_request.head.ref }}
-
-      - name: Approve and Merge Pull Request
-        uses: pascalgn/automerge-action@v0.14.5
-        with:
-          github-token: ${{ secrets.TOKEN_SECRETS }}
-          merge-method: squash
 
