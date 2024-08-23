@@ -13,6 +13,8 @@ interface LocalDataSource {
     fun getTaskById(id: Int): Flow<TodoModel>
     suspend fun saveTask(task: TodoModel): Result<Boolean>
     suspend fun deleteTask(taskId: Int)
+    suspend fun completeTask(taskId: Int)
+    suspend fun setSynced(taskId: Int)
 }
 
 class LocalDataStoreImpl @Inject constructor(
@@ -49,4 +51,20 @@ class LocalDataStoreImpl @Inject constructor(
         } catch (e: Exception) {
             throw e
         }
+
+    override suspend fun completeTask(taskId: Int) {
+        try {
+            taskDao.completeTask(taskId)
+        } catch (e: Exception) {
+            throw e
+        }
+    }
+
+    override suspend fun setSynced(taskId: Int) {
+        try {
+            taskDao.setSynced(taskId)
+        } catch (e: Exception) {
+            throw e
+        }
+    }
 }
