@@ -22,11 +22,37 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew assembleRelease
 
-      - name: Run Tests
+      - name: Run tests
         run: ./gradlew test
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-release.apk
+          path: app/build/outputs/apk/release/app-release.apk
+
+  merge:
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.merged == false }}  # Only run if the PR is not yet merged
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Merge the PR
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout ${{ github.event.pull_request.head.ref }}
+          git pull origin ${{ github.event.pull_request.base.ref }}
+          git merge --no-ff ${{ github.event.pull_request.base.ref }}
+          git push origin ${{ github.event.pull_request.head.ref }}
+
+      - name: Approve and Merge Pull Request
+        uses: pascalgn/automerge-action@v0.14.5
+        with:
+          github-token: ${{ secrets.TOKEN_SECRETS }}
+          merge-method: squash
 
