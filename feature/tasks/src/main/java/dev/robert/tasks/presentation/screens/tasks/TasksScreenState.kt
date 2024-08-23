@@ -10,4 +10,6 @@ data class TasksScreenState(
     val category: List<TaskCategory?> = emptyList(),
     val update: Boolean = false,
     val isGridView: Boolean = true,
+    val isSynced: Boolean = false,
+    val syncing: Boolean = false
 )
