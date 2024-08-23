@@ -10,6 +10,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import dev.robert.tasks.domain.model.TaskItem
 import dev.robert.tasks.presentation.screens.details.TaskDetailsScreen
+import dev.robert.tasks.presentation.screens.search.SearchScreen
 import dev.robert.tasks.presentation.screens.tasks.TaskScreen
 import dev.robert.tasks.presentation.screens.tasks.add.AddTaskScreen
 import kotlin.reflect.KClass
@@ -30,9 +31,12 @@ object AddTaskScreen
 @Serializable
 data class Task(val item: TaskItem)
 
+@Serializable
+object SearchScreen
+
 fun NavGraphBuilder.tasksNavGraph(
     onNavigateToDetails: (TaskItem) -> Unit,
-    onNavigateUp: () -> Unit
+    onNavigateUp: () -> Unit,
 ) {
     navigation<TasksNavGraph>(
         startDestination = TasksScreen,
@@ -48,11 +52,16 @@ fun NavGraphBuilder.tasksNavGraph(
             val item: Task = backStackEntry.toRoute()
             TaskDetailsScreen(
                 onNavigateUp = onNavigateUp,
-                taskItem = item.item
+                taskItem = item.item,
             )
         }
         composable<AddTaskScreen> {
             AddTaskScreen(
+                onNavigateUp = onNavigateUp
+            )
+        }
+        composable<SearchScreen> {
+            SearchScreen(
                 onNavigateUp = onNavigateUp
             )
         }
