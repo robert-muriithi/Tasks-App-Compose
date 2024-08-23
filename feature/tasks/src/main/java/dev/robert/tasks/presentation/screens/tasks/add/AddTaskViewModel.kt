@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.robert.tasks.domain.model.TaskCategory
 import dev.robert.tasks.domain.model.TaskItem
-import dev.robert.tasks.domain.repository.TasksRepository
+import dev.robert.tasks.domain.usecase.SaveTaskUseCase
 import dev.robert.tasks.presentation.utils.Validator
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -20,7 +20,7 @@ import timber.log.Timber
 
 @HiltViewModel
 class AddTaskViewModel @Inject constructor(
-    private val repository: TasksRepository,
+    private val saveTaskUseCase: SaveTaskUseCase,
     private val validator: Validator
 ) : ViewModel() {
 
@@ -84,10 +84,9 @@ class AddTaskViewModel @Inject constructor(
             return
         }
 
-        // Add task
         viewModelScope.launch(handler) {
             _uiState.update { it.copy(isLoading = true) }
-            val result = repository.saveTask(
+            val result = saveTaskUseCase(
                 task = TaskItem(
                     name = currentState.taskTitle,
                     description = currentState.taskDescription,
