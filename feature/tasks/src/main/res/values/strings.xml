@@ -23,4 +23,8 @@
     <string name="congrats_you_have_completed_tasks">Congrats, You have %1$s completed tasks</string>
     <string name="total_tasks">Total tasks: %1$s</string>
     <string name="categories">Categories</string>
+    <string name="created_on">Created on %1$s</string>
+    <string name="completed">Complete</string>
+    <string name="incomplete">Incomplete</string>
+    <string name="completion_date">Completion</string>
 </resources>

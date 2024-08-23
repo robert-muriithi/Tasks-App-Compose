@@ -17,6 +17,9 @@ apply {
 apply {
     from("$rootDir/core-dependencies.gradle")
 }
+apply {
+    from("$rootDir/firebase.gradle")
+}
 
 android {
     namespace = "dev.robert.tasks"
