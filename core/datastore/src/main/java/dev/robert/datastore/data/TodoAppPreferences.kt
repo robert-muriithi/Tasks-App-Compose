@@ -49,6 +49,15 @@ class TodoAppPreferences(
             it[ConstantUtils.LOGIN_TYPE] ?: ""
         }
 
+    val isGridView: Flow<Boolean> =
+        prefs.data.map {
+            it[ConstantUtils.IS_GRID_VIEW] ?: true
+        }
+
+    suspend fun saveGridView(isGridView: Boolean) = prefs.edit {
+        it[ConstantUtils.IS_GRID_VIEW] = isGridView
+    }
+
     companion object {
         const val LOGIN_TYPE_GOOGLE = "google"
         const val LOGIN_TYPE_EMAIL = "email"

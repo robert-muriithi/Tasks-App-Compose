@@ -3,6 +3,7 @@ package dev.robert.tasks.presentation.screens.tasks
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.robert.datastore.data.TodoAppPreferences
 import dev.robert.tasks.domain.model.TaskCategory
 import dev.robert.tasks.domain.usecase.GetTasksUseCase
 import javax.inject.Inject
@@ -16,6 +17,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class TasksViewModel @Inject constructor(
     private val getTasksUseCase: GetTasksUseCase,
+    private val prefs: TodoAppPreferences,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TasksScreenState())
@@ -37,6 +39,7 @@ class TasksViewModel @Inject constructor(
             )
         }
         viewModelScope.launch(coroutineExceptionHandler) {
+            getIsGrid()
             getTasksUseCase().collectLatest { tasks ->
                 _uiState.update { state ->
                     state.copy(
@@ -71,10 +74,34 @@ class TasksViewModel @Inject constructor(
         }
     }
 
+    private fun saveToPrefs(isGrid: Boolean) {
+        viewModelScope.launch {
+            prefs.saveGridView(isGrid)
+            _uiState.update {
+                it.copy(
+                    isGridView = isGrid
+                )
+            }
+        }
+    }
+
+    private fun getIsGrid() {
+        viewModelScope.launch {
+            prefs.isGridView.collectLatest { isGrid ->
+                _uiState.update {
+                    it.copy(
+                        isGridView = isGrid
+                    )
+                }
+            }
+        }
+    }
+
     fun onEvent(event: TaskScreenEvents) {
         when (event) {
             is TaskScreenEvents.LoadTasks -> getTasks()
             is TaskScreenEvents.FilterTasks -> filterTask(event.filterString)
+            is TaskScreenEvents.ToggleGrid -> saveToPrefs(event.isGrid)
             is TaskScreenEvents.NavigateToDetails -> {
                 // Navigate to details
             }
