@@ -33,15 +33,4 @@ jobs:
           name: app-release.apk
           path: app/build/outputs/apk/release/app-release.apk
 
-  automerge:
-    needs: build
-    runs-on: ubuntu-latest
-    if: ${{ github.event.pull_request.merged == false }}  # Only run if the PR is not yet merged
-    steps:
-      - id: automerge
-        name: automerge
-        uses: "pascalgn/automerge-action@v0.16.3"
-        env:
-          GITHUB_TOKEN: "${{ secrets.TOKEN_SECRETS }}"
-
 
