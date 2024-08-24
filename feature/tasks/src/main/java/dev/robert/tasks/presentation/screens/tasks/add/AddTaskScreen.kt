@@ -509,7 +509,16 @@ fun AddCategoryBottomSheet(
 fun AddTaskScreenPreview() {
     TDSurface {
         AddTaskContent(
-            AddTaskState(),
+            AddTaskState(
+                categories = listOf(
+                    TaskCategory("Work"),
+                    TaskCategory("Personal"),
+                    TaskCategory("Shopping"),
+                    TaskCategory("Home"),
+                    TaskCategory("School"),
+                    TaskCategory("Others")
+                ),
+            ),
             onTaskDescriptionChange = {},
             onTaskEndDateChange = {},
             onTaskStartDateChange = {},
