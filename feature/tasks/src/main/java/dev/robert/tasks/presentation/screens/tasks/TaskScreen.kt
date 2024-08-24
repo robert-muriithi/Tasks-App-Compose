@@ -1,9 +1,14 @@
 package dev.robert.tasks.presentation.screens.tasks
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +30,11 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +51,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -53,6 +66,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.robert.design_system.presentation.components.CustomDialog
 import dev.robert.design_system.presentation.components.DialogType
+import dev.robert.design_system.presentation.components.Option
+import dev.robert.design_system.presentation.components.OptionsDialog
+import dev.robert.design_system.presentation.components.RotatingSyncIcon
 import dev.robert.tasks.R
 import dev.robert.tasks.domain.model.TaskItem
 import dev.robert.tasks.presentation.components.CircularProgressbar
@@ -70,11 +86,13 @@ fun TaskScreen(
 
     LaunchedEffect(key1 = true) {
         viewModel.onEvent(TaskScreenEvents.LoadTasks)
+        tasks.tasks.filter { !it.isSynced }.forEach {
+            viewModel.onEvent(TaskScreenEvents.SyncTask(it))
+        }
     }
 
     val scrollState = rememberScrollState()
     val showDialog = remember { mutableStateOf(false) }
-
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -91,6 +109,15 @@ fun TaskScreen(
                     },
                     onToggleGrid = {
                         viewModel.onEvent(TaskScreenEvents.ToggleGrid(it))
+                    },
+                    onCompleteTask = {
+                        viewModel.onEvent(TaskScreenEvents.CompleteTask(it))
+                    },
+                    onSyncTask = {
+                        viewModel.onEvent(TaskScreenEvents.SyncTask(it))
+                    },
+                    onDeleteTask = {
+                        viewModel.onEvent(TaskScreenEvents.DeleteTask(it))
                     }
                 )
             },
@@ -191,8 +218,14 @@ fun TaskSuccessState(
     gridState: LazyGridState,
     categories: List<String>?,
     onFilter: (String) -> Unit,
-    onToggleGrid: (Boolean) -> Unit
+    onToggleGrid: (Boolean) -> Unit,
+    onCompleteTask: (TaskItem) -> Unit,
+    onSyncTask: (TaskItem) -> Unit,
+    onDeleteTask: (TaskItem) -> Unit
 ) {
+    val showOptionsDialog = remember { mutableStateOf(false) }
+    var selectedTaskItem by remember { mutableStateOf<TaskItem?>(null) }
+
     if (!state.isLoading && state.error == null) {
         TasksList(
             state = state,
@@ -200,9 +233,54 @@ fun TaskSuccessState(
             gridState = gridState,
             categories = categories,
             onFilter = onFilter,
-            onToggleGrid = onToggleGrid
+            onToggleGrid = onToggleGrid,
+            onTaskLongPress = { taskItem ->
+                showOptionsDialog.value = true
+                selectedTaskItem = taskItem
+            },
         )
     }
+    if (showOptionsDialog.value)
+        OptionsDialog(
+            title = "Options",
+            options = listOf(
+                Option(
+                    text = "Edit Task",
+                    icon = Icons.Default.Edit,
+                    onClick = { selectedTaskItem?.let(onNavigateToDetails) },
+                ),
+                Option(
+                    text = "Mark Task as Complete",
+                    icon = Icons.Default.CheckCircle,
+                    onClick = {
+                        selectedTaskItem?.let(onCompleteTask)
+                    },
+                    enabled = !selectedTaskItem?.isComplete!!
+                ),
+                Option(
+                    text = "Sync Task",
+                    icon = Icons.Default.Refresh,
+                    onClick = {
+                        selectedTaskItem?.let(onSyncTask)
+                    },
+                    enabled = !selectedTaskItem?.isSynced!!
+                ),
+                Option(
+                    text = "Delete Task",
+                    Icons.Default.Delete,
+                    iconTint = {
+                        MaterialTheme.colorScheme.error
+                    },
+                    textColor = {
+                        MaterialTheme.colorScheme.error
+                    },
+                    onClick = {
+                        selectedTaskItem?.let(onDeleteTask)
+                    }
+                )
+            ),
+            onDismiss = { showOptionsDialog.value = false }
+        )
 }
 
 @Composable
@@ -212,7 +290,8 @@ fun TasksList(
     gridState: LazyGridState,
     categories: List<String>?,
     onFilter: (String) -> Unit,
-    onToggleGrid: (Boolean) -> Unit
+    onToggleGrid: (Boolean) -> Unit,
+    onTaskLongPress: (TaskItem) -> Unit
 ) {
     val isGridView = state.isGridView
     LazyVerticalGrid(
@@ -266,7 +345,11 @@ fun TasksList(
                 onClick = {
                     onNavigateToDetails(task)
                 },
-                task = task
+                task = task,
+                isGridView = isGridView,
+                onTaskLongPress = onTaskLongPress,
+                syncing = state.syncing,
+                isSycned = task.isSynced
             )
         }
     }
@@ -388,7 +471,12 @@ fun AnalyticsSection(
 }
 
 @Composable
-fun TasksCategories(categories: List<String>?, onClick: (String) -> Unit, onUpdateGridState: (Boolean) -> Unit, state: TasksScreenState) {
+fun TasksCategories(
+    categories: List<String>?,
+    onClick: (String) -> Unit,
+    onUpdateGridState: (Boolean) -> Unit,
+    state: TasksScreenState
+) {
     val selectedCategory = remember { mutableStateOf(categories?.firstOrNull()) }
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
         Row(
@@ -480,15 +568,29 @@ fun ViewSwapIcon(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TaskCardItem(modifier: Modifier = Modifier, onClick: (TaskItem) -> Unit, task: TaskItem) {
+fun TaskCardItem(
+    modifier: Modifier = Modifier,
+    onClick: (TaskItem) -> Unit,
+    task: TaskItem,
+    isGridView: Boolean,
+    onTaskLongPress: (TaskItem) -> Unit,
+    syncing: Boolean,
+    isSycned: Boolean
+) {
+    val haptics = LocalHapticFeedback.current
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(210.dp)
-            .clickable {
-                onClick(task)
-            }
+            .combinedClickable(
+                onClick = { onClick(task) },
+                onLongClick = {
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onTaskLongPress(task)
+                }
+            )
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f))
 
@@ -519,7 +621,7 @@ fun TaskCardItem(modifier: Modifier = Modifier, onClick: (TaskItem) -> Unit, tas
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = "Created on ${task.taskDate}", style = TextStyle(
+                    text = stringResource(R.string.created_on, task.taskDate), style = TextStyle(
                         fontSize = MaterialTheme.typography.labelSmall.fontSize,
                         fontWeight = MaterialTheme.typography.labelSmall.fontWeight,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
@@ -537,17 +639,60 @@ fun TaskCardItem(modifier: Modifier = Modifier, onClick: (TaskItem) -> Unit, tas
                         fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                         fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
                         textAlign = TextAlign.Start,
-                    ), modifier = Modifier.padding(bottom = 5.dp), overflow = TextOverflow.Ellipsis
+                    ), modifier = Modifier.padding(bottom = 5.dp),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = if (isGridView) 7 else 8
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                Text(
-                    text = task.category?.name ?: "", style = TextStyle(
-                        fontSize = MaterialTheme.typography.labelSmall.fontSize,
-                        fontWeight = FontWeight(800),
-                        color = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.padding(5.dp)
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = task.category?.name ?: "", style = TextStyle(
+                            fontSize = MaterialTheme.typography.labelSmall.fontSize,
+                            fontWeight = FontWeight(800),
+                            color = MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier.padding(5.dp)
+                    )
+                    Column {
+                        Row {
+                            Image(
+                                painter = painterResource(id = if (task.isComplete) R.drawable.baseline_check_circle_24 else R.drawable.baseline_check_circle_outline_24),
+                                contentDescription = null,
+                                modifier = Modifier.size(10.dp),
+                                colorFilter = ColorFilter.tint(
+                                    if (task.isComplete) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(
+                                        alpha = 0.3f
+                                    )
+                                )
+                            )
+                            Text(
+                                text = if (task.isComplete) stringResource(R.string.completed) else stringResource(
+                                    R.string.incomplete
+                                ),
+                                style = TextStyle(
+                                    fontSize = MaterialTheme.typography.labelSmall.fontSize,
+                                    fontWeight = FontWeight(800),
+                                    color = if (task.isComplete) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(
+                                        alpha = 0.3f
+                                    )
+                                )
+                            )
+                        }
+                        AnimatedVisibility(
+                            visible = syncing && !isSycned,
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        ) {
+                            RotatingSyncIcon(
+                                sync = !isSycned
+                            )
+                        }
+                    }
+                }
             }
         }
     }

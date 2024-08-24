@@ -30,6 +30,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -215,6 +217,75 @@ fun CustomDialog(
         }
     }
 }
+
+@Composable
+fun OptionsDialog(
+    modifier: Modifier = Modifier,
+    title: String,
+    options: List<Option>,
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = modifier
+        ) {
+            Column(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                options.forEach { option ->
+                    if (!option.enabled) return@forEach
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                option.onClick()
+                                onDismiss()
+                            }
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = option.icon,
+                            contentDescription = option.text,
+                            tint = option.iconTint(),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            option.text,
+                            style = TextStyle(
+                                color = option.textColor(),
+                                fontSize = MaterialTheme.typography.titleSmall.fontSize,
+                                fontFamily = MaterialTheme.typography.titleSmall.fontFamily,
+                                fontWeight = FontWeight(500)
+                            )
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(5.dp))
+                }
+            }
+        }
+    }
+}
+
+data class Option(
+    val text: String,
+    val icon: ImageVector,
+    val onClick: () -> Unit,
+    val iconTint: @Composable () -> Color = { MaterialTheme.colorScheme.primary },
+    val textColor: @Composable () -> Color = { MaterialTheme.colorScheme.onSurface },
+    val enabled: Boolean = true
+)
 
 enum class DialogType {
     SUCCESS,

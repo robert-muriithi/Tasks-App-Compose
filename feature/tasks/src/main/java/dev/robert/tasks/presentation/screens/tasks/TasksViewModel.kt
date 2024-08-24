@@ -5,7 +5,11 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.robert.datastore.data.TodoAppPreferences
 import dev.robert.tasks.domain.model.TaskCategory
+import dev.robert.tasks.domain.model.TaskItem
+import dev.robert.tasks.domain.usecase.CompleteTaskUseCase
+import dev.robert.tasks.domain.usecase.DeleteTaskUseCase
 import dev.robert.tasks.domain.usecase.GetTasksUseCase
+import dev.robert.tasks.domain.usecase.UploadTaskToServerUseCase
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +22,9 @@ import kotlinx.coroutines.launch
 class TasksViewModel @Inject constructor(
     private val getTasksUseCase: GetTasksUseCase,
     private val prefs: TodoAppPreferences,
+    private val uploadTaskToServerUseCase: UploadTaskToServerUseCase,
+    private val deleteTaskUseCase: DeleteTaskUseCase,
+    private val completeTaskUseCase: CompleteTaskUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TasksScreenState())
@@ -29,6 +36,17 @@ class TasksViewModel @Inject constructor(
                 error = exception,
                 isLoading = false
             )
+        }
+    }
+
+    fun onEvent(event: TaskScreenEvents) {
+        when (event) {
+            is TaskScreenEvents.LoadTasks -> getTasks()
+            is TaskScreenEvents.FilterTasks -> filterTask(event.filterString)
+            is TaskScreenEvents.ToggleGrid -> saveToPrefs(event.isGrid)
+            is TaskScreenEvents.SyncTask -> syncTaskToServer(event.task)
+            is TaskScreenEvents.CompleteTask -> completeTask(event.task)
+            is TaskScreenEvents.DeleteTask -> deleteTask(event.task)
         }
     }
 
@@ -50,6 +68,25 @@ class TasksViewModel @Inject constructor(
                             .toMutableList()
                             .apply { add(0, TaskCategory("All")) }
                             .filterNotNull()
+                    )
+                }
+            }
+        }
+    }
+
+    private fun syncTaskToServer(task: TaskItem) {
+        _uiState.update {
+            it.copy(
+                syncing = true
+            )
+        }
+        viewModelScope.launch(coroutineExceptionHandler) {
+            val result = uploadTaskToServerUseCase(task.copy(isSynced = true))
+            if (result.isSuccess) {
+                _uiState.update {
+                    it.copy(
+                        syncing = false,
+                        isSynced = true
                     )
                 }
             }
@@ -97,13 +134,41 @@ class TasksViewModel @Inject constructor(
         }
     }
 
-    fun onEvent(event: TaskScreenEvents) {
-        when (event) {
-            is TaskScreenEvents.LoadTasks -> getTasks()
-            is TaskScreenEvents.FilterTasks -> filterTask(event.filterString)
-            is TaskScreenEvents.ToggleGrid -> saveToPrefs(event.isGrid)
-            is TaskScreenEvents.NavigateToDetails -> {
-                // Navigate to details
+    private fun completeTask(task: TaskItem) {
+        viewModelScope.launch(coroutineExceptionHandler) {
+            val result = task.id?.let {
+                completeTaskUseCase(it)
+            }
+            if (result?.isSuccess == true) {
+                _uiState.update {
+                    it.copy(
+                        tasks = it.tasks.map { taskItem ->
+                            if (taskItem.id == task.id && !taskItem.isComplete) {
+                                taskItem.copy(isComplete = true)
+                            } else {
+                                taskItem
+                            }
+                        }
+                    )
+                }
+                syncTaskToServer(task.copy(isComplete = true))
+            }
+        }
+    }
+
+    private fun deleteTask(task: TaskItem) {
+        viewModelScope.launch(coroutineExceptionHandler) {
+            val result = task.id?.let {
+                deleteTaskUseCase(it)
+            }
+            if (result?.isSuccess == true) {
+                _uiState.update {
+                    it.copy(
+                        tasks = it.tasks.filter { taskItem ->
+                            taskItem.id != task.id
+                        }
+                    )
+                }
             }
         }
     }

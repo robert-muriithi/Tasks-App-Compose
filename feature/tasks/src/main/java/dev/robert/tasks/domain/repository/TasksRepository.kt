@@ -7,5 +7,7 @@ interface TasksRepository {
     val tasks: Flow<List<TaskItem>>
     fun getTaskById(id: Int): Flow<TaskItem>
     suspend fun saveTask(task: TaskItem): Result<Boolean>
-    suspend fun deleteTask(taskId: Int)
+    suspend fun deleteTask(taskId: Int): Result<Boolean>
+    suspend fun uploadTask(task: TaskItem): Result<Boolean>
+    suspend fun completeTask(taskId: Int): Result<Boolean>
 }

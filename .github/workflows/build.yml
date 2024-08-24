@@ -22,11 +22,27 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew assembleRelease
 
-      - name: Run Tests
+      - name: Run tests
         run: ./gradlew test
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-release.apk
+          path: app/build/outputs/apk/release/app-release.apk
+
+  automerge:
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.merged == false }}  # Only run if the PR is not yet merged
+    steps:
+      - id: automerge
+        name: automerge
+        uses: "pascalgn/automerge-action@v0.16.3"
+        env:
+          GITHUB_TOKEN: "${{ secrets.TOKEN_SECRETS }}"
+          MERGE_LABELS: ""
+
 
