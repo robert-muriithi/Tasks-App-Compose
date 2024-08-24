@@ -126,7 +126,7 @@ fun TDResetPasswordDialogContent(
 }
 
 @Composable
-fun CustomDialog(
+fun AlertDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
@@ -297,6 +297,6 @@ enum class DialogType {
 @Composable
 fun CustomDialogPreview() {
     Scaffold {
-        CustomDialog(onDismiss = {}, onConfirm = {}, title = "Example Title", message = "Example message", showCancel = false)
+        AlertDialog(onDismiss = {}, onConfirm = {}, title = "Example Title", message = "Example message", showCancel = false)
     }
 }

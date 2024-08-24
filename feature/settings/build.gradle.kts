@@ -2,10 +2,11 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ktlint)
-    alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlinx.serialization)
+    id("kotlin-parcelize")
 }
 
 apply {
@@ -16,6 +17,9 @@ apply {
 }
 apply {
     from("$rootDir/core-dependencies.gradle")
+}
+apply {
+    from("$rootDir/firebase.gradle")
 }
 
 android {
@@ -56,4 +60,5 @@ android {
 dependencies {
     implementation(libs.kotlinx.json)
     implementation((project(path = ":core:datastore")))
+    implementation(project(path = ":core:design-system"))
 }

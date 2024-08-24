@@ -12,6 +12,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -67,6 +68,9 @@ fun NavigationDrawerContent(
                                 contentDescription = item.title
                             )
                         },
+                        colors =  NavigationDrawerItemDefaults.colors(
+                            selectedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        )
                     )
                 }
             }
@@ -118,8 +122,8 @@ fun DrawerSection(title: String, content: @Composable () -> Unit) {
 
 sealed class NavDrawerItem(val title: String, val icon: Int, val section: Section = Section.Main) {
     data object Home : NavDrawerItem(HOME, R.drawable.home_24px, section = Section.Main)
-    data object Profile : NavDrawerItem(PROFILE, R.drawable.account_circle_24px, section = Section.Main)
     data object Settings : NavDrawerItem(SETTINGS, R.drawable.settings_24px, section = Section.Main)
+    data object Profile : NavDrawerItem(PROFILE, R.drawable.account_circle_24px, section = Section.Main)
     data object Logout : NavDrawerItem(LOGOUT, R.drawable.logout_24px, section = Section.Secondary)
 
     companion object {

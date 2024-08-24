@@ -29,11 +29,11 @@ class MainActivity : ComponentActivity() {
         }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.light(
+            statusBarStyle = SystemBarStyle.auto(
                 Color.TRANSPARENT,
                 Color.TRANSPARENT
             ),
-            navigationBarStyle = SystemBarStyle.light(
+            navigationBarStyle = SystemBarStyle.auto(
                 Color.TRANSPARENT,
                 Color.TRANSPARENT
             )
@@ -53,9 +53,7 @@ class MainActivity : ComponentActivity() {
                     startDestination = startDestination,
                     navController = navController,
                     scope = scope,
-                    onSignOut = {
-                        viewModel::signOut
-                    }
+                    onSignOut = viewModel::signOut
                 )
             }
         }
