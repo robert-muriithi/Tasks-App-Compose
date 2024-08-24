@@ -166,12 +166,15 @@ fun MainApp(
                                     NavDrawerItem.Home.title -> navController.navigate(
                                         TasksScreen
                                     )
+
                                     NavDrawerItem.Profile.title -> navController.navigate(
                                         ProfileNavGraph
                                     )
+
                                     NavDrawerItem.Settings.title -> navController.navigate(
                                         AuthNavGraph
                                     )
+
                                     NavDrawerItem.Logout.title -> {
                                         onSignOut()
                                         navController.navigate(

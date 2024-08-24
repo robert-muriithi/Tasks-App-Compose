@@ -1,0 +1,23 @@
+android {
+
+    defaultConfig {
+        versionCode getNextVersionCode()
+        versionName getVersionName()
+    }
+}
+
+def getNextVersionCode() {
+    def versionCodeFile = file("version_code.txt")
+    def versionCode = 1
+    if (versionCodeFile.exists()) {
+        versionCode = versionCodeFile.text.toInteger() + 1
+    }
+    versionCodeFile.text = versionCode.toString()
+    return versionCode
+}
+
+def getVersionName() {
+    def date = new Date()
+    def formattedDate = date.format("yyyy.MM.dd")
+    return "${formattedDate}.${getNextVersionCode()}"
+}
