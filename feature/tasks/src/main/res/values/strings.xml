@@ -27,4 +27,9 @@
     <string name="completed">Complete</string>
     <string name="incomplete">Incomplete</string>
     <string name="completion_date">Completion</string>
+    <string name="options">Options</string>
+    <string name="mark_task_as_complete">Mark Task as Complete</string>
+    <string name="sync_task">Sync Task</string>
+    <string name="delete_task">Delete Task</string>
+    <string name="edit_task">Edit Task</string>
 </resources>
