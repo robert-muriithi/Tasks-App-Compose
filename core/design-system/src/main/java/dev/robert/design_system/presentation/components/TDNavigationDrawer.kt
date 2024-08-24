@@ -12,6 +12,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -66,6 +68,9 @@ fun NavigationDrawerContent(
                                 contentDescription = item.title
                             )
                         },
+                        colors =  NavigationDrawerItemDefaults.colors(
+                            selectedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        )
                     )
                 }
             }
@@ -73,6 +78,9 @@ fun NavigationDrawerContent(
                 HorizontalDivider(modifier = Modifier.padding(top = 8.dp, bottom = 8.dp))
             }
         }
+        Spacer(modifier = Modifier.weight(1f))
+        // TODO: Add versioning
+        Text(text = "Version 0.0.1-alpha", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(16.dp))
     }
 }
 
@@ -81,7 +89,8 @@ fun DrawerHeader(
     user: UserObject
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -91,7 +100,7 @@ fun DrawerHeader(
                 .crossfade(true)
                 .build(),
             placeholder = painterResource(R.drawable.account_circle_24px),
-            contentDescription = "Profile Image",
+            contentDescription = stringResource(R.string.profile_image),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .clip(CircleShape)
@@ -113,8 +122,8 @@ fun DrawerSection(title: String, content: @Composable () -> Unit) {
 
 sealed class NavDrawerItem(val title: String, val icon: Int, val section: Section = Section.Main) {
     data object Home : NavDrawerItem(HOME, R.drawable.home_24px, section = Section.Main)
-    data object Profile : NavDrawerItem(PROFILE, R.drawable.account_circle_24px, section = Section.Main)
     data object Settings : NavDrawerItem(SETTINGS, R.drawable.settings_24px, section = Section.Main)
+    data object Profile : NavDrawerItem(PROFILE, R.drawable.account_circle_24px, section = Section.Main)
     data object Logout : NavDrawerItem(LOGOUT, R.drawable.logout_24px, section = Section.Secondary)
 
     companion object {

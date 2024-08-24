@@ -64,7 +64,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dev.robert.design_system.presentation.components.CustomDialog
+import dev.robert.design_system.presentation.components.AlertDialog
 import dev.robert.design_system.presentation.components.DialogType
 import dev.robert.design_system.presentation.components.Option
 import dev.robert.design_system.presentation.components.OptionsDialog
@@ -153,7 +153,7 @@ fun DialogErrorState(
     }
 
     if (showDialog.value) {
-        CustomDialog(
+        AlertDialog(
             onDismiss = { showDialog.value = false },
             onConfirm = onRetry,
             title = stringResource(R.string.error),
@@ -242,15 +242,15 @@ fun TaskSuccessState(
     }
     if (showOptionsDialog.value)
         OptionsDialog(
-            title = "Options",
+            title = stringResource(R.string.options),
             options = listOf(
                 Option(
-                    text = "Edit Task",
+                    text = stringResource(R.string.edit_task),
                     icon = Icons.Default.Edit,
                     onClick = { selectedTaskItem?.let(onNavigateToDetails) },
                 ),
                 Option(
-                    text = "Mark Task as Complete",
+                    text = stringResource(R.string.mark_task_as_complete),
                     icon = Icons.Default.CheckCircle,
                     onClick = {
                         selectedTaskItem?.let(onCompleteTask)
@@ -258,7 +258,7 @@ fun TaskSuccessState(
                     enabled = !selectedTaskItem?.isComplete!!
                 ),
                 Option(
-                    text = "Sync Task",
+                    text = stringResource(R.string.sync_task),
                     icon = Icons.Default.Refresh,
                     onClick = {
                         selectedTaskItem?.let(onSyncTask)
@@ -266,8 +266,8 @@ fun TaskSuccessState(
                     enabled = !selectedTaskItem?.isSynced!!
                 ),
                 Option(
-                    text = "Delete Task",
-                    Icons.Default.Delete,
+                    text = stringResource(R.string.delete_task),
+                    icon = Icons.Default.Delete,
                     iconTint = {
                         MaterialTheme.colorScheme.error
                     },
@@ -534,9 +534,8 @@ fun TasksCategory(
         }
         .clip(RoundedCornerShape(10.dp))
         .background(
-            color = if (selected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondary.copy(
-                alpha = 0.2f
-            )
+            color = if (selected) MaterialTheme.colorScheme.tertiaryContainer else
+                MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)
         )
         .padding(8.dp)
     ) {
@@ -592,7 +591,7 @@ fun TaskCardItem(
                 }
             )
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f))
+            .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f))
 
     ) {
         Box(

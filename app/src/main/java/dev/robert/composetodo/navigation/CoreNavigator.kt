@@ -1,5 +1,7 @@
 package dev.robert.composetodo.navigation
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,14 +23,15 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -44,6 +47,7 @@ import dev.robert.auth.presentation.navigation.AuthNavGraph
 import dev.robert.auth.presentation.navigation.RegisterScreen
 import dev.robert.auth.presentation.navigation.authNavGraph
 import dev.robert.compose_todo.R
+import dev.robert.composetodo.utils.ConstantUtils
 import dev.robert.design_system.presentation.components.NavDrawerItem
 import dev.robert.design_system.presentation.components.NavigationDrawerContent
 import dev.robert.design_system.presentation.components.TDAppBar
@@ -54,6 +58,10 @@ import dev.robert.onboarding.presentation.navigation.onBoardingNavGraph
 import dev.robert.profile.presentation.navigation.ProfileNavGraph
 import dev.robert.profile.presentation.navigation.ProfileScreen
 import dev.robert.profile.presentation.navigation.profileNavGraph
+import dev.robert.settings.presentation.navigation.ChangePasswordScreen
+import dev.robert.settings.presentation.navigation.SettingsNavGraph
+import dev.robert.settings.presentation.navigation.SettingsScreen
+import dev.robert.settings.presentation.navigation.settingsNavGraph
 import dev.robert.tasks.presentation.navigation.AddTaskScreen
 import dev.robert.tasks.presentation.navigation.SearchScreen
 import dev.robert.tasks.presentation.navigation.Task
@@ -68,8 +76,8 @@ fun TodoCoreNavigator(
     startDestination: Any,
     modifier: Modifier,
     navController: NavHostController = rememberNavController(),
-    onUpdateGridState: (Boolean) -> Unit,
 ) {
+    val context = LocalContext.current
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -116,7 +124,37 @@ fun TodoCoreNavigator(
                 navController.navigateUp()
             }
         )
-        profileNavGraph { navController.navigateUp() }
+        profileNavGraph {
+            navController.navigateUp()
+        }
+        settingsNavGraph(
+            onNavigateToProfile = {
+                navController.navigate(ProfileNavGraph)
+            },
+            onNavigateToChangePassword = {
+                navController.navigate(ChangePasswordScreen)
+            },
+            onNavigateToRateApp = {
+                val uri = Uri.parse(ConstantUtils.RATE_APP_URL)
+                context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+            },
+            onNavigateToReportIssue = {
+                val uri = Uri.parse(ConstantUtils.REPORT_ISSUE_URL)
+                context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+            },
+            onNavigateToAbout = {
+                val uri = Uri.parse(ConstantUtils.RATE_APP_URL)
+                context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+            },
+            onNavigateToLogin = {
+                navController.navigate(
+                    route = AuthNavGraph,
+                    navOptions = NavOptions.Builder()
+                        .setPopUpTo(navController.graph.id, true)
+                        .build(),
+                )
+            }
+        )
     }
 }
 
@@ -144,15 +182,26 @@ fun MainApp(
     var selectedIndex by remember {
         mutableIntStateOf(0)
     }
-    val onUpdateGridState: (Boolean) -> Unit = {
+
+    // TODO: FIX THIS/ OR FIND BETTER APPROACH.. it's always reseting to 0 when user navigates back
+    LaunchedEffect(currentDestination) {
+        selectedIndex = when {
+            currentDestination?.hasRoute(TasksScreen::class) == true -> 0
+            currentDestination?.hasRoute(ProfileScreen::class) == true -> 1
+            currentDestination?.hasRoute(SettingsScreen::class) == true -> 2
+            else -> 0
+        }
     }
+
     TDSurface(
         modifier = Modifier.fillMaxSize()
     ) {
         ModalNavigationDrawer(
             drawerContent = {
                 if (showDrawer) {
-                    ModalDrawerSheet {
+                    ModalDrawerSheet(
+                        drawerContainerColor = MaterialTheme.colorScheme.background,
+                    ) {
                         NavigationDrawerContent(
                             user = userObject,
                             modifier = Modifier.fillMaxWidth(),
@@ -166,12 +215,15 @@ fun MainApp(
                                     NavDrawerItem.Home.title -> navController.navigate(
                                         TasksScreen
                                     )
+
                                     NavDrawerItem.Profile.title -> navController.navigate(
                                         ProfileNavGraph
                                     )
+
                                     NavDrawerItem.Settings.title -> navController.navigate(
-                                        AuthNavGraph
+                                        SettingsNavGraph
                                     )
+
                                     NavDrawerItem.Logout.title -> {
                                         onSignOut()
                                         navController.navigate(
@@ -195,6 +247,8 @@ fun MainApp(
                 Task::class,
                 ProfileScreen::class,
                 SearchScreen::class,
+                SettingsScreen::class,
+                ChangePasswordScreen::class
             ).any { currentDestination?.hasRoute(it) == true }
 
             Scaffold(
@@ -204,7 +258,9 @@ fun MainApp(
                             when {
                                 currentDestination?.hasRoute(Task::class) == true -> Text(text = "${navBackStackEntry?.toRoute<Task>()?.item?.name}", maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 currentDestination?.hasRoute(TasksScreen::class) == true -> Text(text = "Welcome, ${user?.displayName?.split(" ")?.first()}")
+                                currentDestination?.hasRoute(SettingsScreen::class) == true -> Text(text = "Settings")
                                 currentDestination?.hasRoute(ProfileScreen::class) == true -> Text(text = "Profile")
+                                currentDestination?.hasRoute(ChangePasswordScreen::class) == true -> Text(text = "Change Password")
                                 currentDestination?.hasRoute(SearchScreen::class) == true -> TDFilledTextField(
                                     onValueChange = {},
                                     value = "",
@@ -261,13 +317,6 @@ fun MainApp(
                                 }
                             }
                         },
-                        colors = TopAppBarColors(
-                            containerColor = if (currentDestination?.hasRoute(TasksScreen::class) == true) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.primary,
-                            titleContentColor = if (currentDestination?.hasRoute(TasksScreen::class) == true) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onPrimary,
-                            navigationIconContentColor = if (currentDestination?.hasRoute(TasksScreen::class) == true) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onPrimary,
-                            actionIconContentColor = MaterialTheme.colorScheme.onSurface,
-                            scrolledContainerColor = MaterialTheme.colorScheme.surface,
-                        )
                     )
                 },
                 floatingActionButton = {
@@ -277,7 +326,8 @@ fun MainApp(
                         FloatingActionButton(
                             onClick = {
                                 navController.navigate(AddTaskScreen)
-                            }
+                            },
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                         ) {
                             Icon(imageVector = Icons.Default.Add, contentDescription = null)
                         }
@@ -288,8 +338,6 @@ fun MainApp(
                     navController = navController,
                     startDestination = startDestination,
                     modifier = Modifier.padding(paddingValues),
-                    onUpdateGridState = onUpdateGridState,
-
                 )
             }
         }

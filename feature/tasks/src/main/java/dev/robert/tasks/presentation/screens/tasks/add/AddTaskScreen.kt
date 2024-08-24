@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.robert.design_system.presentation.components.AdvancedTimePicker
-import dev.robert.design_system.presentation.components.CustomDialog
+import dev.robert.design_system.presentation.components.AlertDialog
 import dev.robert.design_system.presentation.components.DialogType
 import dev.robert.design_system.presentation.components.TDButton
 import dev.robert.design_system.presentation.components.TDFilledTextField
@@ -163,7 +163,7 @@ fun AddTaskScreen(
         }
     )
 
-    if (showDialog) CustomDialog(
+    if (showDialog) AlertDialog(
         onConfirm = {
             showDialog = false
             onNavigateUp()
@@ -509,7 +509,16 @@ fun AddCategoryBottomSheet(
 fun AddTaskScreenPreview() {
     TDSurface {
         AddTaskContent(
-            AddTaskState(),
+            AddTaskState(
+                categories = listOf(
+                    TaskCategory("Work"),
+                    TaskCategory("Personal"),
+                    TaskCategory("Shopping"),
+                    TaskCategory("Home"),
+                    TaskCategory("School"),
+                    TaskCategory("Others")
+                ),
+            ),
             onTaskDescriptionChange = {},
             onTaskEndDateChange = {},
             onTaskStartDateChange = {},

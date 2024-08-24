@@ -22,6 +22,9 @@ apply {
 apply {
     from("$rootDir/firebase.gradle")
 }
+apply {
+    from("$rootDir/versioning.gradle")
+}
 
 android {
     namespace = "dev.robert.compose_todo"
@@ -31,9 +34,6 @@ android {
         applicationId = "dev.robert.compose_todo"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
