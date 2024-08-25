@@ -13,7 +13,7 @@ import kotlinx.coroutines.tasks.await
 
 class GoogleAuthSignInClient(
     private val oneTapClient: SignInClient,
-    private val webClientId: String
+    webClientId: String
 ) {
 
     private val mAuth = FirebaseAuth.getInstance()
@@ -33,7 +33,7 @@ class GoogleAuthSignInClient(
         .setAutoSelectEnabled(true)
         .build()
 
-    suspend fun signOut() {
+    fun signOut() {
         try {
             mAuth.signOut()
             oneTapClient.signOut()
@@ -43,7 +43,7 @@ class GoogleAuthSignInClient(
         }
     }
 
-    suspend fun revokeAccess() {
+    fun revokeAccess() {
         try {
             mAuth.currentUser?.delete()
         } catch (e: Exception) {

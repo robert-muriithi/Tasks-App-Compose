@@ -38,7 +38,6 @@ class AuthenticationRepositoryImpl(
     }
 
     override suspend fun logout() {
-        mAuth.signOut()
         preferences.saveUserLoggedIn(false)
     }
 

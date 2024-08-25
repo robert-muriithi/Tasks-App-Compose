@@ -17,8 +17,8 @@ class ProfileRepositoryImpl(
         mAuth.currentUser?.let {
             emit(
                 Profile(
-                    name = it.displayName,
-                    email = it.email!!,
+                    name = it.displayName ?: "",
+                    email = it.email ?: "",
                     photoUrl = it.photoUrl.toString(),
                     id = it.uid
                 )

@@ -12,24 +12,16 @@ object ProfileNavGraph
 @Serializable
 object ProfileScreen
 
-fun NavGraphBuilder.profileNavGraph(
-    onNavigateUp: () -> Unit,
-) {
+fun NavGraphBuilder.profileNavGraph() {
     navigation<ProfileNavGraph>(
         startDestination = ProfileScreen,
     ) {
-        profileScreen(
-            onNavigateBack = onNavigateUp,
-        )
+        profileScreen()
     }
 }
 
-fun NavGraphBuilder.profileScreen(
-    onNavigateBack: () -> Unit,
-) {
+fun NavGraphBuilder.profileScreen() {
     composable<ProfileScreen> {
-        ProfileScreen(
-            onNavigateBack = onNavigateBack,
-        )
+        ProfileScreen()
     }
 }
