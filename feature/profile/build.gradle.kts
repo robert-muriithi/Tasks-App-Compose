@@ -58,6 +58,8 @@ android {
 
 dependencies {
     implementation(libs.kotlinx.json)
+    implementation(libs.vico.compose.m3)
+    implementation(libs.vico.compose)
     implementation(project(path = ":core:design-system"))
     implementation(project(path = ":core:datastore"))
 }

@@ -124,9 +124,8 @@ fun TodoCoreNavigator(
                 navController.navigateUp()
             }
         )
-        profileNavGraph {
-            navController.navigateUp()
-        }
+        profileNavGraph()
+
         settingsNavGraph(
             onNavigateToProfile = {
                 navController.navigate(ProfileNavGraph)

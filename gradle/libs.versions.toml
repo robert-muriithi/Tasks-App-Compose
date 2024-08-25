@@ -30,6 +30,7 @@ kotlin-serialization = "2.0.0"
 datastore = "1.1.1"
 moduleGraphVersion = "0.10.0"
 kotlinParcelize = "2.0.20-Beta2"
+vico = "2.0.0-alpha.28"
 
 
 [libraries]
@@ -71,6 +72,9 @@ datastore-preferences-core = { module = "androidx.datastore:datastore-preference
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }
+vico-compose = { group = "com.patrykandpatrick.vico", name = "compose", version.ref = "vico" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -23,8 +23,8 @@ class ProfileViewModel @Inject constructor(
     preferences: TodoAppPreferences
 ) : ViewModel() {
 
-    private val _profile = MutableStateFlow(ProfileScreenState())
-    val profile = _profile.asStateFlow()
+    private val _uiState = MutableStateFlow(ProfileScreenState())
+    val uiState = _uiState.asStateFlow()
 
     private val _action = Channel<ProfileScreenActions>()
     val action = _action.receiveAsFlow()
@@ -33,52 +33,45 @@ class ProfileViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = ""
+            initialValue = null
         )
 
     fun onEvent(event: ProfileScreenEvents) {
         when (event) {
-            is ProfileScreenEvents.LoadProfile -> loadProfile()
             is ProfileScreenEvents.EditProfile -> {}
         }
     }
 
-    private fun loadProfile() {
-        viewModelScope.launch {
-            loginType.collectLatest { type ->
-                Timber.d("Login type: $type")
-                when (type) {
-                    TodoAppPreferences.LOGIN_TYPE_GOOGLE -> {
-                        val profile = repository.getProfileGoogleSignIn()
-                            .stateIn(
-                                scope = viewModelScope,
-                                started = SharingStarted.WhileSubscribed(5000L),
-                                initialValue = null
-                            )
-                        _profile.update {
-                            it.copy(profile = profile.value, isLoading = false, loginType = TodoAppPreferences.LOGIN_TYPE_GOOGLE)
-                        }
+    private fun loadProfile() = viewModelScope.launch {
+        loginType.collectLatest { type ->
+            Timber.d("Login type: $type")
+            when (type) {
+                "google" -> {
+                    repository.getProfileGoogleSignIn().collectLatest { profile ->
+                        _uiState.update { it.copy(profile = profile, loginType = type) }
                     }
-
-                    TodoAppPreferences.LOGIN_TYPE_EMAIL -> {
-                        val profile = repository.getProfileFirebaseFirestore()
-                            .stateIn(
-                                scope = viewModelScope,
-                                started = SharingStarted.WhileSubscribed(5000L),
-                                initialValue = null
-                            ).value
-                        if (profile?.isSuccess == true) _profile.update {
-                            it.copy(profile = profile.getOrNull(), isLoading = false, loginType = TodoAppPreferences.LOGIN_TYPE_EMAIL)
-                        } else {
-                            _profile.update {
-                                it.copy(error = profile?.exceptionOrNull()?.message, isLoading = false)
-                            }
-                            _action.send(ProfileScreenActions.ShowError(profile?.exceptionOrNull()?.message ?: "Error"))
+                }
+                else -> {
+                    repository.getProfileFirebaseFirestore().collectLatest { result ->
+                        result.onSuccess { profile ->
+                            _uiState.update { it.copy(profile = profile, loginType = type.toString()) }
+                        }
+                        result.onFailure { error ->
+                            Timber.e(error)
+                            _action.send(
+                                ProfileScreenActions.ShowError(
+                                    error.message ?: "An error occurred"
+                                )
+                            )
                         }
                     }
                 }
             }
         }
+    }
+
+    init {
+        loadProfile()
     }
 }
 
