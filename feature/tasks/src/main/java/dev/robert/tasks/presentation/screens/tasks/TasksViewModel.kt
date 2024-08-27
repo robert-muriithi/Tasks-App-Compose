@@ -41,7 +41,7 @@ class TasksViewModel @Inject constructor(
 
     fun onEvent(event: TaskScreenEvents) {
         when (event) {
-            is TaskScreenEvents.LoadTasks -> getTasks()
+            is TaskScreenEvents.LoadTasks -> getTasks(event.fetchRemote)
             is TaskScreenEvents.FilterTasks -> filterTask(event.filterString)
             is TaskScreenEvents.ToggleGrid -> saveToPrefs(event.isGrid)
             is TaskScreenEvents.SyncTask -> syncTaskToServer(event.task)
@@ -50,7 +50,7 @@ class TasksViewModel @Inject constructor(
         }
     }
 
-    private fun getTasks() {
+    private fun getTasks(fetchRemote: Boolean) {
         _uiState.update {
             it.copy(
                 isLoading = true
@@ -58,7 +58,7 @@ class TasksViewModel @Inject constructor(
         }
         viewModelScope.launch(coroutineExceptionHandler) {
             getIsGrid()
-            getTasksUseCase().collectLatest { tasks ->
+            getTasksUseCase(fetchRemote).collectLatest { tasks ->
                 _uiState.update { state ->
                     state.copy(
                         tasks = tasks,
@@ -95,7 +95,7 @@ class TasksViewModel @Inject constructor(
 
     private fun filterTask(filterString: String) {
         viewModelScope.launch(coroutineExceptionHandler) {
-            getTasksUseCase().collectLatest { tasks ->
+            getTasksUseCase(false).collectLatest { tasks ->
                 _uiState.update { state ->
                     state.copy(
                         tasks = if (filterString == "All") tasks
