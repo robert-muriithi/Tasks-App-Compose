@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.robert.datastore.data.TodoAppPreferences
+import dev.robert.design_system.presentation.utils.getCurrentDateTime
 import dev.robert.tasks.domain.model.TaskCategory
 import dev.robert.tasks.domain.model.TaskItem
 import dev.robert.tasks.domain.usecase.CompleteTaskUseCase
@@ -47,13 +48,15 @@ class TasksViewModel @Inject constructor(
             is TaskScreenEvents.SyncTask -> syncTaskToServer(event.task)
             is TaskScreenEvents.CompleteTask -> completeTask(event.task)
             is TaskScreenEvents.DeleteTask -> deleteTask(event.task)
+            is TaskScreenEvents.RefreshTasks -> getTasks(event.fetchRemote, event.refresh)
         }
     }
 
-    private fun getTasks(fetchRemote: Boolean) {
+    private fun getTasks(fetchRemote: Boolean, refresh: Boolean = false) {
         _uiState.update {
             it.copy(
-                isLoading = true
+                isLoading = !refresh,
+                isRefreshing = refresh
             )
         }
         viewModelScope.launch(coroutineExceptionHandler) {
@@ -63,6 +66,8 @@ class TasksViewModel @Inject constructor(
                     state.copy(
                         tasks = tasks,
                         isLoading = false,
+                        isRefreshing = false,
+                        refreshed = refresh,
                         category = tasks.map { it.category }
                             .distinct()
                             .toMutableList()
@@ -144,7 +149,7 @@ class TasksViewModel @Inject constructor(
                     it.copy(
                         tasks = it.tasks.map { taskItem ->
                             if (taskItem.id == task.id && !taskItem.isComplete) {
-                                taskItem.copy(isComplete = true)
+                                taskItem.copy(isComplete = true, completionDate = getCurrentDateTime().toString())
                             } else {
                                 taskItem
                             }

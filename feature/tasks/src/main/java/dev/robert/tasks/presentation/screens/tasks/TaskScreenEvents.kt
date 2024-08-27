@@ -10,4 +10,5 @@ sealed class TaskScreenEvents {
     data class SyncTask(val task: TaskItem) : TaskScreenEvents()
     data class CompleteTask(val task: TaskItem) : TaskScreenEvents()
     data class DeleteTask(val task: TaskItem) : TaskScreenEvents()
+    data class RefreshTasks(val fetchRemote: Boolean = false, val refresh: Boolean = true) : TaskScreenEvents()
 }

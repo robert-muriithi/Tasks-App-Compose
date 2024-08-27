@@ -35,13 +35,15 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +55,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -69,11 +73,15 @@ import dev.robert.design_system.presentation.components.DialogType
 import dev.robert.design_system.presentation.components.Option
 import dev.robert.design_system.presentation.components.OptionsDialog
 import dev.robert.design_system.presentation.components.RotatingSyncIcon
+import dev.robert.design_system.presentation.utils.getCurrentDateTime
+import dev.robert.design_system.presentation.utils.isInternetAvailable
 import dev.robert.tasks.R
 import dev.robert.tasks.domain.model.TaskItem
 import dev.robert.tasks.presentation.components.CircularProgressbar
 import dev.robert.tasks.presentation.components.HomeShimmerLoading
 import java.util.Date
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun TaskScreen(
@@ -84,16 +92,24 @@ fun TaskScreen(
     val gridState = rememberLazyGridState()
 
     LaunchedEffect(key1 = Unit) {
-        if (tasks.tasks.isEmpty()) {
-            viewModel.onEvent(TaskScreenEvents.LoadTasks(true))
+        val isOnline = withContext(Dispatchers.IO) {
+            isInternetAvailable()
         }
-        tasks.tasks.filter { !it.isSynced }.forEach {
-            viewModel.onEvent(TaskScreenEvents.SyncTask(it))
-        }
-    }
 
+        if (tasks.tasks.isEmpty()) {
+            viewModel.onEvent(TaskScreenEvents.LoadTasks(isOnline))
+        }
+
+        if (isOnline) {
+            tasks.tasks.filter { !it.isSynced }.forEach {
+                viewModel.onEvent(TaskScreenEvents.SyncTask(it))
+            }
+        }
+//        } else {
+//            viewModel.onEvent(TaskScreenEvents.SetOfflineMode(true))
+//        }
+    }
     val scrollState = rememberScrollState()
-    val showDialog = remember { mutableStateOf(false) }
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -103,7 +119,6 @@ fun TaskScreen(
                 TaskSuccessState(
                     state = tasks,
                     onNavigateToDetails = onNavigateToDetails,
-                    gridState = gridState,
                     categories = tasks.category.map { it?.name ?: "" },
                     onEvent = viewModel::onEvent,
                 )
@@ -113,9 +128,7 @@ fun TaskScreen(
                     state = tasks,
                     onRetry = {
                         viewModel.onEvent(TaskScreenEvents.LoadTasks())
-                        showDialog.value = false
                     },
-                    showDialog = showDialog
                 )
             },
             emptyContent = {
@@ -133,8 +146,9 @@ fun TaskScreen(
 fun DialogErrorState(
     state: TasksScreenState,
     onRetry: () -> Unit,
-    showDialog: MutableState<Boolean>
 ) {
+    val showDialog = remember { mutableStateOf(false) }
+
     if (state.error != null) {
         showDialog.value = true
     }
@@ -202,24 +216,38 @@ fun TasksEmptyState(
 fun TaskSuccessState(
     state: TasksScreenState,
     onNavigateToDetails: (TaskItem) -> Unit,
-    gridState: LazyGridState,
     categories: List<String>?,
     onEvent: (TaskScreenEvents) -> Unit
 ) {
     val showOptionsDialog = remember { mutableStateOf(false) }
     var selectedTaskItem by remember { mutableStateOf<TaskItem?>(null) }
 
+    val context = LocalContext.current
+    var isOnline by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = Unit) {
+        isOnline = withContext(Dispatchers.IO) {
+            isInternetAvailable()
+        }
+//        if (state.refreshed) Toast.makeText(context, "Data successfully refreshed", Toast.LENGTH_SHORT).show()
+    }
+
     if (!state.isLoading && state.error == null) {
-        TasksList(
+        PullToRefreshLazyVerticalGrid(
             state = state,
             onNavigateToDetails = onNavigateToDetails,
-            gridState = gridState,
             categories = categories,
             onTaskLongPress = { taskItem ->
                 showOptionsDialog.value = true
                 selectedTaskItem = taskItem
             },
-            onEvent = onEvent
+            onEvent = onEvent,
+            onRefresh = {
+                onEvent(TaskScreenEvents.RefreshTasks(
+                    fetchRemote = isOnline
+                ))
+            },
+            isRefreshing = state.isRefreshing
         )
     }
     if (showOptionsDialog.value)
@@ -271,72 +299,103 @@ fun TaskSuccessState(
         )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TasksList(
+fun PullToRefreshLazyVerticalGrid(
     state: TasksScreenState,
-    onNavigateToDetails: (TaskItem) -> Unit,
-    gridState: LazyGridState,
     categories: List<String>?,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
+    onNavigateToDetails: (TaskItem) -> Unit,
     onTaskLongPress: (TaskItem) -> Unit,
     onEvent: (TaskScreenEvents) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    gridState: LazyGridState = rememberLazyGridState()
 ) {
+    val pullToRefreshState = rememberPullToRefreshState()
+
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing) {
+            pullToRefreshState.startRefresh()
+        } else {
+            pullToRefreshState.endRefresh()
+        }
+    }
+
+    LaunchedEffect(pullToRefreshState.isRefreshing) {
+        if (pullToRefreshState.isRefreshing) {
+            onRefresh()
+        }
+    }
+
     val isGridView = state.isGridView
-    LazyVerticalGrid(
+
+    Box(
         modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        state = gridState,
-        columns = if (isGridView) GridCells.Adaptive(180.dp) else GridCells.Fixed(2),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+            .nestedScroll(pullToRefreshState.nestedScrollConnection)
     ) {
-        item(
-            span = {
-                GridItemSpan(maxLineSpan)
-            }
+        LazyVerticalGrid(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            state = gridState,
+            columns = if (isGridView) GridCells.Adaptive(180.dp) else GridCells.Fixed(2),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            AnalyticsSection(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.tertiaryContainer)
-                    .padding(16.dp),
-                state = state
-            )
-        }
-        item(
-            span = {
-                GridItemSpan(maxLineSpan)
+            item(
+                span = {
+                    GridItemSpan(maxLineSpan)
+                }
+            ) {
+                AnalyticsSection(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(MaterialTheme.colorScheme.tertiaryContainer)
+                        .padding(16.dp),
+                    state = state
+                )
             }
-        ) {
-            TasksCategories(
-                categories = categories,
-                onEvent = onEvent,
-                state = state
-            )
-        }
-        items(
-            count = state.tasks.size,
-            key = { index -> state.tasks[index].id.toString() },
-            span = {
-                GridItemSpan(if (isGridView) 1 else 2)
+            item(
+                span = {
+                    GridItemSpan(maxLineSpan)
+                }
+            ) {
+                TasksCategories(
+                    categories = categories,
+                    onEvent = onEvent,
+                    state = state
+                )
             }
-        ) { index: Int ->
-            val task = state.tasks[index]
-            TaskCardItem(
-                modifier = Modifier,
-                onClick = {
-                    onNavigateToDetails(task)
-                },
-                task = task,
-                isGridView = isGridView,
-                onTaskLongPress = onTaskLongPress,
-                syncing = state.syncing,
-                isSycned = task.isSynced
-            )
+            items(
+                count = state.tasks.size,
+                key = { index -> state.tasks[index].id.toString() },
+                span = {
+                    GridItemSpan(if (isGridView) 1 else 2)
+                }
+            ) { index ->
+                val task = state.tasks[index]
+                TaskCardItem(
+                    modifier = Modifier,
+                    onClick = {
+                        onNavigateToDetails(task)
+                    },
+                    task = task,
+                    isGridView = isGridView,
+                    onTaskLongPress = onTaskLongPress,
+                    syncing = state.syncing,
+                    isSycned = task.isSynced,
+                )
+            }
         }
+
+        PullToRefreshContainer(
+            state = pullToRefreshState,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+        )
     }
 }
 
@@ -414,7 +473,7 @@ fun AnalyticsSection(
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
                         text = stringResource(R.string.today_s_complete_tasks,
-                            state.tasks.count { it.completionDate == Date().toString() }
+                            state.tasks.count { it.completionDate == getCurrentDateTime().toString() }
                         ),
                         style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
                         fontWeight = FontWeight(600)

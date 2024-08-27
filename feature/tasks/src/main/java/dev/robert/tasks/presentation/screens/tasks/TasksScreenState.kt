@@ -11,5 +11,7 @@ data class TasksScreenState(
     val update: Boolean = false,
     val isGridView: Boolean = true,
     val isSynced: Boolean = false,
-    val syncing: Boolean = false
+    val syncing: Boolean = false,
+    val isRefreshing: Boolean = false,
+    val refreshed: Boolean = false
 )
