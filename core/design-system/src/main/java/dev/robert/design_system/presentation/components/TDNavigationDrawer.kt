@@ -1,6 +1,8 @@
 package dev.robert.design_system.presentation.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,7 +36,8 @@ import dev.robert.design_system.R
 
 @Composable
 fun NavigationDrawerContent(
-    modifier: Modifier,
+    user: UserObject,
+    modifier: Modifier = Modifier,
     onTap: (String, Int) -> Unit = { _, _ -> },
     items: List<NavDrawerItem> = listOf(
         NavDrawerItem.Home,
@@ -42,7 +45,6 @@ fun NavigationDrawerContent(
         NavDrawerItem.Settings,
         NavDrawerItem.Logout
     ),
-    user: UserObject,
     selectedItem: Int = 0
 ) {
     var isHeaderExpanded by remember { mutableStateOf(false) }
@@ -68,7 +70,7 @@ fun NavigationDrawerContent(
                                 contentDescription = item.title
                             )
                         },
-                        colors =  NavigationDrawerItemDefaults.colors(
+                        colors = NavigationDrawerItemDefaults.colors(
                             selectedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
                         )
                     )
@@ -80,21 +82,26 @@ fun NavigationDrawerContent(
         }
         Spacer(modifier = Modifier.weight(1f))
         // TODO: Add versioning
-        Text(text = "Version 0.0.1-alpha", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(16.dp))
+        Text(
+            text = "Version 0.0.1-alpha",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }
 
 @Composable
 fun DrawerHeader(
-    user: UserObject
+    user: UserObject,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        user.photoUrl?.let { AsyncImage(
+        /*user.photoUrl?.let { AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(it)
                 .crossfade(true)
@@ -105,17 +112,55 @@ fun DrawerHeader(
             modifier = Modifier
                 .clip(CircleShape)
                 .size(80.dp),
-        ) }
+        ) }*/
+        val photoUrl = user.photoUrl ?: ""
+        if (photoUrl.isNotEmpty()) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(user.photoUrl)
+                    .crossfade(true)
+                    .build(),
+                placeholder = painterResource(R.drawable.account_circle_24px),
+                contentDescription = stringResource(R.string.profile_image),
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .size(80.dp),
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .size(80.dp)
+                    .background(MaterialTheme.colorScheme.secondaryContainer)
+            ) {
+                Text(
+                    text = user.displayName?.firstOrNull()?.uppercase().toString(),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(8.dp))
-        user.displayName?.ifEmpty { "" }?.let { Text(text = it, style = MaterialTheme.typography.titleSmall) }
-        user.email.ifEmpty { "" }.let { Text(text = it, style = MaterialTheme.typography.bodySmall) }
+        user.displayName?.ifEmpty { "" }
+            ?.let { Text(text = it, style = MaterialTheme.typography.titleSmall) }
+        user.email.ifEmpty { "" }
+            .let { Text(text = it, style = MaterialTheme.typography.bodySmall) }
     }
 }
 
 @Composable
-fun DrawerSection(title: String, content: @Composable () -> Unit) {
+fun DrawerSection(
+    title: String,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
     if (title.isNotEmpty()) {
-        Text(text = title, style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(16.dp))
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(16.dp)
+        )
     }
     content()
 }
@@ -123,7 +168,9 @@ fun DrawerSection(title: String, content: @Composable () -> Unit) {
 sealed class NavDrawerItem(val title: String, val icon: Int, val section: Section = Section.Main) {
     data object Home : NavDrawerItem(HOME, R.drawable.home_24px, section = Section.Main)
     data object Settings : NavDrawerItem(SETTINGS, R.drawable.settings_24px, section = Section.Main)
-    data object Profile : NavDrawerItem(PROFILE, R.drawable.account_circle_24px, section = Section.Main)
+    data object Profile :
+        NavDrawerItem(PROFILE, R.drawable.account_circle_24px, section = Section.Main)
+
     data object Logout : NavDrawerItem(LOGOUT, R.drawable.logout_24px, section = Section.Secondary)
 
     companion object {
@@ -148,8 +195,11 @@ enum class Section {
 
 @Preview
 @Composable
-fun PreviewNavigationDrawerContent() {
+private fun PreviewNavigationDrawerContent() {
     TDSurface {
-        NavigationDrawerContent(modifier = Modifier.fillMaxWidth(), user = UserObject(email = "johndoe@gmal.com", displayName = "John Doe", photoUrl = null))
+        NavigationDrawerContent(
+            modifier = Modifier.fillMaxWidth(),
+            user = UserObject(email = "johndoe@gmal.com", displayName = "John Doe", photoUrl = null)
+        )
     }
 }

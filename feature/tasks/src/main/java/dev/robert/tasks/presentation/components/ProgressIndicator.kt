@@ -135,7 +135,7 @@ private fun DisplayText1(
 
 @Preview
 @Composable
-fun CircularProgressbarPreview() {
+private fun CircularProgressbarPreview() {
     CircularProgressbar(
         foregroundIndicatorColor = MaterialTheme.colorScheme.primary,
         shadowColor = Color.LightGray,

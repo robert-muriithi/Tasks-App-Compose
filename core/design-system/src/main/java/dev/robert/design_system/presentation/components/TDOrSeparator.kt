@@ -13,9 +13,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun TDOrSeparator() {
+fun TDOrSeparator(
+    modifier: Modifier = Modifier
+) {
     Row(
-        modifier = Modifier.height(20.dp).fillMaxWidth(),
+        modifier = modifier.height(20.dp).fillMaxWidth(),
     ) {
         Box(
             modifier = Modifier

@@ -66,28 +66,30 @@ fun LoginScreen(
         )
     }
     val scope = rememberCoroutineScope()
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
-        when (result.resultCode) {
-            Activity.RESULT_OK -> {
-                scope.launch {
-                    result.data?.let { googleAuthUiClient.signInWithIntent(it) }?.run {
-                        viewModel.onEvent(
-                            LoginScreenEvents.OnSignInWithGoogle(
-                                this
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+            when (result.resultCode) {
+                Activity.RESULT_OK -> {
+                    scope.launch {
+                        result.data?.let { googleAuthUiClient.signInWithIntent(it) }?.run {
+                            viewModel.onEvent(
+                                LoginScreenEvents.OnSignInWithGoogle(
+                                    this
+                                )
                             )
-                        )
+                        }
                     }
                 }
-            }
-            else -> {
-                viewModel.onEvent(
-                    LoginScreenEvents.OnSignInWithGoogle(
-                        GoogleSignResult(errorMsg = "Error ${result.resultCode}")
+
+                else -> {
+                    viewModel.onEvent(
+                        LoginScreenEvents.OnSignInWithGoogle(
+                            GoogleSignResult(errorMsg = "Error ${result.resultCode}")
+                        )
                     )
-                )
+                }
             }
         }
-    }
     LaunchedEffect(key1 = uiState.isAuthenticated) {
         viewModel.action.collectLatest { value: LoginAction ->
             when (value) {
@@ -96,6 +98,7 @@ fun LoginScreen(
                     uiState.user?.let { onNavigateToHome() }
                     viewModel.onEvent(LoginScreenEvents.OnResetState)
                 }
+
                 is LoginAction.ShowError -> {
                     Toast.makeText(applicationContext, value.message, Toast.LENGTH_SHORT).show()
                 }
@@ -147,14 +150,14 @@ fun LoginScreen(
 
 @Composable
 fun LoginScreenContent(
-    modifier: Modifier = Modifier,
     uiState: LoginState,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onLogin: () -> Unit,
     onRegister: () -> Unit,
     onForgotPassword: () -> Unit,
-    onSignInWithGoogle: () -> Unit,
+    modifier: Modifier = Modifier,
+    onSignInWithGoogle: () -> Unit
 ) {
     Column(
         modifier = modifier,
@@ -268,7 +271,7 @@ fun LoginScreenContent(
     showBackground = true
 )
 @Composable
-fun LoginScreenPreview(modifier: Modifier = Modifier) {
+private fun LoginScreenPreview(modifier: Modifier = Modifier) {
     Scaffold {
         Box(
             modifier = Modifier
@@ -292,5 +295,4 @@ fun LoginScreenPreview(modifier: Modifier = Modifier) {
             )
         }
     }
-
 }

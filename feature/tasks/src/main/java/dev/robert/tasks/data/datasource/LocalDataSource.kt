@@ -15,6 +15,7 @@ interface LocalDataSource {
     suspend fun deleteTask(taskId: Int)
     suspend fun completeTask(taskId: Int)
     suspend fun setSynced(taskId: Int)
+    suspend fun clear()
 }
 
 class LocalDataStoreImpl @Inject constructor(
@@ -63,6 +64,14 @@ class LocalDataStoreImpl @Inject constructor(
     override suspend fun setSynced(taskId: Int) {
         try {
             taskDao.setSynced(taskId)
+        } catch (e: Exception) {
+            throw e
+        }
+    }
+
+    override suspend fun clear() {
+        try {
+            taskDao.clear()
         } catch (e: Exception) {
             throw e
         }

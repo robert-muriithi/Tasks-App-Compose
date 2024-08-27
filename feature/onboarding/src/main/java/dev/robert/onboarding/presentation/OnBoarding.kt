@@ -110,7 +110,7 @@ val onBoardingItems @Composable get() = listOf(
 
 @Preview
 @Composable
-fun OnBoardingScreenPreview() {
+private fun OnBoardingScreenPreview() {
     TodoTheme(theme = Theme.LIGHT_THEME.themeValue) {
         OnboardingScreenContent(page = onBoardingItems[0])
     }

@@ -41,8 +41,8 @@ import dev.robert.design_system.presentation.components.TDSpacer
 @Composable
 fun RegisterScreen(
     onNavigateUp: () -> Unit,
+    viewModel: RegisterViewModel = hiltViewModel()
 ) {
-    val viewModel = hiltViewModel<RegisterViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     LaunchedEffect(key1 = uiState.isSuccess) {
@@ -73,7 +73,7 @@ fun RegisterScreen(
             onEmailChange = viewModel::onEmailChanged,
             onPasswordChange = viewModel::onPasswordChanged,
             onConfirmPasswordChange = viewModel::onConfirmPasswordChanged,
-            onNameChanged = viewModel::onNameChanged,
+            onNameChange = viewModel::onNameChanged,
             onSubmit = viewModel::register,
             modifier = Modifier
                 .fillMaxSize()
@@ -84,14 +84,14 @@ fun RegisterScreen(
 }
 @Composable
 fun RegisterScreenContent(
-    modifier: Modifier,
-    uiState: RegisterState,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onConfirmPasswordChange: (String) -> Unit,
-    onNameChanged: (String) -> Unit,
+    onNameChange: (String) -> Unit,
     onSubmit: () -> Unit,
-    onNavigateToLogin: () -> Unit
+    onNavigateToLogin: () -> Unit,
+    uiState: RegisterState,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,
@@ -100,7 +100,7 @@ fun RegisterScreenContent(
     ) {
         TDFilledTextField(
             value = uiState.name,
-            onValueChange = onNameChanged,
+            onValueChange = onNameChange,
             label = stringResource(R.string.name),
             trailingIcon = {
                 Icon(

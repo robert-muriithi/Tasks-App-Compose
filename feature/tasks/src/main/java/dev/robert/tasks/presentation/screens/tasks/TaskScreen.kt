@@ -78,14 +78,15 @@ import java.util.Date
 @Composable
 fun TaskScreen(
     onNavigateToDetails: (TaskItem) -> Unit,
-    viewModel: TasksViewModel = hiltViewModel(),
+    viewModel: TasksViewModel = hiltViewModel()
 ) {
     val tasks by viewModel.uiState.collectAsStateWithLifecycle()
-
     val gridState = rememberLazyGridState()
 
-    LaunchedEffect(key1 = true) {
-        viewModel.onEvent(TaskScreenEvents.LoadTasks)
+    LaunchedEffect(key1 = Unit) {
+        if (tasks.tasks.isEmpty()) {
+            viewModel.onEvent(TaskScreenEvents.LoadTasks(true))
+        }
         tasks.tasks.filter { !it.isSynced }.forEach {
             viewModel.onEvent(TaskScreenEvents.SyncTask(it))
         }
@@ -104,28 +105,14 @@ fun TaskScreen(
                     onNavigateToDetails = onNavigateToDetails,
                     gridState = gridState,
                     categories = tasks.category.map { it?.name ?: "" },
-                    onFilter = { category ->
-                        viewModel.onEvent(TaskScreenEvents.FilterTasks(category))
-                    },
-                    onToggleGrid = {
-                        viewModel.onEvent(TaskScreenEvents.ToggleGrid(it))
-                    },
-                    onCompleteTask = {
-                        viewModel.onEvent(TaskScreenEvents.CompleteTask(it))
-                    },
-                    onSyncTask = {
-                        viewModel.onEvent(TaskScreenEvents.SyncTask(it))
-                    },
-                    onDeleteTask = {
-                        viewModel.onEvent(TaskScreenEvents.DeleteTask(it))
-                    }
+                    onEvent = viewModel::onEvent,
                 )
             },
             errorContent = {
                 DialogErrorState(
                     state = tasks,
                     onRetry = {
-                        viewModel.onEvent(TaskScreenEvents.LoadTasks)
+                        viewModel.onEvent(TaskScreenEvents.LoadTasks())
                         showDialog.value = false
                     },
                     showDialog = showDialog
@@ -217,11 +204,7 @@ fun TaskSuccessState(
     onNavigateToDetails: (TaskItem) -> Unit,
     gridState: LazyGridState,
     categories: List<String>?,
-    onFilter: (String) -> Unit,
-    onToggleGrid: (Boolean) -> Unit,
-    onCompleteTask: (TaskItem) -> Unit,
-    onSyncTask: (TaskItem) -> Unit,
-    onDeleteTask: (TaskItem) -> Unit
+    onEvent: (TaskScreenEvents) -> Unit
 ) {
     val showOptionsDialog = remember { mutableStateOf(false) }
     var selectedTaskItem by remember { mutableStateOf<TaskItem?>(null) }
@@ -232,12 +215,11 @@ fun TaskSuccessState(
             onNavigateToDetails = onNavigateToDetails,
             gridState = gridState,
             categories = categories,
-            onFilter = onFilter,
-            onToggleGrid = onToggleGrid,
             onTaskLongPress = { taskItem ->
                 showOptionsDialog.value = true
                 selectedTaskItem = taskItem
             },
+            onEvent = onEvent
         )
     }
     if (showOptionsDialog.value)
@@ -253,7 +235,9 @@ fun TaskSuccessState(
                     text = stringResource(R.string.mark_task_as_complete),
                     icon = Icons.Default.CheckCircle,
                     onClick = {
-                        selectedTaskItem?.let(onCompleteTask)
+                        selectedTaskItem?.let {
+                            onEvent(TaskScreenEvents.CompleteTask(it))
+                        }
                     },
                     enabled = !selectedTaskItem?.isComplete!!
                 ),
@@ -261,7 +245,9 @@ fun TaskSuccessState(
                     text = stringResource(R.string.sync_task),
                     icon = Icons.Default.Refresh,
                     onClick = {
-                        selectedTaskItem?.let(onSyncTask)
+                        selectedTaskItem?.let {
+                            onEvent(TaskScreenEvents.SyncTask(it))
+                        }
                     },
                     enabled = !selectedTaskItem?.isSynced!!
                 ),
@@ -275,7 +261,9 @@ fun TaskSuccessState(
                         MaterialTheme.colorScheme.error
                     },
                     onClick = {
-                        selectedTaskItem?.let(onDeleteTask)
+                        selectedTaskItem?.let {
+                            onEvent(TaskScreenEvents.DeleteTask(it))
+                        }
                     }
                 )
             ),
@@ -289,13 +277,13 @@ fun TasksList(
     onNavigateToDetails: (TaskItem) -> Unit,
     gridState: LazyGridState,
     categories: List<String>?,
-    onFilter: (String) -> Unit,
-    onToggleGrid: (Boolean) -> Unit,
-    onTaskLongPress: (TaskItem) -> Unit
+    onTaskLongPress: (TaskItem) -> Unit,
+    onEvent: (TaskScreenEvents) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val isGridView = state.isGridView
     LazyVerticalGrid(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
         state = gridState,
@@ -325,10 +313,7 @@ fun TasksList(
         ) {
             TasksCategories(
                 categories = categories,
-                onUpdateGridState = {
-                    onToggleGrid(it)
-                },
-                onClick = onFilter,
+                onEvent = onEvent,
                 state = state
             )
         }
@@ -357,7 +342,7 @@ fun TasksList(
 
 @Composable
 fun AnalyticsSection(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     state: TasksScreenState
 ) {
     val completeTask = state.tasks.count { it.isComplete }
@@ -473,12 +458,12 @@ fun AnalyticsSection(
 @Composable
 fun TasksCategories(
     categories: List<String>?,
-    onClick: (String) -> Unit,
-    onUpdateGridState: (Boolean) -> Unit,
-    state: TasksScreenState
+    state: TasksScreenState,
+    onEvent: (TaskScreenEvents) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val selectedCategory = remember { mutableStateOf(categories?.firstOrNull()) }
-    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+    Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -495,7 +480,7 @@ fun TasksCategories(
             )
             ViewSwapIcon(
                 onUpdateGridState = { isGridView ->
-                    onUpdateGridState(isGridView)
+                    onEvent(TaskScreenEvents.ToggleGrid(isGridView))
                 },
                 state = state
             )
@@ -510,7 +495,7 @@ fun TasksCategories(
                         category = cat[index],
                         onClick = {
                             selectedCategory.value = cat[index]
-                            onClick(cat[index])
+                            onEvent(TaskScreenEvents.FilterTasks(cat[index]))
                         },
                         selected = selectedCategory.value == cat[index],
                         modifier = Modifier
@@ -526,18 +511,18 @@ fun TasksCategory(
     category: String,
     onClick: (String) -> Unit,
     selected: Boolean,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier
-        .clickable {
-            onClick(category)
-        }
         .clip(RoundedCornerShape(10.dp))
         .background(
             color = if (selected) MaterialTheme.colorScheme.tertiaryContainer else
                 MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)
         )
         .padding(8.dp)
+        .clickable {
+            onClick(category)
+        }
     ) {
         Text(
             text = category,
@@ -551,7 +536,8 @@ fun TasksCategory(
 @Composable
 fun ViewSwapIcon(
     onUpdateGridState: (Boolean) -> Unit,
-    state: TasksScreenState
+    state: TasksScreenState,
+    modifier: Modifier = Modifier
 ) {
     var isGridView by remember { mutableStateOf(true) }
     IconButton(
@@ -570,19 +556,21 @@ fun ViewSwapIcon(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TaskCardItem(
-    modifier: Modifier = Modifier,
     onClick: (TaskItem) -> Unit,
     task: TaskItem,
     isGridView: Boolean,
     onTaskLongPress: (TaskItem) -> Unit,
     syncing: Boolean,
-    isSycned: Boolean
+    isSycned: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     val haptics = LocalHapticFeedback.current
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(210.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f))
             .combinedClickable(
                 onClick = { onClick(task) },
                 onLongClick = {
@@ -590,8 +578,6 @@ fun TaskCardItem(
                     onTaskLongPress(task)
                 }
             )
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f))
 
     ) {
         Box(
@@ -699,7 +685,7 @@ fun TaskCardItem(
 
 @Preview(showBackground = true)
 @Composable
-fun TaskScreenPreview() {
+private fun TaskScreenPreview() {
     AnalyticsSection(
         modifier = Modifier
             .fillMaxWidth()

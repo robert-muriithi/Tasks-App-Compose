@@ -10,4 +10,7 @@ object ConstantUtils {
     val USER_LOGGED_IN = booleanPreferencesKey(name = "user_is_logged_in")
     val LOGIN_TYPE = stringPreferencesKey(name = "login_type")
     val IS_GRID_VIEW = booleanPreferencesKey(name = "grid_view")
+    val USER_NAME = stringPreferencesKey(name = "user_name")
+    val USER_EMAIL = stringPreferencesKey(name = "user_email")
+    val USER_PASSWORD = stringPreferencesKey(name = "user_password")
 }

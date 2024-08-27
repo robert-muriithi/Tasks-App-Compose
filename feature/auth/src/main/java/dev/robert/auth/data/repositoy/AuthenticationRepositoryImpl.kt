@@ -10,6 +10,7 @@ import dev.robert.auth.domain.repository.AuthenticationRepository
 import dev.robert.datastore.data.TodoAppPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
@@ -37,8 +38,37 @@ class AuthenticationRepositoryImpl(
         emit(Result.failure(it))
     }
 
-    override suspend fun logout() {
-        preferences.saveUserLoggedIn(false)
+    override suspend fun clearUserData() {
+        preferences.apply {
+            saveUserLoggedIn(false)
+            saveLoginType("")
+        }
+    }
+
+    override val getUser: Flow<GoogleUser?> = flow {
+        val loginType = preferences.loginType.firstOrNull()
+        if (loginType == TodoAppPreferences.LOGIN_TYPE_EMAIL) {
+            val emailUser = preferences.userData.firstOrNull()
+            emit(
+                GoogleUser(
+                    email = emailUser?.email ?: "",
+                    name = emailUser?.name ?: "",
+                    photoUrl = "",
+                    id = ""
+                )
+            )
+        } else {
+            val user = mAuth.currentUser
+            if (user != null) {
+                val googleUser = GoogleUserDto(
+                    email = user.email!!,
+                    name = user.displayName ?: "",
+                    photoUrl = user.photoUrl?.toString() ?: "",
+                    id = user.uid
+                ).toGoogleUser()
+                emit(googleUser)
+            }
+        }
     }
 
     override suspend fun register(body: RegisterRequestBody): Flow<Result<GoogleUser?>> = flow {
@@ -53,6 +83,9 @@ class AuthenticationRepositoryImpl(
                 id = user.uid
             ).also { storeUserData(it) }.also {
                 emit(Result.success(it.toGoogleUser()))
+                preferences.apply {
+                    saveUserData(body.name, body.email, body.password)
+                }
             }
         }
     }.catch {
@@ -71,6 +104,12 @@ class AuthenticationRepositoryImpl(
             .document(user.id)
             .set(user).await()
     }
+
+    private suspend fun getUserData(id: String) = firestore.collection("users")
+        .document(id)
+        .get().await()
+        .toObject(GoogleUserDto::class.java)
+        ?.toGoogleUser()
 
     override val userLoggedIn: Boolean
         get() = mAuth.currentUser != null

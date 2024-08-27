@@ -141,7 +141,7 @@ private fun ChangePasswordScreenContent(
 private fun WhatIsRequiredSection(
     conditions: List<StrongPasswordCondition>
 ) {
-    LazyColumn{
+    LazyColumn {
         item {
             Text(
                 text = "What is required:",
@@ -170,7 +170,7 @@ private fun WhatIsRequiredSection(
 
 @Preview(showBackground = true)
 @Composable
-fun ChangePasswordScreenPreview() {
+private fun ChangePasswordScreenPreview() {
     ChangePasswordScreenContent(
         uiState = ChangePasswordState(
             strongPasswordsConditions = listOf(

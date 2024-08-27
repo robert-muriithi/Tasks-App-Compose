@@ -1,6 +1,5 @@
 package dev.robert.composetodo
 
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +21,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
@@ -35,6 +35,9 @@ class MainActivityViewModel @Inject constructor(
 
     private val _showSplashScreen = MutableStateFlow(true)
     val showSplashScreen: StateFlow<Boolean> = _showSplashScreen
+
+    private val _userData = MutableStateFlow(UserDataState())
+    val userData: StateFlow<UserDataState> = _userData.asStateFlow()
 
     val currentTheme: StateFlow<Int> = themeRepository.themeValue
         .stateIn(
@@ -68,7 +71,20 @@ class MainActivityViewModel @Inject constructor(
         initialValue = Pair(false, false)
     )
 
-    fun signOut() = viewModelScope.launch { authenticationRepository.logout() }
+    fun clearUserData() = viewModelScope.launch { authenticationRepository.clearUserData() }
+
+    private fun getUserData() = viewModelScope.launch {
+        authenticationRepository.getUser.collectLatest { user ->
+            _userData.update {
+                it.copy(
+                    name = user?.name ?: "",
+                    email = user?.email ?: "",
+                    photoUrl = user?.photoUrl ?: ""
+                )
+            }
+            Timber.d("User data: ${_userData.value}")
+        }
+    }
 
     private val isUserLoggedIn = authenticationRepository.userLoggedIn
 
@@ -78,13 +94,21 @@ class MainActivityViewModel @Inject constructor(
                 if (!onboarded) {
                     _startDestination.update { OnBoardingNavGraph }
                 } else if (authenticated && isUserLoggedIn) {
+                    getUserData()
                     _startDestination.update { TasksNavGraph }
                 } else {
                     _startDestination.update { AuthNavGraph }
                 }
-                delay(2000)
+                delay(1000)
                 _showSplashScreen.value = false
             }
         }
     }
 }
+
+data class UserDataState(
+    val name: String = "",
+    val email: String = "",
+    val password: String = "",
+    val photoUrl: String = ""
+)
