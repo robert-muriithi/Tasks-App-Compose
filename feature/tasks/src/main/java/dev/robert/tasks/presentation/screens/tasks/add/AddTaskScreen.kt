@@ -119,8 +119,8 @@ fun AddTaskScreen(
         onTaskEndDateChange = viewModel::onEndDateChanged,
         onNavigateUp = onNavigateUp,
         onEvent = viewModel::onEvent,
-        onTaskStartTimeChanged = viewModel::onTaskStartTimeChanged,
-        onTaskEndTimeChanged = viewModel::onTaskEndTimeChanged,
+        onTaskStartTimeChange = viewModel::onTaskStartTimeChanged,
+        onTaskEndTimeChange = viewModel::onTaskEndTimeChanged,
         onInitDatePicker = { showDatePicker = true },
         onInitTimePicker = { timeAction ->
             showTimePicker = true
@@ -133,7 +133,7 @@ fun AddTaskScreen(
         onDismiss = {
             showBottomSheet = false
         },
-        onCategoryAdded = {
+        onAddCategory = {
             viewModel.onEvent(AddTaskEvents.GetCategoriesEvent)
         },
         scope = scope,
@@ -141,7 +141,7 @@ fun AddTaskScreen(
     )
 
     if (showDatePicker) DatePickerModal(
-        onDateSelected = {
+        onSelectDate = {
             viewModel.onStartDateChanged(convertMillisToDate(it ?: 0))
             showDatePicker = false
         },
@@ -203,14 +203,15 @@ fun AddTaskContent(
     onTaskEndDateChange: (String) -> Unit,
     onNavigateUp: () -> Unit,
     onEvent: (AddTaskEvents) -> Unit,
-    onTaskStartTimeChanged: (String) -> Unit,
-    onTaskEndTimeChanged: (String) -> Unit,
+    onTaskStartTimeChange: (String) -> Unit,
+    onTaskEndTimeChange: (String) -> Unit,
     onInitDatePicker: () -> Unit,
     onInitTimePicker: (TIME) -> Unit,
-    onSetCategory: (TaskCategory) -> Unit
+    onSetCategory: (TaskCategory) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
     ) {
         Box(
@@ -309,7 +310,7 @@ fun AddTaskContent(
                 ) {
                     TDFilledTextField(
                         value = uiState.startTime,
-                        onValueChange = onTaskStartTimeChanged,
+                        onValueChange = onTaskStartTimeChange,
                         label = stringResource(R.string.start_time),
                         modifier = Modifier
                             .weight(1f)
@@ -326,7 +327,7 @@ fun AddTaskContent(
                     TDSpacer(modifier = Modifier.width(10.dp))
                     TDFilledTextField(
                         value = uiState.endTime,
-                        onValueChange = onTaskEndTimeChanged,
+                        onValueChange = onTaskEndTimeChange,
                         label = stringResource(R.string.end_time),
                         modifier = Modifier
                             .weight(1f)
@@ -420,7 +421,7 @@ fun AddTaskContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerModal(
-    onDateSelected: (Long?) -> Unit,
+    onSelectDate: (Long?) -> Unit,
     onDismiss: () -> Unit
 ) {
     val datePickerState = rememberDatePickerState()
@@ -429,7 +430,7 @@ fun DatePickerModal(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = {
-                onDateSelected(datePickerState.selectedDateMillis)
+                onSelectDate(datePickerState.selectedDateMillis)
                 onDismiss()
             }) {
                 Text(stringResource(R.string.ok))
@@ -447,9 +448,9 @@ fun DatePickerModal(
 
 @Composable
 fun AddTaskAppBar(
-    modifier: Modifier = Modifier,
     title: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier,
@@ -485,11 +486,11 @@ fun AddTaskAppBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddCategoryBottomSheet(
-    modifier: Modifier = Modifier,
     onDismiss: () -> Unit,
-    onCategoryAdded: () -> Unit,
+    onAddCategory: () -> Unit,
     sheetState: SheetState,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    modifier: Modifier = Modifier,
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss
@@ -506,7 +507,7 @@ fun AddCategoryBottomSheet(
 
 @Preview
 @Composable
-fun AddTaskScreenPreview() {
+private fun AddTaskScreenPreview() {
     TDSurface {
         AddTaskContent(
             AddTaskState(
@@ -525,8 +526,8 @@ fun AddTaskScreenPreview() {
             onTaskTitleChange = {},
             onNavigateUp = {},
             onEvent = {},
-            onTaskStartTimeChanged = {},
-            onTaskEndTimeChanged = {},
+            onTaskStartTimeChange = {},
+            onTaskEndTimeChange = {},
             onInitDatePicker = {},
             onInitTimePicker = {},
             onSetCategory = {}

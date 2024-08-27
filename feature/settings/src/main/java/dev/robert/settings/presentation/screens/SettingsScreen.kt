@@ -89,11 +89,11 @@ fun SettingsScreen(
 
 @Composable
 fun SettingsScreenContent(
-    modifier: Modifier = Modifier,
     uiState: SettingsState,
     onChangeTheme: (AppTheme) -> Unit,
     theme: Int,
     onNavigateToProfile: () -> Unit,
+    modifier: Modifier = Modifier,
     onLogout: () -> Unit = {},
     onNavigateToChangePassword: () -> Unit = {},
     onNaviagteToAbout: () -> Unit = {},
@@ -136,7 +136,7 @@ fun SettingsScreenContent(
             )
             ThemeToggleChips(
                 themeOptions = themeOptions,
-                onThemeSelected = { theme ->
+                onSelectTheme = { theme ->
                     onChangeTheme(theme.themeFromValue())
                 },
                 theme = theme,
@@ -205,7 +205,7 @@ fun SettingsScreenContent(
 
 @Preview(showBackground = true)
 @Composable
-fun SettingsScreenPreview() {
+private fun SettingsScreenPreview() {
     SettingsScreenContent(
         modifier = Modifier.fillMaxSize(),
         uiState = SettingsState(

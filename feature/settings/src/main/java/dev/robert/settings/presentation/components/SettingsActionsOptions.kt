@@ -26,10 +26,11 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SettingsActionsOptions(
-    sections: List<Section>
+    sections: List<Section>,
+    modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = Modifier.wrapContentHeight()
+        modifier = modifier.wrapContentHeight()
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxWidth()
@@ -65,20 +66,21 @@ fun SettingsActionOption(
     title: String,
     subTitle: String,
     icon: Int,
-    action: () -> Unit
+    action: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(5.dp)
-            .clickable {
-                action()
-            }
             .background(
                 MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                 MaterialTheme.shapes.small
             )
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable {
+                action()
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(

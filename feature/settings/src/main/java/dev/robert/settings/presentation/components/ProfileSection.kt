@@ -40,13 +40,14 @@ fun ProfileSection(
     Row(modifier = modifier
         .fillMaxWidth()
         .wrapContentHeight()
-        .clickable {
-            onClick()
-        }.background(
+        .background(
             MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
             MaterialTheme.shapes.small
         )
-        .padding(8.dp),
+        .padding(8.dp)
+        .clickable {
+            onClick()
+        },
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {
         AsyncImage(
@@ -75,7 +76,7 @@ fun ProfileSection(
 
 @Preview(showBackground = true)
 @Composable
-fun ProfileSectionPreview() {
+private fun ProfileSectionPreview() {
     ProfileSection(
         imageUrl = "https://randomuser",
         name = "Robert",

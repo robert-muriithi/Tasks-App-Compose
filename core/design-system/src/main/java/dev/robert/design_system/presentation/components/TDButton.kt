@@ -30,18 +30,21 @@ import dev.robert.design_system.presentation.theme.TodoTheme
 
 @Composable
 fun TDButton(
-    modifier: Modifier = Modifier,
-    enabled: Boolean = false,
     onClick: () -> Unit,
     text: String,
-    isLoading: Boolean
+    isLoading: Boolean,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = false
 ) {
     Button(
         modifier = modifier,
         enabled = enabled,
         onClick = { onClick() },
     ) {
-        if (isLoading) Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+        if (isLoading) Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
             CircularProgressIndicator(
                 color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(20.dp),
@@ -55,13 +58,15 @@ fun TDButton(
         else Text(text = text, style = MaterialTheme.typography.bodySmall)
     }
 }
+
 @Composable
 fun SignInWithGoogleButton(
     onClick: () -> Unit,
     isLoading: Boolean,
+    modifier: Modifier = Modifier
 ) {
     if (isLoading) Row(
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(4.dp))
             .clickable(onClick = onClick)
             .height(48.dp)
@@ -109,12 +114,14 @@ fun SignInWithGoogleButton(
     showBackground = true,
 )
 @Composable
-fun ButtonPreview() {
+private fun ButtonPreview() {
     TodoTheme(
         theme = AppCompatDelegate.MODE_NIGHT_NO,
     ) {
         TDButton(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
             onClick = { },
             text = "g 1",
             enabled = true,
@@ -129,7 +136,7 @@ fun ButtonPreview() {
     showBackground = true,
 )
 @Composable
-fun GButtonPreview() {
+private fun GButtonPreview() {
     TodoTheme(
         theme = AppCompatDelegate.MODE_NIGHT_NO,
     ) {

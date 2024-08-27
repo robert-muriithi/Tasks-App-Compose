@@ -78,7 +78,7 @@ import java.util.Date
 @Composable
 fun TaskScreen(
     onNavigateToDetails: (TaskItem) -> Unit,
-    viewModel: TasksViewModel = hiltViewModel(),
+    viewModel: TasksViewModel = hiltViewModel()
 ) {
     val tasks by viewModel.uiState.collectAsStateWithLifecycle()
     val gridState = rememberLazyGridState()
@@ -278,11 +278,12 @@ fun TasksList(
     gridState: LazyGridState,
     categories: List<String>?,
     onTaskLongPress: (TaskItem) -> Unit,
-    onEvent: (TaskScreenEvents) -> Unit
+    onEvent: (TaskScreenEvents) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val isGridView = state.isGridView
     LazyVerticalGrid(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
         state = gridState,
@@ -341,7 +342,7 @@ fun TasksList(
 
 @Composable
 fun AnalyticsSection(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     state: TasksScreenState
 ) {
     val completeTask = state.tasks.count { it.isComplete }
@@ -458,10 +459,11 @@ fun AnalyticsSection(
 fun TasksCategories(
     categories: List<String>?,
     state: TasksScreenState,
-    onEvent: (TaskScreenEvents) -> Unit
+    onEvent: (TaskScreenEvents) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val selectedCategory = remember { mutableStateOf(categories?.firstOrNull()) }
-    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+    Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -509,18 +511,18 @@ fun TasksCategory(
     category: String,
     onClick: (String) -> Unit,
     selected: Boolean,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier
-        .clickable {
-            onClick(category)
-        }
         .clip(RoundedCornerShape(10.dp))
         .background(
             color = if (selected) MaterialTheme.colorScheme.tertiaryContainer else
                 MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)
         )
         .padding(8.dp)
+        .clickable {
+            onClick(category)
+        }
     ) {
         Text(
             text = category,
@@ -534,7 +536,8 @@ fun TasksCategory(
 @Composable
 fun ViewSwapIcon(
     onUpdateGridState: (Boolean) -> Unit,
-    state: TasksScreenState
+    state: TasksScreenState,
+    modifier: Modifier = Modifier
 ) {
     var isGridView by remember { mutableStateOf(true) }
     IconButton(
@@ -553,19 +556,21 @@ fun ViewSwapIcon(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TaskCardItem(
-    modifier: Modifier = Modifier,
     onClick: (TaskItem) -> Unit,
     task: TaskItem,
     isGridView: Boolean,
     onTaskLongPress: (TaskItem) -> Unit,
     syncing: Boolean,
-    isSycned: Boolean
+    isSycned: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     val haptics = LocalHapticFeedback.current
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(210.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f))
             .combinedClickable(
                 onClick = { onClick(task) },
                 onLongClick = {
@@ -573,8 +578,6 @@ fun TaskCardItem(
                     onTaskLongPress(task)
                 }
             )
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f))
 
     ) {
         Box(
@@ -682,7 +685,7 @@ fun TaskCardItem(
 
 @Preview(showBackground = true)
 @Composable
-fun TaskScreenPreview() {
+private fun TaskScreenPreview() {
     AnalyticsSection(
         modifier = Modifier
             .fillMaxWidth()

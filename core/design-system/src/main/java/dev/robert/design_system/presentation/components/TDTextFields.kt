@@ -29,16 +29,16 @@ import dev.robert.design_system.R
 
 @Composable
 fun TDOutlinedTextField(
-    modifier: Modifier = Modifier,
     onValueChange: (String) -> Unit,
     value: String,
+    isLoading: Boolean,
+    modifier: Modifier = Modifier,
     isError: Boolean = false,
     label: String? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions(),
     maxLines: Int = 1,
-    isLoading: Boolean,
     isPassword: Boolean = false,
     content: @Composable () -> Unit = {
         OutlineTextInput(
@@ -61,9 +61,9 @@ fun TDOutlinedTextField(
 
 @Composable
 fun TDFilledTextField(
-    modifier: Modifier = Modifier,
     onValueChange: (String) -> Unit,
     value: String,
+    modifier: Modifier = Modifier,
     isError: Boolean = false,
     label: String? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
@@ -97,11 +97,8 @@ fun TDFilledTextField(
 
 @Composable
 fun FilledTextFilled(
-    modifier: Modifier,
     value: String,
     onValueChange: (String) -> Unit,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    leadingIcon: @Composable (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions,
     maxLine: Int,
     label: String?,
@@ -109,7 +106,10 @@ fun FilledTextFilled(
     isPassword: Boolean,
     isLoading: Boolean,
     readOnly: Boolean,
-    enabled: Boolean
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null
 ) {
     var togglePassword by rememberSaveable {
         mutableStateOf(true)
@@ -168,7 +168,6 @@ fun FilledTextFilled(
 
 @Composable
 fun OutlineTextInput(
-    modifier: Modifier,
     value: String,
     onValueChange: (String) -> Unit,
     isError: Boolean,
@@ -178,7 +177,8 @@ fun OutlineTextInput(
     leadingIcon: @Composable (() -> Unit)?,
     maxLines: Int,
     isPassword: Boolean,
-    isLoading: Boolean
+    isLoading: Boolean,
+    modifier: Modifier = Modifier
 ) {
     var togglePassword by rememberSaveable {
         mutableStateOf(true)
@@ -235,21 +235,40 @@ fun OutlineTextInput(
     showBackground = true
 )
 @Composable
-fun a(modifier: Modifier = Modifier) {
-    TDOutlinedTextField(onValueChange = {}, value = "fjkf", label = "jhbfjh", isPassword = false, trailingIcon = { Icon(
-        painter = painterResource(R.drawable.visibility_on),
-        contentDescription = "",
-    ) }, isLoading = false)
+private fun Test(modifier: Modifier = Modifier) {
+    TDOutlinedTextField(
+        onValueChange = {},
+        value = "fjkf",
+        label = "jhbfjh",
+        isPassword = false,
+        trailingIcon = {
+            Icon(
+                painter = painterResource(R.drawable.visibility_on),
+                contentDescription = "",
+            )
+        },
+        isLoading = false
+    )
 }
+
 @Preview(
     name = "vjgj",
     device = "spec:shape=Normal,width=360,height=840,unit=dp,dpi=480",
     showBackground = true
 )
 @Composable
-fun b(modifier: Modifier = Modifier) {
-    TDFilledTextField(onValueChange = {}, value = "fjkf", label = "jhbfjh", isPassword = false, trailingIcon = { Icon(
-        painter = painterResource(R.drawable.visibility_on),
-        contentDescription = ""
-    ) }, isLoading = false)
+private fun TestPreview(modifier: Modifier = Modifier) {
+    TDFilledTextField(
+        onValueChange = {},
+        value = "fjkf",
+        label = "jhbfjh",
+        isPassword = false,
+        trailingIcon = {
+            Icon(
+                painter = painterResource(R.drawable.visibility_on),
+                contentDescription = ""
+            )
+        },
+        isLoading = false
+    )
 }

@@ -73,7 +73,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun TodoCoreNavigator(
     startDestination: Any,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
 ) {
     val context = LocalContext.current

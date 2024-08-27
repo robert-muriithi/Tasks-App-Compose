@@ -170,7 +170,7 @@ private fun WhatIsRequiredSection(
 
 @Preview(showBackground = true)
 @Composable
-fun ChangePasswordScreenPreview() {
+private fun ChangePasswordScreenPreview() {
     ChangePasswordScreenContent(
         uiState = ChangePasswordState(
             strongPasswordsConditions = listOf(

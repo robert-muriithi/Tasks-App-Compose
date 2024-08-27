@@ -15,9 +15,9 @@ import androidx.compose.ui.Modifier
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TDAppBar(
+    navigationIcon: @Composable (() -> Unit),
     modifier: Modifier = Modifier,
     title: @Composable () -> Unit = { Text(text = "Welcome User") },
-    navigationIcon: @Composable (() -> Unit),
     actions: @Composable RowScope.() -> Unit = {},
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

@@ -42,12 +42,12 @@ import dev.robert.design_system.R
 
 @Composable
 fun TDResetPasswordDialog(
-    modifier: Modifier = Modifier,
     onSubmit: (String) -> Unit,
     onDismiss: () -> Unit,
     onValueChange: (String) -> Unit,
     icon: ImageVector,
-    value: String
+    value: String,
+    modifier: Modifier = Modifier
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -70,12 +70,12 @@ fun TDResetPasswordDialog(
 
 @Composable
 fun TDResetPasswordDialogContent(
-    modifier: Modifier = Modifier,
     onSubmit: (String) -> Unit,
     onDismiss: () -> Unit,
     onValueChange: (String) -> Unit,
     icon: ImageVector,
-    value: String
+    value: String,
+    modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
         Row(
@@ -129,9 +129,9 @@ fun TDResetPasswordDialogContent(
 fun AlertDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
-    modifier: Modifier = Modifier,
     title: String,
     message: String,
+    modifier: Modifier = Modifier,
     showCancel: Boolean = true,
     type: DialogType = DialogType.SUCCESS
 ) {
@@ -220,10 +220,10 @@ fun AlertDialog(
 
 @Composable
 fun OptionsDialog(
-    modifier: Modifier = Modifier,
     title: String,
     options: List<Option>,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Box(
@@ -295,8 +295,14 @@ enum class DialogType {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Preview
 @Composable
-fun CustomDialogPreview() {
+private fun CustomDialogPreview() {
     Scaffold {
-        AlertDialog(onDismiss = {}, onConfirm = {}, title = "Example Title", message = "Example message", showCancel = false)
+        AlertDialog(
+            onDismiss = {},
+            onConfirm = {},
+            title = "Example Title",
+            message = "Example message",
+            showCancel = false
+        )
     }
 }

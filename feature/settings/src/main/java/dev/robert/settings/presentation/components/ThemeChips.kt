@@ -21,17 +21,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.robert.design_system.presentation.theme.Theme as AppTheme
 import java.util.Locale
-import timber.log.Timber
 
 @Composable
 fun ThemeToggleChips(
-    modifier: Modifier = Modifier,
     themeOptions: List<ThemeOption>,
-    onThemeSelected: (Theme) -> Unit,
-    theme: Int
+    onSelectTheme: (Theme) -> Unit,
+    theme: Int,
+    modifier: Modifier = Modifier
 ) {
     val selectedTheme = remember { mutableStateOf(theme.themeFromValue()) }
-    Timber.d("Selected theme: ${selectedTheme.value}")
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -42,7 +40,7 @@ fun ThemeToggleChips(
                     text = cat[index].theme.name,
                     onClick = {
                         selectedTheme.value = cat[index].theme.themeFromValue()
-                        onThemeSelected(cat[index].theme)
+                        onSelectTheme(cat[index].theme)
                     },
                     selected = selectedTheme.value == cat[index].theme.themeFromValue(),
                     modifier = Modifier
@@ -57,12 +55,9 @@ fun ThemeChip(
     text: String,
     onClick: (String) -> Unit,
     selected: Boolean,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier
-        .clickable {
-            onClick(text)
-        }
         .border(
             width = 0.dp,
             color = MaterialTheme.colorScheme.secondary,
@@ -77,6 +72,9 @@ fun ThemeChip(
             shape = MaterialTheme.shapes.small
         )
         .padding(10.dp)
+        .clickable {
+            onClick(text)
+        }
     ) {
         Text(
             text = text.lowercase()
@@ -129,16 +127,16 @@ fun Int.themeFromValue(): AppTheme {
 
 @Preview(showBackground = true)
 @Composable
-fun ThemeToggleChipsPreview() {
+private fun ThemeToggleChipsPreview() {
     Surface {
         ThemeToggleChips(
             themeOptions = listOf(
-                ThemeOption(Theme.SYSTEM,),
+                ThemeOption(Theme.SYSTEM),
                 ThemeOption(Theme.LIGHT),
-                ThemeOption(Theme.DARK,),
+                ThemeOption(Theme.DARK),
                 ThemeOption(Theme.MATERIAL_YOU)
             ),
-            onThemeSelected = {},
+            onSelectTheme = {},
             theme = AppTheme.MATERIAL_YOU.themeValue
         )
     }

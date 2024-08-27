@@ -30,12 +30,12 @@ import dev.robert.design_system.R
 
 @Composable
 fun ProfilePhotoSection(
-    modifier: Modifier = Modifier,
     onProfilePhotoClick: () -> Unit,
     imageUrl: String,
     name: String,
     email: String,
     loginType: String,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
@@ -88,7 +88,7 @@ fun ProfilePhotoSection(
 
 @Preview(showBackground = true)
 @Composable
-fun ProfilePhotoSectionPreview() {
+private fun ProfilePhotoSectionPreview() {
     Surface {
         ProfilePhotoSection(
             imageUrl = "https://randomuser",

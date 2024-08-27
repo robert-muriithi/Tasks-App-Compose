@@ -70,9 +70,10 @@ fun ProfileScreen(
 fun ProfileScreenContent(
     state: ProfileScreenState,
     onEvent: (ProfileScreenEvents) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(8.dp)
     ) {
@@ -101,13 +102,15 @@ fun ProfileScreenContent(
     }
 }
 @Composable
-fun LineChart() {
+fun LineChart(
+    modifier: Modifier = Modifier
+) {
     val modelProducer = remember { CartesianChartModelProducer() }
     LaunchedEffect(Unit) { modelProducer.runTransaction { lineSeries { series(1, 12, 3, 16, 18) } } }
     val fillColor = MaterialTheme.colorScheme.tertiary
     val marker = rememberMarker()
     CartesianChartHost(
-        modifier = Modifier.height(250.dp),
+        modifier = modifier.height(250.dp),
         chart =
         rememberCartesianChart(
             rememberLineCartesianLayer(
@@ -126,7 +129,7 @@ fun LineChart() {
 
 @Preview(showBackground = true)
 @Composable
-fun ProfileScreenPreview() {
+private fun ProfileScreenPreview() {
     ProfileScreenContent(
         state = ProfileScreenState(
             profile = Profile(
