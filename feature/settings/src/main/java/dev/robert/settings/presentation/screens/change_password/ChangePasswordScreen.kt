@@ -141,7 +141,7 @@ private fun ChangePasswordScreenContent(
 private fun WhatIsRequiredSection(
     conditions: List<StrongPasswordCondition>
 ) {
-    LazyColumn{
+    LazyColumn {
         item {
             Text(
                 text = "What is required:",

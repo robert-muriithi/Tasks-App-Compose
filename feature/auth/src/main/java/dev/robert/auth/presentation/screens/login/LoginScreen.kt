@@ -292,5 +292,4 @@ fun LoginScreenPreview(modifier: Modifier = Modifier) {
             )
         }
     }
-
 }

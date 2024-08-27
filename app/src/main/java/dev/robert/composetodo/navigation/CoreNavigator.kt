@@ -42,7 +42,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.google.firebase.auth.FirebaseAuth
 import dev.robert.auth.presentation.navigation.AuthNavGraph
 import dev.robert.auth.presentation.navigation.RegisterScreen
 import dev.robert.auth.presentation.navigation.authNavGraph
@@ -163,7 +162,8 @@ fun MainApp(
     startDestination: Any,
     navController: NavHostController,
     scope: CoroutineScope,
-    onSignOut: () -> Unit
+    onSignOut: () -> Unit,
+    userObject: UserObject
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -172,12 +172,6 @@ fun MainApp(
     val showDrawer = listOf(
         TasksScreen::class,
     ).any { currentDestination?.hasRoute(it) == true }
-    val user = FirebaseAuth.getInstance().currentUser
-    val userObject = UserObject(
-        displayName = user?.displayName,
-        email = user?.email ?: "",
-        photoUrl = user?.photoUrl?.toString()
-    )
     var selectedIndex by remember {
         mutableIntStateOf(0)
     }
@@ -256,7 +250,7 @@ fun MainApp(
                         title = {
                             when {
                                 currentDestination?.hasRoute(Task::class) == true -> Text(text = "${navBackStackEntry?.toRoute<Task>()?.item?.name}", maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                currentDestination?.hasRoute(TasksScreen::class) == true -> Text(text = "Welcome, ${user?.displayName?.split(" ")?.first()}")
+                                currentDestination?.hasRoute(TasksScreen::class) == true -> Text(text = "Welcome, ${userObject.displayName?.split(" ")?.first()}")
                                 currentDestination?.hasRoute(SettingsScreen::class) == true -> Text(text = "Settings")
                                 currentDestination?.hasRoute(ProfileScreen::class) == true -> Text(text = "Profile")
                                 currentDestination?.hasRoute(ChangePasswordScreen::class) == true -> Text(text = "Change Password")
