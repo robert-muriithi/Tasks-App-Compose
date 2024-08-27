@@ -1,8 +1,8 @@
-
+name: Auto Pull Request
 on:
   push:
     branches:
-      - dev
+      - devv
 
 jobs:
   pull-request:
@@ -13,6 +13,6 @@ jobs:
         uses: diillson/auto-pull-request@v1.0.1
         with:
           destination_branch: "develop"
-          pr_title: "Pulling ${{ github.ref }} into master"
-          pr_label: "auto-pr"
+          pr_title: "Pushing ${{ github.ref }} into develop branch"
+          pr_label: "Auto-pr"
           github_token: ${{ secrets.TOKEN_SECRETS }}
