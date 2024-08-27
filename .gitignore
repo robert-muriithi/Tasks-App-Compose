@@ -13,3 +13,18 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Ignore build and generated files
+/build/
+/dist/
+/out/
+/*.log
+/*.tmp
+/*.bak
+/*.swp
+
+# Android/Java-specific
+/app/build/
+/.gradle/
+/.idea/
+/*.iml
