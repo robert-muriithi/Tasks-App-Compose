@@ -1,0 +1,4 @@
+[90m/Users/robertmurithi/AndroidStudioProjects/ComposeTODO/core/src/androidTest/java/dev/robert/core/[0mExampleInstrumentedTest.kt[90m:[0m5[90m:1:[0m Wildcard import [90m(standard:no-wildcard-imports)[0m
+
+Summary error count (descending) by rule:
+  standard:no-wildcard-imports: 1

@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "dev.robert.core.test.core-mergeDebugAndroidTestResources-29:/values-v16/values-v16.xml",
+            "map": [
+                {
+                    "source": "/Users/robertmurithi/.gradle/caches/transforms-4/3bbfed9ea83dfccadc07b760c0d499e3/transformed/appcompat-1.6.1/res/values-v16/values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "5",
+                        "endColumns": "12",
+                        "endOffsets": "223"
+                    }
+                }
+            ]
+        }
+    ]
+}

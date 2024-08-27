@@ -1,0 +1,13 @@
+#Sun Jun 02 14:34:52 EAT 2024
+base.0=/Users/robertmurithi/AndroidStudioProjects/ComposeTODO/core/build/intermediates/dex/debugAndroidTest/mergeExtDexDebugAndroidTest/classes.dex
+base.1=/Users/robertmurithi/AndroidStudioProjects/ComposeTODO/core/build/intermediates/dex/debugAndroidTest/mergeProjectDexDebugAndroidTest/0/classes.dex
+base.2=/Users/robertmurithi/AndroidStudioProjects/ComposeTODO/core/build/intermediates/dex/debugAndroidTest/mergeProjectDexDebugAndroidTest/5/classes.dex
+base.3=/Users/robertmurithi/AndroidStudioProjects/ComposeTODO/core/build/intermediates/dex/debugAndroidTest/mergeExtDexDebugAndroidTest/classes2.dex
+path.0=classes.dex
+path.1=0/classes.dex
+path.2=5/classes.dex
+path.3=classes2.dex
+renamed.0=classes.dex
+renamed.1=classes2.dex
+renamed.2=classes3.dex
+renamed.3=classes4.dex
