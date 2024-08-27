@@ -1,6 +1,8 @@
 package dev.robert.design_system.presentation.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -68,7 +70,7 @@ fun NavigationDrawerContent(
                                 contentDescription = item.title
                             )
                         },
-                        colors =  NavigationDrawerItemDefaults.colors(
+                        colors = NavigationDrawerItemDefaults.colors(
                             selectedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
                         )
                     )
@@ -94,7 +96,7 @@ fun DrawerHeader(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        user.photoUrl?.let { AsyncImage(
+        /*user.photoUrl?.let { AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(it)
                 .crossfade(true)
@@ -105,7 +107,35 @@ fun DrawerHeader(
             modifier = Modifier
                 .clip(CircleShape)
                 .size(80.dp),
-        ) }
+        ) }*/
+        val photoUrl = user.photoUrl ?: ""
+        if (photoUrl.isNotEmpty()) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(user.photoUrl)
+                    .crossfade(true)
+                    .build(),
+                placeholder = painterResource(R.drawable.account_circle_24px),
+                contentDescription = stringResource(R.string.profile_image),
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .size(80.dp),
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .size(80.dp)
+                    .background(MaterialTheme.colorScheme.secondaryContainer)
+            ) {
+                Text(
+                    text = user.displayName?.firstOrNull()?.uppercase().toString(),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(8.dp))
         user.displayName?.ifEmpty { "" }?.let { Text(text = it, style = MaterialTheme.typography.titleSmall) }
         user.email.ifEmpty { "" }.let { Text(text = it, style = MaterialTheme.typography.bodySmall) }

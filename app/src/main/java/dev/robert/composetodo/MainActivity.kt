@@ -11,12 +11,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.identity.Identity
 import dagger.hilt.android.AndroidEntryPoint
 import dev.robert.auth.R
 import dev.robert.auth.presentation.utils.GoogleAuthSignInClient
 import dev.robert.composetodo.navigation.MainApp
+import dev.robert.design_system.presentation.components.UserObject
 import dev.robert.design_system.presentation.theme.Theme
 import dev.robert.design_system.presentation.theme.TodoTheme
 import kotlinx.coroutines.Dispatchers
@@ -47,6 +49,7 @@ class MainActivity : ComponentActivity() {
                 initial = Theme.FOLLOW_SYSTEM.themeValue,
                 context = Dispatchers.Main.immediate,
             )
+            val user by viewModel.userData.collectAsStateWithLifecycle()
             val startDestination by viewModel.startDestination.collectAsState()
             val navController = rememberNavController()
             val scope = rememberCoroutineScope()
@@ -57,6 +60,11 @@ class MainActivity : ComponentActivity() {
                     oneTapClient = Identity.getSignInClient(applicationContext)
                 )
             }
+            val userObject = UserObject(
+                displayName = user.name,
+                email = user.email,
+                photoUrl = user.photoUrl,
+            )
             TodoTheme(
                 theme = theme,
             ) {
@@ -70,9 +78,10 @@ class MainActivity : ComponentActivity() {
                                 signOut()
                                 revokeAccess()
                             }
-                            viewModel.signOut()
                         }
-                    }
+                        viewModel.clearUserData()
+                    },
+                    userObject = userObject
                 )
             }
         }
