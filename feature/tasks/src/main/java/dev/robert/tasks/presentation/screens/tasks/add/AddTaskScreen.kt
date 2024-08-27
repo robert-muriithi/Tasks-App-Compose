@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -113,20 +115,14 @@ fun AddTaskScreen(
 
     AddTaskContent(
         uiState = uiState,
-        onTaskTitleChange = viewModel::onTitleChanged,
-        onTaskDescriptionChange = viewModel::onDescriptionChanged,
-        onTaskStartDateChange = viewModel::onStartDateChanged,
-        onTaskEndDateChange = viewModel::onEndDateChanged,
         onNavigateUp = onNavigateUp,
         onEvent = viewModel::onEvent,
-        onTaskStartTimeChange = viewModel::onTaskStartTimeChanged,
-        onTaskEndTimeChange = viewModel::onTaskEndTimeChanged,
         onInitDatePicker = { showDatePicker = true },
         onInitTimePicker = { timeAction ->
             showTimePicker = true
             action = timeAction
         },
-        onSetCategory = viewModel::setSelectCategory
+        onInputChange = viewModel::onInputChanged
     )
 
     if (showBottomSheet) AddCategoryBottomSheet(
@@ -142,7 +138,7 @@ fun AddTaskScreen(
 
     if (showDatePicker) DatePickerModal(
         onSelectDate = {
-            viewModel.onStartDateChanged(convertMillisToDate(it ?: 0))
+            viewModel.onInputChanged(OnInputChanged.TaskStartDateChanged(convertMillisToDate(it ?: 0)))
             showDatePicker = false
         },
         onDismiss = {
@@ -153,8 +149,17 @@ fun AddTaskScreen(
     if (showTimePicker) AdvancedTimePicker(
         onConfirm = {
             when (action) {
-                TIME.START_TIME -> viewModel.onTaskStartTimeChanged(formatTimeToAmPm(it))
-                TIME.END_TIME -> viewModel.onTaskEndTimeChanged(formatTimeToAmPm(it))
+                TIME.START_TIME -> viewModel.onInputChanged(
+                    OnInputChanged.TaskStartTimeChanged(
+                        formatTimeToAmPm(it)
+                    )
+                )
+
+                TIME.END_TIME -> viewModel.onInputChanged(
+                    OnInputChanged.TaskEndTimeChanged(
+                        formatTimeToAmPm(it)
+                    )
+                )
             }
             showTimePicker = false
         },
@@ -197,17 +202,11 @@ fun showDialogState(result: ActionResult, showDialog: Boolean): @Composable () -
 @Composable
 fun AddTaskContent(
     uiState: AddTaskState,
-    onTaskTitleChange: (String) -> Unit,
-    onTaskDescriptionChange: (String) -> Unit,
-    onTaskStartDateChange: (String) -> Unit,
-    onTaskEndDateChange: (String) -> Unit,
     onNavigateUp: () -> Unit,
     onEvent: (AddTaskEvents) -> Unit,
-    onTaskStartTimeChange: (String) -> Unit,
-    onTaskEndTimeChange: (String) -> Unit,
+    onInputChange: (OnInputChanged) -> Unit,
     onInitDatePicker: () -> Unit,
     onInitTimePicker: (TIME) -> Unit,
-    onSetCategory: (TaskCategory) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -240,7 +239,7 @@ fun AddTaskContent(
                     ) {
                         TDFilledTextField(
                             value = uiState.taskTitle,
-                            onValueChange = onTaskTitleChange,
+                            onValueChange = { onInputChange(OnInputChanged.TaskTitleChanged(it)) },
                             label = stringResource(R.string.title),
                             modifier = Modifier.fillMaxWidth(),
                             keyboardOptions = KeyboardOptions(
@@ -262,7 +261,7 @@ fun AddTaskContent(
                         else TDSpacer(modifier = Modifier.height(10.dp))
                         TDFilledTextField(
                             value = uiState.taskStartDate,
-                            onValueChange = onTaskStartDateChange,
+                            onValueChange = { onInputChange(OnInputChanged.TaskStartDateChanged(it)) },
                             label = stringResource(R.string.date),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -289,20 +288,18 @@ fun AddTaskContent(
                 }
             }
         }
-        Box(
+        LazyColumn(
             modifier = Modifier
                 .padding(top = 250.dp)
                 .clip(shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp))
                 .background(
                     color = MaterialTheme.colorScheme.background
                 )
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 30.dp),
+            contentPadding = PaddingValues(bottom = 16.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 30.dp)
-            ) {
-
+            item {
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -310,7 +307,7 @@ fun AddTaskContent(
                 ) {
                     TDFilledTextField(
                         value = uiState.startTime,
-                        onValueChange = onTaskStartTimeChange,
+                        onValueChange = { onInputChange(OnInputChanged.TaskStartTimeChanged(it)) },
                         label = stringResource(R.string.start_time),
                         modifier = Modifier
                             .weight(1f)
@@ -327,7 +324,7 @@ fun AddTaskContent(
                     TDSpacer(modifier = Modifier.width(10.dp))
                     TDFilledTextField(
                         value = uiState.endTime,
-                        onValueChange = onTaskEndTimeChange,
+                        onValueChange = { onInputChange(OnInputChanged.TaskEndTimeChanged(it)) },
                         label = stringResource(R.string.end_time),
                         modifier = Modifier
                             .weight(1f)
@@ -345,7 +342,7 @@ fun AddTaskContent(
                 TDSpacer(modifier = Modifier.height(10.dp))
                 TDFilledTextField(
                     value = uiState.taskDescription,
-                    onValueChange = onTaskDescriptionChange,
+                    onValueChange = { onInputChange(OnInputChanged.TaskDescriptionChanged(it)) },
                     label = stringResource(R.string.description),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -395,7 +392,7 @@ fun AddTaskContent(
                         else TasksCategory(
                             category = category.name,
                             onClick = {
-                                onSetCategory(category)
+                                onInputChange(OnInputChanged.SelectCategory(category))
                             },
                             selected = uiState.category?.name == category.name,
                             modifier = Modifier.padding(end = 8.dp, top = 8.dp)
@@ -520,17 +517,11 @@ private fun AddTaskScreenPreview() {
                     TaskCategory("Others")
                 ),
             ),
-            onTaskDescriptionChange = {},
-            onTaskEndDateChange = {},
-            onTaskStartDateChange = {},
-            onTaskTitleChange = {},
             onNavigateUp = {},
             onEvent = {},
-            onTaskStartTimeChange = {},
-            onTaskEndTimeChange = {},
             onInitDatePicker = {},
             onInitTimePicker = {},
-            onSetCategory = {}
+            onInputChange = {}
         )
     }
 }

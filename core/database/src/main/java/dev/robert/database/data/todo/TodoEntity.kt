@@ -16,6 +16,7 @@ data class TodoEntity(
     val isComplete: Boolean = false,
     val isSynced: Boolean = false,
     val taskDate: String,
+    val completionDate: String? = null,
 //    val attachment : Attachment? = null
 )
 

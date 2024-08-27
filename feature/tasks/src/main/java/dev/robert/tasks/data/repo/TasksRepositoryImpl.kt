@@ -42,7 +42,6 @@ class TasksRepositoryImpl @Inject constructor(
     override fun getTasks(fetchRemote: Boolean): Flow<List<TaskItem>> = flow {
         if (fetchRemote) {
             val remoteTasks = remoteDataSource.getTasks().map { it.toTodoItem() }
-            localDataSource.clear()
             remoteTasks.forEach { saveTask(it) }
         }
         emitAll(localDataSource.tasks.map { list -> list.map { it.toTodoItem() } })
