@@ -52,6 +52,7 @@ fun RegisterScreen(
                     Toast.makeText(context, "Registration success", Toast.LENGTH_SHORT).show()
                     onNavigateUp()
                 }
+
                 is RegisterAction.ShowError -> {
                     Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                 }
@@ -59,14 +60,15 @@ fun RegisterScreen(
         }
     }
     val scrollState = rememberScrollState()
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .paint(
-            painter = painterResource(id = R.drawable.bg),
-            contentScale = ContentScale.FillBounds,
-            sizeToIntrinsics = true,
-            alpha = 0.2f
-        )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .paint(
+                painter = painterResource(id = R.drawable.bg),
+                contentScale = ContentScale.FillBounds,
+                sizeToIntrinsics = true,
+                alpha = 0.2f
+            )
     ) {
         RegisterScreenContent(
             uiState = uiState,
@@ -82,6 +84,7 @@ fun RegisterScreen(
         )
     }
 }
+
 @Composable
 fun RegisterScreenContent(
     onEmailChange: (String) -> Unit,
@@ -119,7 +122,11 @@ fun RegisterScreenContent(
         )
         if (uiState.nameError != null && uiState.isLoading.not())
             Row(modifier = Modifier.fillMaxWidth(0.9f)) {
-                Text(text = uiState.nameError, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+                Text(
+                    text = uiState.nameError,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error
+                )
             } else
             TDSpacer(modifier = Modifier.height(10.dp))
         TDFilledTextField(
@@ -143,7 +150,11 @@ fun RegisterScreenContent(
         )
         if (uiState.emailError != null && uiState.isLoading.not())
             Row(modifier = Modifier.fillMaxWidth(0.9f)) {
-                Text(text = uiState.emailError, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+                Text(
+                    text = uiState.emailError,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error
+                )
             }
         else
             TDSpacer(modifier = Modifier.height(10.dp))
