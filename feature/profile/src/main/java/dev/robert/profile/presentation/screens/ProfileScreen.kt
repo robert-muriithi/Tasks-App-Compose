@@ -16,7 +16,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -104,7 +103,7 @@ fun ProfileScreenContent(
 @Composable
 fun LineChart() {
     val modelProducer = remember { CartesianChartModelProducer() }
-    LaunchedEffect(Unit) { modelProducer.runTransaction { lineSeries { series(1, 12, 3, 16, 18)  } } }
+    LaunchedEffect(Unit) { modelProducer.runTransaction { lineSeries { series(1, 12, 3, 16, 18) } } }
     val fillColor = MaterialTheme.colorScheme.tertiary
     val marker = rememberMarker()
     CartesianChartHost(
@@ -242,4 +241,3 @@ private const val LABEL_BACKGROUND_SHADOW_RADIUS_DP = 4f
 private const val LABEL_BACKGROUND_SHADOW_DY_DP = 2f
 private const val CLIPPING_FREE_SHADOW_RADIUS_MULTIPLIER = 1.4f
 private const val PERSISTENT_MARKER_X = 7f
-
