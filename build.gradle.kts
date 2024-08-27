@@ -29,6 +29,11 @@ subprojects {
             exclude { element -> element.file.path.contains("generated/") }
         }
     }
+
+    dependencies {
+        //noinspection UseTomlInstead
+        "ktlint"("io.nlopez.compose.rules:ktlint:0.4.10")
+    }
 }
 
 moduleGraphConfig {
