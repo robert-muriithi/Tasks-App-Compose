@@ -2,6 +2,7 @@ package dev.robert.composetodo
 
 import android.graphics.Color
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -84,7 +85,10 @@ class MainActivity : ComponentActivity() {
                         viewModel::clearUserData
                     },
                     userObject = userObject,
-                    onToggleEdit = viewModel::toggleState,
+                    onToggleEdit = {
+                        viewModel::toggleState
+                        Toast.makeText(this, "Coming soon..", Toast.LENGTH_SHORT).show()
+                    },
                     toggled = toggled,
                 )
             }
