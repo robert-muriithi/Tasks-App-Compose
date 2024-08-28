@@ -15,6 +15,9 @@ apply {
 apply {
     from("$rootDir/core-dependencies.gradle")
 }
+apply {
+    from("$rootDir/testing-dependencies.gradle")
+}
 
 android {
     namespace = "dev.robert.shared"
