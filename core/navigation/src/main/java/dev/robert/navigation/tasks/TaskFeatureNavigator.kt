@@ -1,23 +1,17 @@
-package dev.robert.tasks.presentation.navigation
+package dev.robert.navigation.tasks
 
-import android.os.Build
-import android.os.Bundle
-import android.os.Parcelable
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
+import dev.robert.navigation.navtype.CustomNavTypeArgs
 import dev.robert.tasks.domain.model.TaskItem
 import dev.robert.tasks.presentation.screens.details.TaskDetailsScreen
 import dev.robert.tasks.presentation.screens.search.SearchScreen
 import dev.robert.tasks.presentation.screens.tasks.TaskScreen
 import dev.robert.tasks.presentation.screens.tasks.add.AddTaskScreen
-import kotlin.reflect.KClass
 import kotlin.reflect.typeOf
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 
 @Serializable
 object TasksNavGraph
@@ -51,7 +45,6 @@ fun NavGraphBuilder.tasksNavGraph(
         ) { backStackEntry ->
             val item: Task = backStackEntry.toRoute()
             TaskDetailsScreen(
-                onNavigateUp = onNavigateUp,
                 taskItem = item.item,
             )
         }
@@ -69,27 +62,3 @@ fun NavGraphBuilder.tasksNavGraph(
 }
 
 val todoItem = CustomNavTypeArgs.create(TaskItem::class, TaskItem.serializer())
-
-object CustomNavTypeArgs {
-    fun <T : Parcelable> create(kClass: KClass<T>, kSerializer: KSerializer<T>): NavType<T> {
-        return object : NavType<T>(true) {
-            override fun get(bundle: Bundle, key: String): T? {
-                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    bundle.getParcelable(key, kClass.java)
-                } else bundle.getParcelable(key)
-            }
-
-            override fun parseValue(value: String): T {
-                return Json.decodeFromString(kSerializer, value)
-            }
-
-            override fun put(bundle: Bundle, key: String, value: T) {
-                bundle.putParcelable(key, value)
-            }
-
-            override fun serializeAsValue(value: T): String {
-                return Json.encodeToString(serializer = kSerializer, value = value)
-            }
-        }
-    }
-}
