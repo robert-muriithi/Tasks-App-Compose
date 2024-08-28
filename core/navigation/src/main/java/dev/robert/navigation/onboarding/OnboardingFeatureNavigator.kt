@@ -1,4 +1,4 @@
-package dev.robert.onboarding.presentation.navigation
+package dev.robert.navigation.onboarding
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable

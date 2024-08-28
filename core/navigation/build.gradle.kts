@@ -8,21 +8,16 @@ plugins {
     alias(libs.plugins.kotlinx.serialization)
     id("kotlin-parcelize")
 }
+
 apply {
     from("$rootDir/compose-dependencies.gradle")
 }
 apply {
-    from("$rootDir/testing-dependencies.gradle")
-}
-apply {
     from("$rootDir/core-dependencies.gradle")
-}
-apply {
-    from("$rootDir/firebase.gradle")
 }
 
 android {
-    namespace = "dev.robert.tasks"
+    namespace = "dev.robert.navigation"
     compileSdk = 34
 
     defaultConfig {
@@ -49,17 +44,18 @@ android {
         jvmTarget = "17"
     }
     buildFeatures {
-        compose = true
+        buildConfig = true
     }
     buildFeatures {
-        buildConfig = true
+        compose = true
     }
 }
 
 dependencies {
     implementation(libs.kotlinx.json)
-    implementation((project(path = ":core:database")))
-    implementation(project(path = ":core:design-system"))
-    implementation(project(path = ":core:datastore"))
-//    implementation(project(path = ":core:shared"))
+    implementation(project(path = ":feature:settings"))
+    implementation(project(path = ":feature:onboarding"))
+    implementation(project(path = ":feature:auth"))
+    implementation(project(path = ":feature:tasks"))
+    implementation(project(path = ":feature:profile"))
 }

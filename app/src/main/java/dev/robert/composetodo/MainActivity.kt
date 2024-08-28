@@ -21,6 +21,7 @@ import dev.robert.composetodo.navigation.MainApp
 import dev.robert.design_system.presentation.components.UserObject
 import dev.robert.design_system.presentation.theme.Theme
 import dev.robert.design_system.presentation.theme.TodoTheme
+import dev.robert.resources.viewmodels.MainActivityViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -50,6 +51,7 @@ class MainActivity : ComponentActivity() {
                 context = Dispatchers.Main.immediate,
             )
             val user by viewModel.userData.collectAsStateWithLifecycle()
+            val toggled by viewModel.isToggled.collectAsState()
             val startDestination by viewModel.startDestination.collectAsState()
             val navController = rememberNavController()
             val scope = rememberCoroutineScope()
@@ -79,9 +81,11 @@ class MainActivity : ComponentActivity() {
                                 revokeAccess()
                             }
                         }
-                        viewModel.clearUserData()
+                        viewModel::clearUserData
                     },
-                    userObject = userObject
+                    userObject = userObject,
+                    onToggleEdit = viewModel::toggleState,
+                    toggled = toggled,
                 )
             }
         }

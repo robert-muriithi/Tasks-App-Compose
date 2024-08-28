@@ -12,7 +12,6 @@ plugins {
     alias(libs.plugins.google.services) apply false
 //    alias(libs.plugins.kotlin.parcelize) apply false
     alias(libs.plugins.module.graph)
-//    id("dev.iurysouza.modulegraph") version "0.10.0"
 }
 
 subprojects {

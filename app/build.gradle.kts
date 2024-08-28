@@ -94,4 +94,6 @@ dependencies {
     implementation(project(path = ":feature:tasks"))
     implementation(project(path = ":feature:auth"))
     implementation(project(path = ":feature:profile"))
+    implementation(project(path = ":core:shared"))
+    implementation(project(path = ":core:navigation"))
 }

@@ -1,6 +1,6 @@
-package dev.robert.profile.presentation.navigation
+package dev.robert.navigation.profile
 
-/*import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import dev.robert.profile.presentation.screens.ProfileScreen
@@ -24,4 +24,4 @@ fun NavGraphBuilder.profileScreen() {
     composable<ProfileScreen> {
         ProfileScreen()
     }
-}*/
+}

@@ -1,15 +1,15 @@
-package dev.robert.composetodo
+package dev.robert.resources.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.robert.auth.domain.repository.AuthenticationRepository
-import dev.robert.auth.presentation.navigation.AuthNavGraph
 import dev.robert.design_system.presentation.theme.Theme
+import dev.robert.navigation.auth.AuthNavGraph
+import dev.robert.navigation.onboarding.OnBoardingNavGraph
+import dev.robert.navigation.tasks.TasksNavGraph
 import dev.robert.onboarding.domain.repository.OnBoardingRepository
-import dev.robert.onboarding.presentation.navigation.OnBoardingNavGraph
 import dev.robert.settings.domain.ThemeRepository
-import dev.robert.tasks.presentation.navigation.TasksNavGraph
 import javax.inject.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +21,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
@@ -38,6 +37,13 @@ class MainActivityViewModel @Inject constructor(
 
     private val _userData = MutableStateFlow(UserDataState())
     val userData: StateFlow<UserDataState> = _userData.asStateFlow()
+
+    private val _isToggled = MutableStateFlow(false)
+    val isToggled = _isToggled.asStateFlow()
+
+    fun toggleState() {
+        _isToggled.update { !it }
+    }
 
     val currentTheme: StateFlow<Int> = themeRepository.themeValue
         .stateIn(
@@ -82,7 +88,6 @@ class MainActivityViewModel @Inject constructor(
                     photoUrl = user?.photoUrl ?: ""
                 )
             }
-            Timber.d("User data: ${_userData.value}")
         }
     }
 
