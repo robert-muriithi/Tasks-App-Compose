@@ -22,6 +22,12 @@
     kotlinx.serialization.KSerializer serializer(...);
 }
 
+# Keep all Kotlin data classes
+-keepclassmembers class ** {
+    public <init>(...);
+}
+
+
 # @Serializable and @Polymorphic are used at runtime for polymorphic serialization.
 -keepattributes RuntimeVisibleAnnotations,AnnotationDefault
 

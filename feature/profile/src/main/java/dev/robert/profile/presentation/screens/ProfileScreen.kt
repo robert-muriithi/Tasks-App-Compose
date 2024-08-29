@@ -2,6 +2,7 @@ package dev.robert.profile.presentation.screens
 
 import android.annotation.SuppressLint
 import android.text.Layout
+import android.widget.Toast
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -60,6 +62,10 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    LaunchedEffect(key1 = Unit) {
+        Toast.makeText(context, "Dummy data used. Feature coming soon..", Toast.LENGTH_SHORT).show()
+    }
     ProfileScreenContent(
         state = uiState,
         onEvent = viewModel::onEvent

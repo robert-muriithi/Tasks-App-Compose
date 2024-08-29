@@ -1,116 +1,91 @@
 package dev.robert.auth.data.repositoy
 
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import dev.robert.auth.data.model.GoogleUserDto
-import dev.robert.auth.domain.mappers.toGoogleUser
 import dev.robert.auth.domain.model.GoogleUser
 import dev.robert.auth.domain.model.RegisterRequestBody
 import dev.robert.auth.domain.repository.AuthenticationRepository
 import dev.robert.datastore.data.TodoAppPreferences
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.tasks.await
-import timber.log.Timber
 
 class AuthenticationRepositoryImpl(
-    private val mAuth: FirebaseAuth,
+    private val prefs: TodoAppPreferences,
     private val firestore: FirebaseFirestore,
-    private val preferences: TodoAppPreferences
+    private val firebaseAuth: FirebaseAuth
 ) : AuthenticationRepository {
-    override fun login(email: String, password: String): Flow<Result<GoogleUser?>> = flow {
-        val user = mAuth.signInWithEmailAndPassword(email, password).await().user
-        GoogleUserDto(
-            email = user?.email ?: "",
-            name = user?.displayName ?: "",
-            photoUrl = user?.photoUrl?.toString() ?: "",
-            id = user?.uid ?: ""
-        ).toGoogleUser().also {
-            preferences.apply {
-                saveUserLoggedIn(true)
-                saveLoginType(TodoAppPreferences.LOGIN_TYPE_EMAIL)
+
+    override fun loginWithEmailAndPassword(email: String, password: String): Flow<Result<GoogleUser?>> = flow {
+        val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
+        val user = result.toGoogleUser()
+        val userFromFirestore = getUserFromFirestore(user.id)
+        prefs.apply {
+            saveUserLoggedIn(true)
+            saveLoginType(TodoAppPreferences.LOGIN_TYPE_EMAIL)
+            userFromFirestore?.let {
+                saveUserData(uid = it.id, name = it.name, email = it.email, password = password)
             }
-            emit(Result.success(it))
         }
-    }.catch {
-        emit(Result.failure(it))
-    }
+        emit(Result.success(userFromFirestore))
+    }.catch { e ->
+        emit(Result.failure(e))
+    }.flowOn(Dispatchers.IO)
 
     override suspend fun clearUserData() {
-        preferences.apply {
-            saveUserLoggedIn(false)
-            saveLoginType("")
-        }
+        prefs.saveUserLoggedIn(false)
+        prefs.saveLoginType("")
+        prefs.saveUserData("", "", "", "")
     }
 
-    override val getUser: Flow<GoogleUser?> = flow {
-        val loginType = preferences.loginType.firstOrNull()
-        if (loginType == TodoAppPreferences.LOGIN_TYPE_EMAIL) {
-            val emailUser = preferences.userData.firstOrNull()
-            emit(
-                GoogleUser(
-                    email = emailUser?.email ?: "",
-                    name = emailUser?.name ?: "",
-                    photoUrl = "",
-                    id = ""
-                )
-            )
+    override suspend fun registerWithEmailAndPassword(body: RegisterRequestBody): Flow<Result<GoogleUser?>> = flow {
+        val result = firebaseAuth.createUserWithEmailAndPassword(body.email, body.password).await()
+        val user = result.toGoogleUser().copy(name = body.name)
+        user.id.let { id ->
+            firestore.collection("users").document(id).set(user).await()
+            emit(Result.success(user))
+        }
+    }.catch {
+        emit(Result.failure(it))
+    }.flowOn(Dispatchers.IO)
+
+    override fun resetPassword(email: String): Flow<Result<Unit>> {
+        return flow {
+            firebaseAuth.sendPasswordResetEmail(email).await()
+            emit(Result.success(Unit))
+        }.catch {
+            emit(Result.failure(it))
+        }.flowOn(Dispatchers.IO)
+    }
+
+    override suspend fun getUserFromFirestore(uid: String): GoogleUser? {
+        val document = firestore.collection("users").document(uid).get().await()
+        return if (document.exists()) {
+            document.toObject(GoogleUser::class.java)
         } else {
-            val user = mAuth.currentUser
-            if (user != null) {
-                val googleUser = GoogleUserDto(
-                    email = user.email!!,
-                    name = user.displayName ?: "",
-                    photoUrl = user.photoUrl?.toString() ?: "",
-                    id = user.uid
-                ).toGoogleUser()
-                emit(googleUser)
-            }
+            null
         }
     }
 
-    override suspend fun register(body: RegisterRequestBody): Flow<Result<GoogleUser?>> = flow {
-        val user = mAuth.createUserWithEmailAndPassword(body.email, body.password).await().user
-        if (user != null) {
-            user.sendEmailVerification().await()
-            Timber.d("Email verification sent")
-            GoogleUserDto(
-                email = user.email ?: "",
-                name = body.name,
-                photoUrl = user.photoUrl?.toString() ?: "",
-                id = user.uid
-            ).also { storeUserData(it) }.also {
-                emit(Result.success(it.toGoogleUser()))
-                preferences.apply {
-                    saveUserData(body.name, body.email, body.password)
-                }
-            }
+    override val userId: Flow<String>
+        get() = flow {
+            prefs.userData.firstOrNull()?.id?.let { emit(it) }
         }
-    }.catch {
-        emit(Result.failure(it))
-    }
-
-    override fun resetPassword(email: String): Flow<Result<Unit>> = flow {
-        mAuth.sendPasswordResetEmail(email)
-        emit(Result.success(Unit))
-    }.catch {
-        emit(Result.failure(it))
-    }
-
-    private suspend fun storeUserData(user: GoogleUserDto) {
-        firestore.collection("users")
-            .document(user.id)
-            .set(user).await()
-    }
-
-    private suspend fun getUserData(id: String) = firestore.collection("users")
-        .document(id)
-        .get().await()
-        .toObject(GoogleUserDto::class.java)
-        ?.toGoogleUser()
 
     override val userLoggedIn: Boolean
-        get() = mAuth.currentUser != null
+        get() = firebaseAuth.currentUser != null
+
+    private fun AuthResult.toGoogleUser(): GoogleUser {
+        return GoogleUser(
+            email = this.user?.email ?: "",
+            name = this.user?.displayName ?: "",
+            photoUrl = this.user?.photoUrl.toString(),
+            id = this.user?.uid ?: ""
+        )
+    }
 }

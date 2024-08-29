@@ -1,4 +1,4 @@
-package dev.robert.profile.presentation.navigation
+package dev.robert.navigation.profile
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable

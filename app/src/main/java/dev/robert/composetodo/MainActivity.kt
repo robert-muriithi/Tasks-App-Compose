@@ -2,6 +2,7 @@ package dev.robert.composetodo
 
 import android.graphics.Color
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -11,7 +12,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.identity.Identity
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,12 +21,13 @@ import dev.robert.composetodo.navigation.MainApp
 import dev.robert.design_system.presentation.components.UserObject
 import dev.robert.design_system.presentation.theme.Theme
 import dev.robert.design_system.presentation.theme.TodoTheme
+import dev.robert.resources.viewmodels.MainViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val viewModel: MainActivityViewModel by viewModels()
+    private val viewModel: MainViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen().apply {
             setKeepOnScreenCondition {
@@ -49,7 +50,8 @@ class MainActivity : ComponentActivity() {
                 initial = Theme.FOLLOW_SYSTEM.themeValue,
                 context = Dispatchers.Main.immediate,
             )
-            val user by viewModel.userData.collectAsStateWithLifecycle()
+            val user by viewModel.userData.collectAsState()
+            val toggled by viewModel.isToggled.collectAsState()
             val startDestination by viewModel.startDestination.collectAsState()
             val navController = rememberNavController()
             val scope = rememberCoroutineScope()
@@ -64,6 +66,7 @@ class MainActivity : ComponentActivity() {
                 displayName = user.name,
                 email = user.email,
                 photoUrl = user.photoUrl,
+                id = user.id
             )
             TodoTheme(
                 theme = theme,
@@ -71,7 +74,6 @@ class MainActivity : ComponentActivity() {
                 MainApp(
                     startDestination = startDestination,
                     navController = navController,
-                    scope = scope,
                     onSignOut = {
                         scope.launch {
                             googleAuthUiClient.run {
@@ -79,9 +81,15 @@ class MainActivity : ComponentActivity() {
                                 revokeAccess()
                             }
                         }
-                        viewModel.clearUserData()
+                        viewModel::clearUserData
                     },
-                    userObject = userObject
+                    userObject = userObject,
+                    onToggleEdit = {
+                        viewModel::toggleState
+                        Toast.makeText(this, "Coming soon..", Toast.LENGTH_SHORT).show()
+                    },
+                    toggled = toggled,
+                    onSaveUser = viewModel::setUser
                 )
             }
         }

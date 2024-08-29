@@ -44,7 +44,6 @@ class ProfileViewModel @Inject constructor(
 
     private fun loadProfile() = viewModelScope.launch {
         loginType.collectLatest { type ->
-            Timber.d("Login type: $type")
             when (type) {
                 "google" -> {
                     repository.getProfileGoogleSignIn().collectLatest { profile ->
