@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
-import timber.log.Timber
 
 @Singleton
 class TasksRepositoryImpl @Inject constructor(
@@ -45,7 +44,6 @@ class TasksRepositoryImpl @Inject constructor(
 
     override fun getTasks(fetchRemote: Boolean): Flow<List<TaskItem>> = flow {
         val uid = preferences.userData.firstOrNull()?.id
-        Timber.d("UID: $uid")
         if (uid == null) {
             emit(emptyList())
             return@flow

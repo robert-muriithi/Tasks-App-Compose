@@ -58,7 +58,6 @@ import dev.robert.navigation.tasks.SearchScreen
 import dev.robert.navigation.tasks.Task
 import dev.robert.navigation.tasks.TasksScreen
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,7 +74,6 @@ fun MainApp(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    Timber.d("User object: $userObject")
     val showDrawer = listOf(
         TasksScreen::class,
     ).any { currentDestination?.hasRoute(it) == true }
