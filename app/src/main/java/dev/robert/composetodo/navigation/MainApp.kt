@@ -28,6 +28,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -38,6 +39,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.toRoute
+import dev.robert.auth.domain.model.GoogleUser
 import dev.robert.compose_todo.R
 import dev.robert.design_system.presentation.components.NavDrawerItem
 import dev.robert.design_system.presentation.components.NavigationDrawerContent
@@ -55,31 +57,31 @@ import dev.robert.navigation.tasks.AddTaskScreen
 import dev.robert.navigation.tasks.SearchScreen
 import dev.robert.navigation.tasks.Task
 import dev.robert.navigation.tasks.TasksScreen
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainApp(
     startDestination: Any,
     navController: NavHostController,
-    scope: CoroutineScope,
     onSignOut: () -> Unit,
     onToggleEdit: () -> Unit,
+    onSaveUser: (GoogleUser) -> Unit,
     toggled: Boolean,
     userObject: UserObject
 ) {
+    val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-
+    Timber.d("User object: $userObject")
     val showDrawer = listOf(
         TasksScreen::class,
     ).any { currentDestination?.hasRoute(it) == true }
     var selectedIndex by remember {
         mutableIntStateOf(0)
     }
-    val someFunction: (Boolean) -> Unit = {}
 
     // TODO: FIX THIS/ OR FIND BETTER APPROACH.. it's always reseting to 0 when user navigates back
     LaunchedEffect(currentDestination) {
@@ -90,7 +92,6 @@ fun MainApp(
             else -> 0
         }
     }
-
     TDSurface(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -154,16 +155,38 @@ fun MainApp(
                     if (showAppBar) TDAppBar(
                         title = {
                             when {
-                                currentDestination?.hasRoute(Task::class) == true -> Text(text = "${navBackStackEntry?.toRoute<Task>()?.item?.name}", maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                currentDestination?.hasRoute(TasksScreen::class) == true -> Text(text = "Welcome, ${userObject.displayName?.split(" ")?.first()}")
-                                currentDestination?.hasRoute(SettingsScreen::class) == true -> Text(text = "Settings")
-                                currentDestination?.hasRoute(ProfileScreen::class) == true -> Text(text = "Profile")
-                                currentDestination?.hasRoute(ChangePasswordScreen::class) == true -> Text(text = "Change Password")
+                                currentDestination?.hasRoute(Task::class) == true -> Text(
+                                    text = "${navBackStackEntry?.toRoute<Task>()?.item?.name}",
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+
+                                currentDestination?.hasRoute(TasksScreen::class) == true -> Text(
+                                    text = "Welcome, ${userObject.displayName?.split(" ")?.first()}"
+                                )
+
+                                currentDestination?.hasRoute(SettingsScreen::class) == true -> Text(
+                                    text = "Settings"
+                                )
+
+                                currentDestination?.hasRoute(ProfileScreen::class) == true -> Text(
+                                    text = "Profile"
+                                )
+
+                                currentDestination?.hasRoute(ChangePasswordScreen::class) == true -> Text(
+                                    text = "Change Password"
+                                )
+
                                 currentDestination?.hasRoute(SearchScreen::class) == true -> TDFilledTextField(
                                     onValueChange = {},
                                     value = "",
                                     label = "Search",
-                                    leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = "Search") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Search,
+                                            contentDescription = "Search"
+                                        )
+                                    },
                                     modifier = Modifier
                                         .fillMaxWidth(0.9f)
                                         .height(48.dp),
@@ -174,7 +197,10 @@ fun MainApp(
                                                 // clear search
                                             }
                                         ) {
-                                            Icon(imageVector = Icons.Default.Clear, contentDescription = null)
+                                            Icon(
+                                                imageVector = Icons.Default.Clear,
+                                                contentDescription = null
+                                            )
                                         }
                                     }
                                 )
@@ -191,7 +217,12 @@ fun MainApp(
                                     else navController.navigateUp()
                                 }) {
                                 Icon(
-                                    painter = painterResource(id = if (currentDestination?.hasRoute(TasksScreen::class) == true) R.drawable.bars_staggered_solid else R.drawable.arrow_left_solid),
+                                    painter = painterResource(
+                                        id = if (currentDestination?.hasRoute(
+                                                TasksScreen::class
+                                            ) == true
+                                        ) R.drawable.bars_staggered_solid else R.drawable.arrow_left_solid
+                                    ),
                                     contentDescription = null,
                                     modifier = Modifier.size(24.dp)
                                 )
@@ -202,7 +233,10 @@ fun MainApp(
                                 IconButton(onClick = {
                                     navController.navigate(SearchScreen)
                                 }) {
-                                    Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
+                                    Icon(
+                                        imageVector = Icons.Default.Search,
+                                        contentDescription = "Search"
+                                    )
                                 }
                             }
                             if (currentDestination?.hasRoute(Task::class) == true) {
@@ -239,6 +273,7 @@ fun MainApp(
                     navController = navController,
                     startDestination = startDestination,
                     modifier = Modifier.padding(paddingValues),
+                    onSaveUser = onSaveUser
                 )
             }
         }

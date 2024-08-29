@@ -31,8 +31,8 @@ object AuthModule {
     Singleton
     ]
     fun provideAuthRepository(
-        mAuth: FirebaseAuth,
-        firestore: FirebaseFirestore,
-        prefs: TodoAppPreferences
-    ): AuthenticationRepository = AuthenticationRepositoryImpl(mAuth = mAuth, firestore = firestore, preferences = prefs)
+        prefs: TodoAppPreferences,
+        auth: FirebaseAuth,
+        firestore: FirebaseFirestore
+    ): AuthenticationRepository = AuthenticationRepositoryImpl(prefs = prefs, firestore = firestore, firebaseAuth = auth)
 }

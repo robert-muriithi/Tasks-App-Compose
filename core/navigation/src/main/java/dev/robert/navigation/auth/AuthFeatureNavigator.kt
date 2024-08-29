@@ -3,6 +3,7 @@ package dev.robert.navigation.auth
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import dev.robert.auth.domain.model.GoogleUser
 import dev.robert.auth.presentation.screens.login.LoginScreen
 import dev.robert.auth.presentation.screens.register.RegisterScreen
 import kotlinx.serialization.Serializable
@@ -11,7 +12,7 @@ import kotlinx.serialization.Serializable
 object AuthNavGraph
 
 fun NavGraphBuilder.authNavGraph(
-    onNavigateToHome: () -> Unit,
+    onNavigateToHome: (GoogleUser) -> Unit,
     onNavigateToRegister: () -> Unit,
     onNavigateUp: () -> Unit,
 ) {
@@ -31,7 +32,7 @@ fun NavGraphBuilder.authNavGraph(
 object LoginScreen
 
 fun NavGraphBuilder.loginScreen(
-    onNavigateToHome: () -> Unit,
+    onNavigateToHome: (GoogleUser) -> Unit,
     onNavigateToRegister: () -> Unit,
 ) {
     composable<LoginScreen> {

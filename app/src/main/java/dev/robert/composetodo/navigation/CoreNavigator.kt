@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import dev.robert.auth.domain.model.GoogleUser
 import dev.robert.composetodo.utils.ConstantUtils
 import dev.robert.navigation.auth.AuthNavGraph
 import dev.robert.navigation.auth.RegisterScreen
@@ -26,6 +27,7 @@ import dev.robert.navigation.tasks.tasksNavGraph
 @Composable
 fun CoreNavigator(
     startDestination: Any,
+    onSaveUser: (GoogleUser) -> Unit,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
 ) {
@@ -46,7 +48,8 @@ fun CoreNavigator(
             }
         )
         authNavGraph(
-            onNavigateToHome = {
+            onNavigateToHome = { user ->
+                onSaveUser(user)
                 navController.navigate(
                     TasksNavGraph,
                     navOptions =

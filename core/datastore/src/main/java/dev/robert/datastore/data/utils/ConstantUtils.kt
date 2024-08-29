@@ -13,4 +13,5 @@ object ConstantUtils {
     val USER_NAME = stringPreferencesKey(name = "user_name")
     val USER_EMAIL = stringPreferencesKey(name = "user_email")
     val USER_PASSWORD = stringPreferencesKey(name = "user_password")
+    val USER_UID = stringPreferencesKey(name = "user_password")
 }

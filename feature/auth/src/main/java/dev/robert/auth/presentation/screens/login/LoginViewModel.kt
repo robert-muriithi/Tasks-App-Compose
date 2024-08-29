@@ -92,7 +92,7 @@ class LoginViewModel @Inject constructor(
         }
         viewModelScope.launch(coroutineExceptionHandler) {
             _uiState.update { it.copy(isLoading = true, signInOption = SignInOption.EmailAndPassword) }
-            repository.login(currentState.email, currentState.password).collectLatest { result ->
+            repository.loginWithEmailAndPassword(currentState.email, currentState.password).collectLatest { result ->
                 if (result.isSuccess) {
                     val user = result.getOrNull()
                     _uiState.update { it.copy(isLoading = false, isAuthenticated = true, user = user) }
@@ -122,6 +122,7 @@ class LoginViewModel @Inject constructor(
             _action.send(LoginAction.NavigateToHome(result.data!!))
             prefs.apply {
                 saveUserLoggedIn(true)
+                saveUserData(uid = result.data.id, email = result.data.email, name = result.data.name, password = "")
                 saveLoginType(loginType = TodoAppPreferences.LOGIN_TYPE_GOOGLE)
             }
         }

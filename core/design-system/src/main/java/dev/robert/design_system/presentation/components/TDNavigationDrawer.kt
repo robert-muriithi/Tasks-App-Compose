@@ -184,7 +184,8 @@ sealed class NavDrawerItem(val title: String, val icon: Int, val section: Sectio
 data class UserObject(
     val email: String,
     val displayName: String?,
-    val photoUrl: String?
+    val photoUrl: String?,
+    val id: String = ""
 )
 
 enum class Section {

@@ -1,7 +1,7 @@
 package dev.robert.tasks.data.repo
 
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import dev.robert.datastore.data.TodoAppPreferences
 import dev.robert.tasks.data.datasource.LocalDataSource
 import dev.robert.tasks.data.datasource.RemoteDataSource
 import dev.robert.tasks.data.mappers.toTodoItem
@@ -12,36 +12,47 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
+import timber.log.Timber
 
 @Singleton
 class TasksRepositoryImpl @Inject constructor(
     private val localDataSource: LocalDataSource,
     private val remoteDataSource: RemoteDataSource,
     private val database: FirebaseFirestore,
-    private val mAuth: FirebaseAuth,
+    private val preferences: TodoAppPreferences
 ) : TasksRepository {
 
-    override val tasks: Flow<List<TaskItem>>
-        get() = flow {
-            val taskList = remoteDataSource.getTasks()
-            localDataSource.clear()
-            taskList.forEach {
-                saveTask(it.toTodoItem())
-            }
-            val localTaskList = localDataSource.tasks.map { localTasks ->
-                localTasks.map {
-                    it.toTodoItem()
+    override val tasks: (fetchRemote: Boolean) -> Flow<List<TaskItem>>
+        get() = { fetchRemote ->
+            flow {
+                val uid = preferences.userData.firstOrNull()?.id
+                if (uid == null) {
+                    emit(emptyList())
+                    return@flow
                 }
+                if (fetchRemote) {
+                    val remoteTasks = remoteDataSource.getTasks(uid).map { it.toTodoItem() }
+                    localDataSource.clear()
+                    remoteTasks.forEach { saveTask(it) }
+                }
+                emitAll(localDataSource.tasks.map { list -> list.map { it.toTodoItem() } })
             }
-            emitAll(localTaskList)
         }
 
     override fun getTasks(fetchRemote: Boolean): Flow<List<TaskItem>> = flow {
+        val uid = preferences.userData.firstOrNull()?.id
+        Timber.d("UID: $uid")
+        if (uid == null) {
+            emit(emptyList())
+            return@flow
+        }
         if (fetchRemote) {
-            val remoteTasks = remoteDataSource.getTasks().map { it.toTodoItem() }
+            val remoteTasks = remoteDataSource.getTasks(uid).map { it.toTodoItem() }
+            localDataSource.clear()
             remoteTasks.forEach { saveTask(it) }
         }
         emitAll(localDataSource.tasks.map { list -> list.map { it.toTodoItem() } })
@@ -68,7 +79,9 @@ class TasksRepositoryImpl @Inject constructor(
 
     override suspend fun uploadTask(task: TaskItem): Result<Boolean> {
         return try {
-            mAuth.currentUser?.uid?.let { userId ->
+            val uid = preferences.userData.firstOrNull()?.id
+                ?: return Result.failure(Exception("User not authenticated"))
+            uid.let { userId ->
                 task.id?.let { taskId ->
                     with(task) {
                         database.collection("tasks")
@@ -81,7 +94,7 @@ class TasksRepositoryImpl @Inject constructor(
                     }
                 }
                 Result.success(true)
-            } ?: Result.failure(Exception("User not authenticated"))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }

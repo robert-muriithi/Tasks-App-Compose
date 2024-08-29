@@ -41,6 +41,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.auth.api.identity.Identity
 import dev.robert.auth.R
 import dev.robert.auth.domain.model.GoogleSignResult
+import dev.robert.auth.domain.model.GoogleUser
 import dev.robert.auth.presentation.utils.GoogleAuthSignInClient
 import dev.robert.design_system.presentation.components.SignInWithGoogleButton
 import dev.robert.design_system.presentation.components.TDButton
@@ -51,7 +52,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
-    onNavigateToHome: () -> Unit = {},
+    onNavigateToHome: (GoogleUser) -> Unit = {},
     onNavigateToRegister: () -> Unit = {},
     viewModel: LoginViewModel = hiltViewModel(),
     onNavigateToForgotPassword: () -> Unit = {}
@@ -95,7 +96,7 @@ fun LoginScreen(
             when (value) {
                 is LoginAction.NavigateToHome -> {
                     Toast.makeText(applicationContext, "Log in success", Toast.LENGTH_SHORT).show()
-                    uiState.user?.let { onNavigateToHome() }
+                    uiState.user?.let { onNavigateToHome(it) }
                     viewModel.onEvent(LoginScreenEvents.OnResetState)
                 }
 

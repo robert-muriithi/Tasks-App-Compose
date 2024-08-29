@@ -72,7 +72,7 @@ class RegisterViewModel @Inject constructor(
                     password = currentState.password.trim(),
                     name = currentState.name.trim()
                 )
-                repository.register(requestBody)
+                repository.registerWithEmailAndPassword(requestBody)
                     .collectLatest { result ->
                         if (result.isSuccess) {
                             val user = result.getOrNull()

@@ -3,6 +3,7 @@ package dev.robert.resources.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.robert.auth.domain.model.GoogleUser
 import dev.robert.auth.domain.repository.AuthenticationRepository
 import dev.robert.design_system.presentation.theme.Theme
 import dev.robert.navigation.auth.AuthNavGraph
@@ -18,15 +19,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class MainActivityViewModel @Inject constructor(
+class MainViewModel @Inject constructor(
     themeRepository: ThemeRepository,
     onBoardingRepository: OnBoardingRepository,
-    private val authenticationRepository: AuthenticationRepository
+    private val authenticationRepository: AuthenticationRepository,
 ) : ViewModel() {
 
     private var _startDestination = MutableStateFlow(Any())
@@ -79,16 +81,13 @@ class MainActivityViewModel @Inject constructor(
 
     fun clearUserData() = viewModelScope.launch { authenticationRepository.clearUserData() }
 
-    private fun getUserData() = viewModelScope.launch {
-        authenticationRepository.getUser.collectLatest { user ->
-            _userData.update {
-                it.copy(
-                    name = user?.name ?: "",
-                    email = user?.email ?: "",
-                    photoUrl = user?.photoUrl ?: ""
-                )
-            }
-        }
+    fun setUser(user: GoogleUser) = _userData.update {
+        it.copy(
+            name = user.name,
+            email = user.email,
+            photoUrl = user.photoUrl,
+            id = user.id
+        )
     }
 
     private val isUserLoggedIn = authenticationRepository.userLoggedIn
@@ -99,7 +98,9 @@ class MainActivityViewModel @Inject constructor(
                 if (!onboarded) {
                     _startDestination.update { OnBoardingNavGraph }
                 } else if (authenticated && isUserLoggedIn) {
-                    getUserData()
+                    val uId = authenticationRepository.userId.firstOrNull()
+                    val user = uId?.let { authenticationRepository.getUserFromFirestore(it) }
+                    user?.let { setUser(it) }
                     _startDestination.update { TasksNavGraph }
                 } else {
                     _startDestination.update { AuthNavGraph }
@@ -112,6 +113,7 @@ class MainActivityViewModel @Inject constructor(
 }
 
 data class UserDataState(
+    val id: String = "",
     val name: String = "",
     val email: String = "",
     val password: String = "",

@@ -59,18 +59,20 @@ class TodoAppPreferences(
         it[ConstantUtils.IS_GRID_VIEW] = isGridView
     }
 
-    suspend fun saveUserData(name: String, email: String, password: String) = prefs.edit {
+    suspend fun saveUserData(uid: String, name: String, email: String, password: String) = prefs.edit {
         it[ConstantUtils.USER_NAME] = name
         it[ConstantUtils.USER_EMAIL] = email
         it[ConstantUtils.USER_PASSWORD] = password
+        it[ConstantUtils.USER_UID] = uid
     }
 
     val userData: Flow<UserData> =
         prefs.data.map {
             UserData(
+                it[ConstantUtils.USER_UID] ?: "",
                 it[ConstantUtils.USER_NAME] ?: "",
                 it[ConstantUtils.USER_EMAIL] ?: "",
-                it[ConstantUtils.USER_PASSWORD] ?: ""
+                it[ConstantUtils.USER_PASSWORD] ?: "",
             )
         }
 
