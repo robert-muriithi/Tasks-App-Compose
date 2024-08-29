@@ -7,5 +7,5 @@ class GetTasksUseCase @Inject constructor(
     private val tasksRepository: TasksRepository
 ) {
 //    operator fun invoke() = tasksRepository.tasks
-    operator fun invoke(fetchRemote: Boolean) = tasksRepository.getTasks(fetchRemote)
+    operator fun invoke(fetchRemote: Boolean) = tasksRepository.tasks(fetchRemote)
 }
