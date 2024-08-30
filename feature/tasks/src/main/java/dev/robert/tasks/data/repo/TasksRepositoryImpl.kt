@@ -6,6 +6,8 @@ import dev.robert.tasks.data.datasource.LocalDataSource
 import dev.robert.tasks.data.datasource.RemoteDataSource
 import dev.robert.tasks.data.mappers.toTodoItem
 import dev.robert.tasks.data.mappers.toTodoModel
+import dev.robert.tasks.data.utils.ConstUtils.TASKS_COLLECTION
+import dev.robert.tasks.data.utils.ConstUtils.TASKS_COLLECTION_PATH
 import dev.robert.tasks.domain.model.TaskItem
 import dev.robert.tasks.domain.repository.TasksRepository
 import javax.inject.Inject
@@ -42,11 +44,12 @@ class TasksRepositoryImpl @Inject constructor(
             }
         }
 
-    override fun getTaskById(id: Int): Flow<TaskItem> {
-        return localDataSource.getTaskById(id).map {
-            it.toTodoItem()
+    override val task: (taskId: Int) -> Flow<TaskItem>
+        get() = { taskId ->
+            localDataSource.getTaskById(taskId).map {
+                it.toTodoItem()
+            }
         }
-    }
 
     override suspend fun saveTask(task: TaskItem): Result<Boolean> {
         return localDataSource.saveTask(task.toTodoModel())
@@ -54,7 +57,10 @@ class TasksRepositoryImpl @Inject constructor(
 
     override suspend fun deleteTask(taskId: Int): Result<Boolean> {
         return try {
+            val uid = preferences.userData.firstOrNull()?.id
+                ?: return Result.failure(Exception("User not authenticated"))
             localDataSource.deleteTask(taskId)
+            remoteDataSource.deleteTask(uid, taskId)
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)
@@ -68,9 +74,9 @@ class TasksRepositoryImpl @Inject constructor(
             uid.let { userId ->
                 task.id?.let { taskId ->
                     with(task) {
-                        database.collection("tasks")
+                        database.collection(TASKS_COLLECTION)
                             .document(userId)
-                            .collection("user_tasks")
+                            .collection(TASKS_COLLECTION_PATH)
                             .document(taskId.toString())
                             .set(this.toTodoModel())
                             .await()
