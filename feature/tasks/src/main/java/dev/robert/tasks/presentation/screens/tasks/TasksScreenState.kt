@@ -13,5 +13,14 @@ data class TasksScreenState(
     val isSynced: Boolean = false,
     val syncing: Boolean = false,
     val isRefreshing: Boolean = false,
-    val refreshed: Boolean = false
+    val refreshed: Boolean = false,
+    val analytics: Analytics = Analytics(),
+    val selectedCategory: TaskCategory? = null,
+)
+
+data class Analytics(
+    val totalTasks: Int = 0,
+    val completedTasks: Int = 0,
+    val todaysCompleteTasks: Int = 0,
+    val completionPercentage: Float = 0f
 )
