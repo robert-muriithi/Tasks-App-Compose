@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @HiltViewModel
 class TasksViewModel @Inject constructor(
@@ -68,13 +69,21 @@ class TasksViewModel @Inject constructor(
                         isLoading = false,
                         isRefreshing = false,
                         refreshed = refresh,
+                        selectedCategory = TaskCategory("All"),
                         category = tasks.map { it.category }
                             .distinct()
                             .toMutableList()
                             .apply { add(0, TaskCategory("All")) }
-                            .filterNotNull()
+                            .filterNotNull(),
+                        analytics = state.analytics.copy(
+                            totalTasks = tasks.size,
+                            completedTasks = tasks.count { it.isComplete },
+                            todaysCompleteTasks = tasks.count { it.isComplete && it.completionDate == getCurrentDateTime().toString() },
+                            completionPercentage = if (tasks.isNotEmpty()) (tasks.count { it.isComplete }.toFloat() / tasks.size.toFloat()) * 100 else 0f
+                        )
                     )
                 }
+                Timber.d("Completion Percentage: ${_uiState.value.analytics.completionPercentage}")
             }
         }
     }
@@ -104,12 +113,15 @@ class TasksViewModel @Inject constructor(
                 _uiState.update { state ->
                     state.copy(
                         tasks = if (filterString == "All") tasks
-                        else tasks.filter { category -> filterString.let { categoryName ->
-                            category.category?.name?.contains(
-                                categoryName,
-                                ignoreCase = true
-                            )
-                        } == true },
+                        else tasks.filter { category ->
+                            filterString.let { categoryName ->
+                                category.category?.name?.contains(
+                                    categoryName,
+                                    ignoreCase = true
+                                )
+                            } == true
+                        },
+                        selectedCategory = state.category.find { it?.name == filterString }
                     )
                 }
             }
@@ -149,7 +161,10 @@ class TasksViewModel @Inject constructor(
                     it.copy(
                         tasks = it.tasks.map { taskItem ->
                             if (taskItem.id == task.id && !taskItem.isComplete) {
-                                taskItem.copy(isComplete = true, completionDate = getCurrentDateTime().toString())
+                                taskItem.copy(
+                                    isComplete = true,
+                                    completionDate = getCurrentDateTime().toString()
+                                )
                             } else {
                                 taskItem
                             }

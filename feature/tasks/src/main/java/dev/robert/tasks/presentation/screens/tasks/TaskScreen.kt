@@ -73,13 +73,11 @@ import dev.robert.design_system.presentation.components.DialogType
 import dev.robert.design_system.presentation.components.Option
 import dev.robert.design_system.presentation.components.OptionsDialog
 import dev.robert.design_system.presentation.components.RotatingSyncIcon
-import dev.robert.design_system.presentation.utils.getCurrentDateTime
 import dev.robert.design_system.presentation.utils.isInternetAvailable
 import dev.robert.tasks.R
 import dev.robert.tasks.domain.model.TaskItem
 import dev.robert.tasks.presentation.components.CircularProgressbar
 import dev.robert.tasks.presentation.components.HomeShimmerLoading
-import java.util.Date
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -89,7 +87,6 @@ fun TaskScreen(
     viewModel: TasksViewModel = hiltViewModel()
 ) {
     val tasks by viewModel.uiState.collectAsStateWithLifecycle()
-    val gridState = rememberLazyGridState()
 
     LaunchedEffect(key1 = Unit) {
         val isOnline = withContext(Dispatchers.IO) {
@@ -404,8 +401,7 @@ fun AnalyticsSection(
     modifier: Modifier = Modifier,
     state: TasksScreenState
 ) {
-    val completeTask = state.tasks.count { it.isComplete }
-    val todaysCompleteTasks = state.tasks.count { it.completionDate == Date().toString() }
+
     Box(modifier = modifier) {
         Row(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -416,7 +412,7 @@ fun AnalyticsSection(
                 Text(
                     text = stringResource(
                         R.string.congrats_you_have_completed_tasks,
-                        state.tasks.count { it.isComplete }),
+                        state.analytics.completedTasks),
                     style = TextStyle(
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
                         fontWeight = FontWeight(800),
@@ -451,7 +447,7 @@ fun AnalyticsSection(
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        text = stringResource(R.string.total_tasks, state.tasks.size),
+                        text = stringResource(R.string.total_tasks, state.analytics.totalTasks),
                         style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
                         fontWeight = FontWeight(600)
                     )
@@ -473,7 +469,7 @@ fun AnalyticsSection(
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
                         text = stringResource(R.string.today_s_complete_tasks,
-                            state.tasks.count { it.completionDate == getCurrentDateTime().toString() }
+                            state.analytics.todaysCompleteTasks
                         ),
                         style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
                         fontWeight = FontWeight(600)
@@ -497,18 +493,15 @@ fun AnalyticsSection(
                     Text(
                         text = stringResource(
                             R.string.total_incomplete_tasks,
-                            state.tasks.count { !it.isComplete }),
+                            state.analytics.totalTasks - state.analytics.completedTasks),
                         style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
                         fontWeight = FontWeight(600)
                     )
                 }
             }
-            val percentage =
-                if (state.tasks.isNotEmpty())
-                    (completeTask.toFloat() / state.tasks.size.toFloat()) * 100
-                else 0f
+
             CircularProgressbar(
-                dataUsage = percentage,
+                dataUsage = state.analytics.completionPercentage,
             )
         }
     }
@@ -521,7 +514,6 @@ fun TasksCategories(
     onEvent: (TaskScreenEvents) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val selectedCategory = remember { mutableStateOf(categories?.firstOrNull()) }
     Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -553,10 +545,9 @@ fun TasksCategories(
                     TasksCategory(
                         category = cat[index],
                         onClick = {
-                            selectedCategory.value = cat[index]
                             onEvent(TaskScreenEvents.FilterTasks(cat[index]))
                         },
-                        selected = selectedCategory.value == cat[index],
+                        selected = state.selectedCategory?.name == cat[index],
                         modifier = Modifier
                     )
                 }
