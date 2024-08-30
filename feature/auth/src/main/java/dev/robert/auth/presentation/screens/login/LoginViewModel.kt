@@ -70,9 +70,7 @@ class LoginViewModel @Inject constructor(
                 IntentSenderRequest.Builder(
                     intentSender = intentSender ?: return@launch,
                 ).build()
-            ).also {
-                _uiState.update { it.copy(isLoading = false) }
-            }
+            )
         }
     }
 
