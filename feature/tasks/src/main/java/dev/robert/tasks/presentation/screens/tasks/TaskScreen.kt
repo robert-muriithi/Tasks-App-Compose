@@ -332,7 +332,7 @@ fun PullToRefreshLazyVerticalGrid(
             .nestedScroll(pullToRefreshState.nestedScrollConnection)
     ) {
         LazyVerticalGrid(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
             state = gridState,
@@ -398,8 +398,8 @@ fun PullToRefreshLazyVerticalGrid(
 
 @Composable
 fun AnalyticsSection(
+    state: TasksScreenState,
     modifier: Modifier = Modifier,
-    state: TasksScreenState
 ) {
 
     Box(modifier = modifier) {

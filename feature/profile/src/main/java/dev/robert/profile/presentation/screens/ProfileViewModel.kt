@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.robert.datastore.data.TodoAppPreferences
 import dev.robert.profile.domain.repository.ProfileRepository
+import dev.robert.tasks.domain.repository.TasksRepository
 import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +21,7 @@ import timber.log.Timber
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val repository: ProfileRepository,
+    private val tasksRepository: TasksRepository,
     preferences: TodoAppPreferences
 ) : ViewModel() {
 

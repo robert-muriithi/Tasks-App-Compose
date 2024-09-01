@@ -70,8 +70,8 @@ import kotlinx.coroutines.flow.collectLatest
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTaskScreen(
+    onNavigateUp: () -> Unit,
     viewModel: AddTaskViewModel = hiltViewModel(),
-    onNavigateUp: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showBottomSheet by remember {
@@ -217,7 +217,7 @@ fun AddTaskContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.5f)
-                .background(MaterialTheme.colorScheme.primary)
+                .background(MaterialTheme.colorScheme.tertiaryContainer)
         ) {
             Column(
                 modifier = Modifier

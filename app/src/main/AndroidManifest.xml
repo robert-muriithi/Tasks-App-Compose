@@ -6,6 +6,7 @@
     <application
         android:name="dev.robert.composetodo.TODOApp"
         android:allowBackup="false"
+        android:windowSoftInputMode="adjustResize"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"

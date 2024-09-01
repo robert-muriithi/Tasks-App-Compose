@@ -62,4 +62,5 @@ dependencies {
     implementation(libs.vico.compose)
     implementation(project(path = ":core:design-system"))
     implementation(project(path = ":core:datastore"))
+    implementation(project(path = ":feature:tasks"))
 }

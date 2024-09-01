@@ -29,6 +29,7 @@ class MainViewModel @Inject constructor(
     themeRepository: ThemeRepository,
     onBoardingRepository: OnBoardingRepository,
     private val authenticationRepository: AuthenticationRepository,
+//    preferences: TodoAppPreferences,
 ) : ViewModel() {
 
     private var _startDestination = MutableStateFlow(Any())
@@ -79,15 +80,24 @@ class MainViewModel @Inject constructor(
         initialValue = Pair(false, false)
     )
 
+//    private val loginType = preferences.loginType
+//        .stateIn(
+//            scope = viewModelScope,
+//            started = SharingStarted.WhileSubscribed(5000L),
+//            initialValue = null
+//        )
+
     fun clearUserData() = viewModelScope.launch { authenticationRepository.clearUserData() }
 
-    fun setUser(user: GoogleUser) = _userData.update {
-        it.copy(
-            name = user.name,
-            email = user.email,
-            photoUrl = user.photoUrl,
-            id = user.id
-        )
+    fun setUser(user: GoogleUser) {
+        _userData.update {
+            it.copy(
+                name = user.name,
+                email = user.email,
+                photoUrl = user.photoUrl,
+                id = user.id
+            )
+        }
     }
 
     private val isUserLoggedIn = authenticationRepository.userLoggedIn
@@ -100,8 +110,11 @@ class MainViewModel @Inject constructor(
                 } else if (authenticated && isUserLoggedIn) {
                     val uId = authenticationRepository.userId.firstOrNull()
                     val user = uId?.let { authenticationRepository.getUserFromFirestore(it) }
-                    user?.let { setUser(it) }
-                    _startDestination.update { TasksNavGraph }
+                    user?.let {
+                        setUser(it)
+                        _startDestination.update { TasksNavGraph }
+                    }
+//                    }
                 } else {
                     _startDestination.update { AuthNavGraph }
                 }
@@ -114,8 +127,8 @@ class MainViewModel @Inject constructor(
 
 data class UserDataState(
     val id: String = "",
-    val name: String = "",
+    val name: String? = "",
     val email: String = "",
-    val password: String = "",
-    val photoUrl: String = ""
+    val password: String? = "",
+    val photoUrl: String? = ""
 )
