@@ -18,7 +18,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-// import dev.robert.resources.viewmodels.MainActivityViewModel
 import dev.robert.tasks.domain.model.TaskItem
 
 @Composable

@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @HiltViewModel
 class TasksViewModel @Inject constructor(
@@ -83,7 +82,6 @@ class TasksViewModel @Inject constructor(
                         )
                     )
                 }
-                Timber.d("Completion Percentage: ${_uiState.value.analytics.completionPercentage}")
             }
         }
     }
@@ -191,5 +189,8 @@ class TasksViewModel @Inject constructor(
                 }
             }
         }
+    }
+    private fun resetState() {
+        _uiState.update { TasksScreenState() }
     }
 }

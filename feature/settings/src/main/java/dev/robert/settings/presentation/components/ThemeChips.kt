@@ -60,12 +60,12 @@ fun ThemeChip(
     Box(modifier = modifier
         .border(
             width = 0.dp,
-            color = MaterialTheme.colorScheme.secondary,
+            color = MaterialTheme.colorScheme.tertiaryContainer,
             shape = MaterialTheme.shapes.small
         )
         .background(
             color = if (selected) {
-                MaterialTheme.colorScheme.primary
+                MaterialTheme.colorScheme.tertiaryContainer
             } else {
                 Color.Transparent
             },

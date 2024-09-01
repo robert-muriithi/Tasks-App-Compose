@@ -18,8 +18,6 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,7 +45,6 @@ fun NavigationDrawerContent(
     ),
     selectedItem: Int = 0
 ) {
-    var isHeaderExpanded by remember { mutableStateOf(false) }
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceBetween
@@ -101,18 +98,6 @@ fun DrawerHeader(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        /*user.photoUrl?.let { AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(it)
-                .crossfade(true)
-                .build(),
-            placeholder = painterResource(R.drawable.account_circle_24px),
-            contentDescription = stringResource(R.string.profile_image),
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .clip(CircleShape)
-                .size(80.dp),
-        ) }*/
         val photoUrl = user.photoUrl ?: ""
         if (photoUrl.isNotEmpty()) {
             AsyncImage(
@@ -182,7 +167,7 @@ sealed class NavDrawerItem(val title: String, val icon: Int, val section: Sectio
 }
 
 data class UserObject(
-    val email: String,
+    val email: String = "",
     val displayName: String?,
     val photoUrl: String?,
     val id: String = ""
@@ -200,7 +185,7 @@ private fun PreviewNavigationDrawerContent() {
     TDSurface {
         NavigationDrawerContent(
             modifier = Modifier.fillMaxWidth(),
-            user = UserObject(email = "johndoe@gmal.com", displayName = "John Doe", photoUrl = null)
+            user = UserObject(email = "johndoe@gmal.com", displayName = "John Doe", photoUrl = "")
         )
     }
 }

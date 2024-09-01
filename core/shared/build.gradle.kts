@@ -61,4 +61,5 @@ dependencies {
     implementation(project(path = ":feature:auth"))
     implementation(project(path = ":core:design-system"))
     implementation(project(path = ":core:navigation"))
+    implementation(project(":core:datastore"))
 }

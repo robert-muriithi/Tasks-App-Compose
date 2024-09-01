@@ -11,6 +11,7 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.identity.Identity
@@ -21,6 +22,8 @@ import dev.robert.composetodo.navigation.MainApp
 import dev.robert.design_system.presentation.components.UserObject
 import dev.robert.design_system.presentation.theme.Theme
 import dev.robert.design_system.presentation.theme.TodoTheme
+import dev.robert.design_system.presentation.theme.darkScrim
+import dev.robert.design_system.presentation.theme.lightScrim
 import dev.robert.resources.viewmodels.MainViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,8 +40,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.auto(
-                Color.TRANSPARENT,
-                Color.TRANSPARENT
+                lightScrim = Color.TRANSPARENT,
+                darkScrim = Color.TRANSPARENT,
             ),
             navigationBarStyle = SystemBarStyle.auto(
                 Color.TRANSPARENT,
@@ -50,6 +53,7 @@ class MainActivity : ComponentActivity() {
                 initial = Theme.FOLLOW_SYSTEM.themeValue,
                 context = Dispatchers.Main.immediate,
             )
+
             val user by viewModel.userData.collectAsState()
             val toggled by viewModel.isToggled.collectAsState()
             val startDestination by viewModel.startDestination.collectAsState()

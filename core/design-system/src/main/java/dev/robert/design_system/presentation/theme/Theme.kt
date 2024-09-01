@@ -1,5 +1,5 @@
 package dev.robert.design_system.presentation.theme
-import android.app.Activity
+
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -10,12 +10,8 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowCompat
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -262,15 +258,12 @@ val unspecified_scheme = ColorFamily(
 
 @Composable
 fun TodoTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    theme: Int,
-    // Dynamic color is available on Android 12+
+    theme: Int, darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
-    content:
-    @Composable()
-    () -> Unit,
+    content: @Composable () -> Unit
 ) {
-    val autoColors = if (isSystemInDarkTheme()) mediumContrastDarkColorScheme else mediumContrastLightColorScheme
+    val autoColors =
+        if (isSystemInDarkTheme()) mediumContrastDarkColorScheme else mediumContrastLightColorScheme
 
     val dynamicColors =
         if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -292,14 +285,14 @@ fun TodoTheme(
             else -> autoColors
         }
 
-    val view = LocalView.current
+    /*val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            window.statusBarColor = Color.Transparent.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
-    }
+    }*/
 
     MaterialTheme(
         colorScheme = colorScheme,
@@ -326,3 +319,6 @@ enum class Theme(
 }
 
 private const val MaterialYou = 12
+
+val lightScrim = android.graphics.Color.argb(0xe6, 0xFF, 0xFF, 0xFF)
+val darkScrim = android.graphics.Color.argb(0x80, 0x1b, 0x1b, 0x1b)

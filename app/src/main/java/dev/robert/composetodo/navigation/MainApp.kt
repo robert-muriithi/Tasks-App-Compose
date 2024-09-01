@@ -1,6 +1,7 @@
 package dev.robert.composetodo.navigation
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -58,6 +59,7 @@ import dev.robert.navigation.tasks.SearchScreen
 import dev.robert.navigation.tasks.Task
 import dev.robert.navigation.tasks.TasksScreen
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,6 +82,7 @@ fun MainApp(
     var selectedIndex by remember {
         mutableIntStateOf(0)
     }
+    Timber.d("User Object: $userObject")
 
     // TODO: FIX THIS/ OR FIND BETTER APPROACH.. it's always reseting to 0 when user navigates back
     LaunchedEffect(currentDestination) {
@@ -270,7 +273,8 @@ fun MainApp(
                 CoreNavigator(
                     navController = navController,
                     startDestination = startDestination,
-                    modifier = Modifier.padding(paddingValues),
+                    modifier = Modifier
+                        .padding(PaddingValues(top = paddingValues.calculateTopPadding(), bottom = 25.dp)),
                     onSaveUser = onSaveUser
                 )
             }
