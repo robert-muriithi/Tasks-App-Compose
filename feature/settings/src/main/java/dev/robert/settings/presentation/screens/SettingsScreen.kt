@@ -60,7 +60,6 @@ fun SettingsScreen(
         onChangeTheme = {
             viewModel.onEvent(SettingsEvents.ChangeTheme(it))
         },
-        theme = theme,
         onNavigateToProfile = onNavigateToProfile,
         onLogout = {
             viewModel.onEvent(SettingsEvents.Logout)
@@ -71,7 +70,8 @@ fun SettingsScreen(
             showAboutDialog = true
         },
         onClickRateApp = onNavigateToRateApp,
-        onClickReportIssue = onNavigateToReportIssue
+        onClickReportIssue = onNavigateToReportIssue,
+        selectedTheme = theme
     )
 
     if (showAboutDialog) {
@@ -91,9 +91,9 @@ fun SettingsScreen(
 fun SettingsScreenContent(
     uiState: SettingsState,
     onChangeTheme: (AppTheme) -> Unit,
-    theme: Int,
     onNavigateToProfile: () -> Unit,
     modifier: Modifier = Modifier,
+    selectedTheme: Int,
     onLogout: () -> Unit = {},
     onNavigateToChangePassword: () -> Unit = {},
     onNaviagteToAbout: () -> Unit = {},
@@ -139,8 +139,8 @@ fun SettingsScreenContent(
                 onSelectTheme = { theme ->
                     onChangeTheme(theme.themeFromValue())
                 },
-                theme = theme,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                selectedTheme = selectedTheme.themeFromValue(),
+                modifier = Modifier.padding(horizontal = 8.dp),
             )
             SettingsActionsOptions(
                 sections = listOf(
@@ -187,6 +187,7 @@ fun SettingsScreenContent(
                 )
             )
             Spacer(modifier = Modifier.weight(1f))
+            // TODO: Add version name dynamically
             Text(
                 text = "Version 0.0.1-alpha",
                 style = MaterialTheme.typography.labelSmall,
@@ -213,7 +214,7 @@ private fun SettingsScreenPreview() {
             email = "robert@gmail.com"
         ),
         onChangeTheme = {},
-        theme = AppTheme.DARK_THEME.themeValue,
         onNavigateToProfile = {},
+        selectedTheme = AppTheme.DARK_THEME.themeValue
     )
 }

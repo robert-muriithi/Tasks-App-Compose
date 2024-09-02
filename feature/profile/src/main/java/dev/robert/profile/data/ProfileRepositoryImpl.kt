@@ -2,16 +2,19 @@ package dev.robert.profile.data
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import dev.robert.datastore.data.TodoAppPreferences
 import dev.robert.profile.domain.model.Profile
 import dev.robert.profile.domain.repository.ProfileRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 
 class ProfileRepositoryImpl(
     private val database: FirebaseFirestore,
-    private val mAuth: FirebaseAuth
+    private val mAuth: FirebaseAuth,
+    private val preferences: TodoAppPreferences
 ) : ProfileRepository {
     override fun getProfileGoogleSignIn(): Flow<Profile> = flow {
         mAuth.currentUser?.let {
@@ -26,14 +29,19 @@ class ProfileRepositoryImpl(
         }
     }
 
-    override fun getProfileFirebaseFirestore(): Flow<Result<Profile>> = flow {
-        database.collection(COLLECTION_PATH)
-            .document(mAuth.uid!!)
-            .get()
-            .await()
-            .toObject(Profile::class.java)?.let { profile -> emit(Result.success(profile)) }
-    }.catch {
-        emit(Result.failure(it))
+    override fun getProfileFirebaseFirestore(): Flow<Result<Profile>>  {
+        return flow {
+            val uid = preferences.userData.firstOrNull()?.id ?: ""
+            database.collection(COLLECTION_PATH)
+                .document(uid)
+                .get()
+                .await()
+                .toObject(Profile::class.java)?.let { profile ->
+                    emit(Result.success(profile))
+                }
+        }.catch {
+            emit(Result.failure(it))
+        }
     }
 
     companion object {

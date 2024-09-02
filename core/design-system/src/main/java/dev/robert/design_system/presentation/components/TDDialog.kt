@@ -13,15 +13,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,101 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import dev.robert.design_system.R
-
-@Composable
-fun TDResetPasswordDialog(
-    onSubmit: (String) -> Unit,
-    onDismiss: () -> Unit,
-    onValueChange: (String) -> Unit,
-    icon: ImageVector,
-    value: String,
-    modifier: Modifier = Modifier
-) {
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surface
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                TDResetPasswordDialogContent(
-                    modifier = modifier,
-                    onSubmit = onSubmit,
-                    onDismiss = onDismiss,
-                    onValueChange = onValueChange,
-                    icon = icon,
-                    value = value
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun TDResetPasswordDialogContent(
-    onSubmit: (String) -> Unit,
-    onDismiss: () -> Unit,
-    onValueChange: (String) -> Unit,
-    icon: ImageVector,
-    value: String,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(R.string.reset_password),
-                style = MaterialTheme.typography.displayMedium
-            )
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = stringResource(R.string.close),
-                modifier = Modifier
-                    .width(20.dp)
-                    .height(20.dp)
-                    .clickable { onDismiss() }
-            )
-        }
-        TDSpacer(modifier = Modifier.height(20.dp))
-        TDFilledTextField(
-            value = value,
-            onValueChange = onValueChange,
-            label = "Email",
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Done
-            ),
-            leadingIcon = {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = stringResource(R.string.email_icon)
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .height(53.dp)
-        )
-        TDSpacer(modifier = Modifier.height(20.dp))
-        TDButton(
-            text = stringResource(R.string.reset_password),
-            onClick = { onSubmit(value) },
-            modifier = Modifier.fillMaxWidth(0.9f),
-            isLoading = false
-        )
-    }
-}
 
 @Composable
 fun AlertDialog(
@@ -138,7 +45,7 @@ fun AlertDialog(
     Dialog(onDismissRequest = onDismiss) {
         Box(
             contentAlignment = Alignment.TopCenter,
-            modifier = Modifier
+            modifier = modifier
                 .padding(top = 50.dp)
         ) {
             Column(

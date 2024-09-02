@@ -6,6 +6,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import dev.robert.datastore.data.TodoAppPreferences
 import dev.robert.profile.data.ProfileRepositoryImpl
 import dev.robert.profile.domain.repository.ProfileRepository
 import javax.inject.Singleton
@@ -20,6 +21,7 @@ object ProfileModule {
     ]
     fun provideProfileRepository(
         database: FirebaseFirestore,
-        mAuth: FirebaseAuth
-    ): ProfileRepository = ProfileRepositoryImpl(database, mAuth)
+        mAuth: FirebaseAuth,
+        preferences: TodoAppPreferences
+    ): ProfileRepository = ProfileRepositoryImpl(database, mAuth, preferences)
 }

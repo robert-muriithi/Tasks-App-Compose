@@ -18,6 +18,9 @@ apply {
 apply {
     from("$rootDir/testing-dependencies.gradle")
 }
+apply {
+    from("$rootDir/firebase.gradle")
+}
 
 android {
     namespace = "dev.robert.shared"
@@ -61,5 +64,5 @@ dependencies {
     implementation(project(path = ":feature:auth"))
     implementation(project(path = ":core:design-system"))
     implementation(project(path = ":core:navigation"))
-    implementation(project(":core:datastore"))
+    implementation(project(path = ":core:datastore"))
 }
