@@ -115,8 +115,8 @@ class AddTaskViewModel @Inject constructor(
                     startDateTime = currentState.startTime,
                     endDateTime = currentState.endTime,
                     category = currentState.category,
-                    isSynced = false,
-                    isComplete = false,
+                    synced = false,
+                    complete = false,
                     taskDate = currentState.taskStartDate
                 )
             )

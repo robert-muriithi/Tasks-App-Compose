@@ -98,9 +98,9 @@ class TasksRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun completeTask(taskId: Int): Result<Boolean> {
+    override suspend fun completeTask(taskId: Int, completionDate: String): Result<Boolean> {
         return try {
-            localDataSource.completeTask(taskId)
+            localDataSource.completeTask(taskId = taskId, completionDate = completionDate)
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)

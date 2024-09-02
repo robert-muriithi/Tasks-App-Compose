@@ -98,7 +98,7 @@ fun TaskScreen(
         }
 
         if (isOnline) {
-            tasks.tasks.filter { !it.isSynced }.forEach {
+            tasks.tasks.filter { !it.synced }.forEach {
                 viewModel.onEvent(TaskScreenEvents.SyncTask(it))
             }
         }
@@ -264,7 +264,7 @@ fun TaskSuccessState(
                             onEvent(TaskScreenEvents.CompleteTask(it))
                         }
                     },
-                    enabled = !selectedTaskItem?.isComplete!!
+                    enabled = !selectedTaskItem?.complete!!
                 ),
                 Option(
                     text = stringResource(R.string.sync_task),
@@ -274,7 +274,7 @@ fun TaskSuccessState(
                             onEvent(TaskScreenEvents.SyncTask(it))
                         }
                     },
-                    enabled = !selectedTaskItem?.isSynced!!
+                    enabled = !selectedTaskItem?.synced!!
                 ),
                 Option(
                     text = stringResource(R.string.delete_task),
@@ -383,7 +383,7 @@ fun PullToRefreshLazyVerticalGrid(
                     isGridView = isGridView,
                     onTaskLongPress = onTaskLongPress,
                     syncing = state.syncing,
-                    isSycned = task.isSynced,
+                    isSycned = task.synced,
                 )
             }
         }
@@ -695,23 +695,23 @@ fun TaskCardItem(
                     Column {
                         Row {
                             Image(
-                                painter = painterResource(id = if (task.isComplete) R.drawable.baseline_check_circle_24 else R.drawable.baseline_check_circle_outline_24),
+                                painter = painterResource(id = if (task.complete) R.drawable.baseline_check_circle_24 else R.drawable.baseline_check_circle_outline_24),
                                 contentDescription = null,
                                 modifier = Modifier.size(10.dp),
                                 colorFilter = ColorFilter.tint(
-                                    if (task.isComplete) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(
+                                    if (task.complete) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(
                                         alpha = 0.3f
                                     )
                                 )
                             )
                             Text(
-                                text = if (task.isComplete) stringResource(R.string.completed) else stringResource(
+                                text = if (task.complete) stringResource(R.string.completed) else stringResource(
                                     R.string.incomplete
                                 ),
                                 style = TextStyle(
                                     fontSize = MaterialTheme.typography.labelSmall.fontSize,
                                     fontWeight = FontWeight(800),
-                                    color = if (task.isComplete) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(
+                                    color = if (task.complete) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(
                                         alpha = 0.3f
                                     )
                                 )

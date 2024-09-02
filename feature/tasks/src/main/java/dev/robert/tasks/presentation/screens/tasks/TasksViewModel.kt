@@ -76,9 +76,9 @@ class TasksViewModel @Inject constructor(
                             .filterNotNull(),
                         analytics = state.analytics.copy(
                             totalTasks = tasks.size,
-                            completedTasks = tasks.count { it.isComplete },
-                            todaysCompleteTasks = tasks.count { it.isComplete && it.completionDate == getCurrentDateTime().toString() },
-                            completionPercentage = if (tasks.isNotEmpty()) (tasks.count { it.isComplete }.toFloat() / tasks.size.toFloat()) * 100 else 0f
+                            completedTasks = tasks.count { it.complete },
+                            todaysCompleteTasks = tasks.count { it.complete && it.completionDate == getCurrentDateTime().toString() },
+                            completionPercentage = if (tasks.isNotEmpty()) (tasks.count { it.complete }.toFloat() / tasks.size.toFloat()) * 100 else 0f
                         )
                     )
                 }
@@ -93,7 +93,7 @@ class TasksViewModel @Inject constructor(
             )
         }
         viewModelScope.launch(coroutineExceptionHandler) {
-            val result = uploadTaskToServerUseCase(task.copy(isSynced = true))
+            val result = uploadTaskToServerUseCase(task.copy(synced = true))
             if (result.isSuccess) {
                 _uiState.update {
                     it.copy(
@@ -152,15 +152,15 @@ class TasksViewModel @Inject constructor(
     private fun completeTask(task: TaskItem) {
         viewModelScope.launch(coroutineExceptionHandler) {
             val result = task.id?.let {
-                completeTaskUseCase(it)
+                completeTaskUseCase(it, getCurrentDateTime().toString())
             }
             if (result?.isSuccess == true) {
                 _uiState.update {
                     it.copy(
                         tasks = it.tasks.map { taskItem ->
-                            if (taskItem.id == task.id && !taskItem.isComplete) {
+                            if (taskItem.id == task.id && !taskItem.complete) {
                                 taskItem.copy(
-                                    isComplete = true,
+                                    complete = true,
                                     completionDate = getCurrentDateTime().toString()
                                 )
                             } else {
@@ -169,7 +169,7 @@ class TasksViewModel @Inject constructor(
                         }
                     )
                 }
-                syncTaskToServer(task.copy(isComplete = true))
+                syncTaskToServer(task.copy(complete = true))
             }
         }
     }

@@ -12,8 +12,8 @@ data class TaskItem(
     val description: String,
     val startDateTime: String,
     val endDateTime: String,
-    val isComplete: Boolean,
-    val isSynced: Boolean,
+    val complete: Boolean,
+    val synced: Boolean,
     val category: TaskCategory? = null,
     val taskDate: String,
     val completionDate: String? = null

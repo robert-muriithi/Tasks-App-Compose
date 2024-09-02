@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -140,7 +139,7 @@ private fun SearchScreenContent(
                 isGridView = false,
                 onTaskLongPress = {},
                 syncing = false,
-                isSycned = task.isSynced,
+                isSycned = task.synced,
             )
         }
     }
