@@ -31,7 +31,7 @@ class TasksRepositoryImpl @Inject constructor(
         get() = { fetchRemote ->
             flow {
                 val uid = preferences.userData.firstOrNull()?.id
-                if (uid == null) {
+                if (uid.isNullOrEmpty()) {
                     emit(emptyList())
                     return@flow
                 }

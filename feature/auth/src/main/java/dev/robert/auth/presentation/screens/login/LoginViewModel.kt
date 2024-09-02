@@ -94,7 +94,7 @@ class LoginViewModel @Inject constructor(
                 if (result.isSuccess) {
                     val user = result.getOrNull()
                     _uiState.update { it.copy(isLoading = false, isAuthenticated = true, user = user) }
-                    _action.send(LoginAction.NavigateToHome(user!!))
+                    user?.let { LoginAction.NavigateToHome(it) }?.let { _action.send(it) }
                 } else {
                     val message = when (val exception = result.exceptionOrNull()) {
                         is FirebaseAuthInvalidCredentialsException -> "Invalid email or password"
@@ -117,13 +117,13 @@ class LoginViewModel @Inject constructor(
             )
         }
         viewModelScope.launch {
-            result.data?.let {
-                _action.send(LoginAction.NavigateToHome(it))
+            result.data?.let { user ->
                 prefs.apply {
                     saveUserLoggedIn(true)
-                    saveUserData(uid = it.id, email = it.email, name = it.name, password = "")
+                    saveUserData(uid = user.id, email = user.email, name = user.name, password = "")
                     saveLoginType(loginType = TodoAppPreferences.LOGIN_TYPE_GOOGLE)
                 }
+                _action.send(LoginAction.NavigateToHome(user))
             }
         }
     }
