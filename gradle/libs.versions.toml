@@ -90,4 +90,5 @@ kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", vers
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-services = {id = "com.google.gms.google-services", version.ref = "googleServices"}
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlinParcelize" }
+spotless = { id = "com.diffplug.spotless", version = "5.17.1" }
 

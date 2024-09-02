@@ -10,11 +10,24 @@ plugins {
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.kotlinx.serialization) apply false
     alias(libs.plugins.google.services) apply false
+    alias(libs.plugins.spotless) apply false
+
 //    alias(libs.plugins.kotlin.parcelize) apply false
-    alias(libs.plugins.module.graph)
+//    alias(libs.plugins.module.graph)
 }
 
 subprojects {
+    apply(plugin = "com.diffplug.spotless")
+    configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+        kotlin {
+            target("**/*.kt")
+            licenseHeaderFile(
+                rootProject.file("${project.rootDir}/spotless/copyright.kt"),
+                "^(package|object|import|interface)",
+            )
+        }
+    }
+
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         android.set(true)
@@ -35,7 +48,7 @@ subprojects {
     }
 }
 
-moduleGraphConfig {
-    readmePath.set("./README.md")
-    heading = "### Module Graph"
-}
+// moduleGraphConfig {
+//    readmePath.set("./README.md")
+//    heading = "### Module Graph"
+// }
