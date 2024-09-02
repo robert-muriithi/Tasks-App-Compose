@@ -44,7 +44,7 @@ class ProfileRepositoryImpl(
         }
     }
 
-    override fun getProfileFirebaseFirestore(): Flow<Result<Profile>>  {
+    override fun getProfileFirebaseFirestore(): Flow<Result<Profile>> {
         return flow {
             val uid = preferences.userData.firstOrNull()?.id ?: ""
             database.collection(COLLECTION_PATH)

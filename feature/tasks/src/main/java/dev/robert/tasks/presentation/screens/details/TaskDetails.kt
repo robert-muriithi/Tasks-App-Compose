@@ -39,10 +39,8 @@ import dev.robert.tasks.domain.model.TaskItem
 fun TaskDetailsScreen(
     taskItem: TaskItem,
     viewModel: TaskDetailsViewModel = hiltViewModel(),
-//    mainViewModel: MainActivityViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-//    val toggleState by mainViewModel.isToggled.collectAsStateWithLifecycle()
 
     LaunchedEffect(taskItem) {
         viewModel.initializeTask(taskItem)
