@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.kotlinx.serialization) apply false
     alias(libs.plugins.google.services) apply false
 //    alias(libs.plugins.kotlin.parcelize) apply false
-    alias(libs.plugins.module.graph)
+//    alias(libs.plugins.module.graph)
 }
 
 subprojects {
@@ -35,7 +35,7 @@ subprojects {
     }
 }
 
-moduleGraphConfig {
-    readmePath.set("./README.md")
-    heading = "### Module Graph"
-}
+// moduleGraphConfig {
+//    readmePath.set("./README.md")
+//    heading = "### Module Graph"
+// }
