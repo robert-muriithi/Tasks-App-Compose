@@ -120,7 +120,7 @@ fun DrawerHeader(
                     .background(MaterialTheme.colorScheme.secondaryContainer)
             ) {
                 Text(
-                    text = user.displayName?.firstOrNull()?.uppercase().toString(),
+                    text = user.displayName?.ifEmpty { "U" }?.firstOrNull()?.uppercase().toString(),
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.align(Alignment.Center),
                 )

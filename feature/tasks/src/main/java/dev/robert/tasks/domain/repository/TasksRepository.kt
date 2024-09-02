@@ -10,4 +10,5 @@ interface TasksRepository {
     suspend fun deleteTask(taskId: Int): Result<Boolean>
     suspend fun uploadTask(task: TaskItem): Result<Boolean>
     suspend fun completeTask(taskId: Int): Result<Boolean>
+    val searchTasks: (query: String) -> Flow<List<TaskItem>>
 }

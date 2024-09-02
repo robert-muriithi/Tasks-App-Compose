@@ -2,6 +2,7 @@ package dev.robert.resources.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.robert.auth.domain.model.GoogleUser
 import dev.robert.auth.domain.repository.AuthenticationRepository
@@ -29,7 +30,6 @@ class MainViewModel @Inject constructor(
     themeRepository: ThemeRepository,
     onBoardingRepository: OnBoardingRepository,
     private val authenticationRepository: AuthenticationRepository,
-//    preferences: TodoAppPreferences,
 ) : ViewModel() {
 
     private var _startDestination = MutableStateFlow(Any())
@@ -92,9 +92,9 @@ class MainViewModel @Inject constructor(
     fun setUser(user: GoogleUser) {
         _userData.update {
             it.copy(
-                name = user.name,
+                name = user.name.ifEmpty { FirebaseAuth.getInstance().currentUser?.displayName },
                 email = user.email,
-                photoUrl = user.photoUrl,
+                photoUrl = user.photoUrl.ifEmpty { FirebaseAuth.getInstance().currentUser?.photoUrl.toString() },
                 id = user.id
             )
         }

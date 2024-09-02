@@ -12,8 +12,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -26,12 +24,12 @@ import java.util.Locale
 fun ThemeToggleChips(
     themeOptions: List<ThemeOption>,
     onSelectTheme: (Theme) -> Unit,
-    theme: Int,
+    selectedTheme: dev.robert.design_system.presentation.theme.Theme,
     modifier: Modifier = Modifier
 ) {
-    val selectedTheme = remember { mutableStateOf(theme.themeFromValue()) }
+    // val selectedTheme = remember { mutableStateOf(theme.themeFromValue()) }
     LazyRow(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         themeOptions.let { cat ->
@@ -39,10 +37,10 @@ fun ThemeToggleChips(
                 ThemeChip(
                     text = cat[index].theme.name,
                     onClick = {
-                        selectedTheme.value = cat[index].theme.themeFromValue()
+//                        selectedTheme.value = cat[index].theme.themeFromValue()
                         onSelectTheme(cat[index].theme)
                     },
-                    selected = selectedTheme.value == cat[index].theme.themeFromValue(),
+                    selected = cat[index].theme.themeFromValue() == selectedTheme,
                     modifier = Modifier
                 )
             }
@@ -137,7 +135,7 @@ private fun ThemeToggleChipsPreview() {
                 ThemeOption(Theme.MATERIAL_YOU)
             ),
             onSelectTheme = {},
-            theme = AppTheme.MATERIAL_YOU.themeValue
+            selectedTheme = AppTheme.FOLLOW_SYSTEM
         )
     }
 }

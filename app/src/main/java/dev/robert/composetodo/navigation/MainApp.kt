@@ -4,12 +4,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Search
@@ -45,7 +43,6 @@ import dev.robert.compose_todo.R
 import dev.robert.design_system.presentation.components.NavDrawerItem
 import dev.robert.design_system.presentation.components.NavigationDrawerContent
 import dev.robert.design_system.presentation.components.TDAppBar
-import dev.robert.design_system.presentation.components.TDFilledTextField
 import dev.robert.design_system.presentation.components.TDSurface
 import dev.robert.design_system.presentation.components.UserObject
 import dev.robert.navigation.auth.AuthNavGraph
@@ -146,7 +143,6 @@ fun MainApp(
                 TasksScreen::class,
                 Task::class,
                 ProfileScreen::class,
-                SearchScreen::class,
                 SettingsScreen::class,
                 ChangePasswordScreen::class
             ).any { currentDestination?.hasRoute(it) == true }
@@ -176,34 +172,6 @@ fun MainApp(
 
                                 currentDestination?.hasRoute(ChangePasswordScreen::class) == true -> Text(
                                     text = "Change Password"
-                                )
-
-                                currentDestination?.hasRoute(SearchScreen::class) == true -> TDFilledTextField(
-                                    onValueChange = {},
-                                    value = "",
-                                    label = "Search",
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Default.Search,
-                                            contentDescription = "Search"
-                                        )
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth(0.9f)
-                                        .height(48.dp),
-                                    trailingIcon = {
-                                        // show clear search when text is not empty
-                                        IconButton(
-                                            onClick = {
-                                                // clear search
-                                            }
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Clear,
-                                                contentDescription = null
-                                            )
-                                        }
-                                    }
                                 )
                             }
                         },

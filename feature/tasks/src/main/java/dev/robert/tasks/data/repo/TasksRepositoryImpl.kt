@@ -51,6 +51,14 @@ class TasksRepositoryImpl @Inject constructor(
             }
         }
 
+    override val searchTasks: (query: String) -> Flow<List<TaskItem>>
+        get() = { query ->
+            localDataSource.tasks.map { list ->
+                list.filter { it.name.contains(query, ignoreCase = true) }
+                    .map { it.toTodoItem() }
+            }
+        }
+
     override suspend fun saveTask(task: TaskItem): Result<Boolean> {
         return localDataSource.saveTask(task.toTodoModel())
     }
