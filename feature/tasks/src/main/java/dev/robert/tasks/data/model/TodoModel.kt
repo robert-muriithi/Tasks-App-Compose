@@ -6,8 +6,8 @@ data class TodoModel(
     val description: String = "",
     val startDateTime: String = "",
     val endDateTime: String = "",
-    val isComplete: Boolean = false,
-    val isSynced: Boolean = false,
+    val complete: Boolean = false,
+    val synced: Boolean = false,
     val category: TaskCategoryModel? = null,
     val taskDate: String = ""
 )

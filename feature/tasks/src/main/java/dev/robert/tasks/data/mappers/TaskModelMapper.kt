@@ -13,8 +13,8 @@ fun TodoEntity.toTodoModel() = TodoModel(
     description = description,
     startDateTime = startDateTime,
     endDateTime = endDateTime,
-    isComplete = isComplete,
-    isSynced = isSynced,
+    complete = complete,
+    synced = synced,
     taskDate = taskDate,
     category = category?.toDomain()
 )
@@ -33,8 +33,8 @@ fun TodoModel.toEntity() = TodoEntity(
     description = description,
     startDateTime = startDateTime,
     endDateTime = endDateTime,
-    isComplete = isComplete,
-    isSynced = isSynced,
+    complete = complete,
+    synced = synced,
     taskDate = taskDate,
     category = category?.toEntity()
 )
@@ -45,8 +45,8 @@ fun TodoModel.toTodoItem() = TaskItem(
     description = description,
     startDateTime = startDateTime,
     endDateTime = endDateTime,
-    isComplete = isComplete,
-    isSynced = isSynced,
+    complete = complete,
+    synced = synced,
     taskDate = taskDate,
     category = category?.toDomain()
 )
@@ -57,8 +57,8 @@ fun TaskItem.toTodoModel() = TodoModel(
     description = description,
     startDateTime = startDateTime,
     endDateTime = endDateTime,
-    isComplete = isComplete,
-    isSynced = isSynced,
+    complete = complete,
+    synced = synced,
     taskDate = taskDate,
     category = category?.toModel()
 )

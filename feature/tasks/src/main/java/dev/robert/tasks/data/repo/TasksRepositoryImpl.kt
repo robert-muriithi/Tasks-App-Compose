@@ -31,7 +31,7 @@ class TasksRepositoryImpl @Inject constructor(
         get() = { fetchRemote ->
             flow {
                 val uid = preferences.userData.firstOrNull()?.id
-                if (uid == null) {
+                if (uid.isNullOrEmpty()) {
                     emit(emptyList())
                     return@flow
                 }
@@ -98,9 +98,9 @@ class TasksRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun completeTask(taskId: Int): Result<Boolean> {
+    override suspend fun completeTask(taskId: Int, completionDate: String): Result<Boolean> {
         return try {
-            localDataSource.completeTask(taskId)
+            localDataSource.completeTask(taskId = taskId, completionDate = completionDate)
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)

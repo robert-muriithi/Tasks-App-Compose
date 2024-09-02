@@ -30,13 +30,13 @@ interface TodoDao {
         id: Int,
     )
 
-    @Query("UPDATE todos SET isComplete =:isComplete WHERE id =:id")
+    @Query("UPDATE todos SET complete =:isComplete WHERE id =:id")
     suspend fun setComplete(
         id: Int,
         isComplete: Boolean,
     )
 
-    @Query("UPDATE todos SET isSynced = 1 WHERE id =:id")
+    @Query("UPDATE todos SET synced = 1 WHERE id =:id")
     suspend fun setSynced(id: Int)
 
     @Query("DELETE FROM todos")
@@ -45,6 +45,6 @@ interface TodoDao {
     @Query("DELETE FROM todos WHERE id =:id")
     suspend fun deleteTask(id: Int)
 
-    @Query("UPDATE todos SET isComplete = 1 WHERE id =:id")
-    suspend fun completeTask(id: Int)
+    @Query("UPDATE todos SET complete = 1, completionDate = :completionDate WHERE id =:id")
+    suspend fun completeTask(id: Int, completionDate: String)
 }

@@ -10,7 +10,7 @@ import dev.robert.database.TasksTypeConverter
     entities = [
         TodoEntity::class,
     ],
-    version = 3,
+    version = 4,
 )
 @TypeConverters(TasksTypeConverter::class)
 abstract class TodoDatabase : RoomDatabase() {

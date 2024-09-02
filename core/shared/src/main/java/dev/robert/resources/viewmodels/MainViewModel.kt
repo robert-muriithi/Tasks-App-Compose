@@ -95,7 +95,7 @@ class MainViewModel @Inject constructor(
                 name = user.name.ifEmpty { FirebaseAuth.getInstance().currentUser?.displayName },
                 email = user.email,
                 photoUrl = user.photoUrl.ifEmpty { FirebaseAuth.getInstance().currentUser?.photoUrl.toString() },
-                id = user.id
+                id = user.id.ifEmpty { FirebaseAuth.getInstance().currentUser?.uid.toString() }
             )
         }
     }
