@@ -38,7 +38,7 @@ object TasksScreen
 object AddTaskScreen
 
 @Serializable
-data class Task(val item: TaskItem)
+data class TaskDetails(val item: TaskItem)
 
 @Serializable
 object SearchScreen
@@ -55,12 +55,13 @@ fun NavGraphBuilder.tasksNavGraph(
                 onNavigateToDetails = onNavigateToDetails,
             )
         }
-        composable<Task>(
+        composable<TaskDetails>(
             typeMap = mapOf(typeOf<TaskItem>() to todoItem)
         ) { backStackEntry ->
-            val item: Task = backStackEntry.toRoute()
+            val item: TaskDetails = backStackEntry.toRoute()
             TaskDetailsScreen(
                 taskItem = item.item,
+                onNavigateUp = onNavigateUp
             )
         }
         composable<AddTaskScreen> {

@@ -16,15 +16,12 @@
 package dev.robert.composetodo.navigation
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,13 +43,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.toRoute
 import dev.robert.auth.domain.model.GoogleUser
 import dev.robert.compose_todo.R
 import dev.robert.design_system.presentation.components.NavDrawerItem
@@ -68,7 +63,6 @@ import dev.robert.navigation.settings.SettingsNavGraph
 import dev.robert.navigation.settings.SettingsScreen
 import dev.robert.navigation.tasks.AddTaskScreen
 import dev.robert.navigation.tasks.SearchScreen
-import dev.robert.navigation.tasks.Task
 import dev.robert.navigation.tasks.TasksScreen
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -79,7 +73,6 @@ fun MainApp(
     startDestination: Any,
     navController: NavHostController,
     onSignOut: () -> Unit,
-    onToggleEdit: () -> Unit,
     onSaveUser: (GoogleUser) -> Unit,
     toggled: Boolean,
     userObject: UserObject
@@ -156,7 +149,6 @@ fun MainApp(
         ) {
             val showAppBar = listOf(
                 TasksScreen::class,
-                Task::class,
                 ProfileScreen::class,
                 SettingsScreen::class,
                 ChangePasswordScreen::class
@@ -167,12 +159,6 @@ fun MainApp(
                     if (showAppBar) TDAppBar(
                         title = {
                             when {
-                                currentDestination?.hasRoute(Task::class) == true -> Text(
-                                    text = "${navBackStackEntry?.toRoute<Task>()?.item?.name}",
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-
                                 currentDestination?.hasRoute(TasksScreen::class) == true -> Text(
                                     text = "Welcome, ${userObject.displayName?.split(" ")?.first()}"
                                 )
@@ -193,7 +179,8 @@ fun MainApp(
                         navigationIcon = {
                             IconButton(
                                 onClick = {
-                                    if (currentDestination?.hasRoute(TasksScreen::class) == true) scope.launch {
+                                    if (currentDestination?.hasRoute(TasksScreen::class) ==
+                                        true) scope.launch {
                                         drawerState.apply {
                                             if (isClosed) open() else close()
                                         }
@@ -224,18 +211,6 @@ fun MainApp(
                                     )
                                 }
                             }
-                            if (currentDestination?.hasRoute(Task::class) == true) {
-                                IconButton(
-                                    onClick = {
-                                        onToggleEdit()
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = if (toggled) Icons.Default.Edit else Icons.Default.Lock,
-                                        contentDescription = null
-                                    )
-                                }
-                            }
                         },
                     )
                 },
@@ -258,7 +233,7 @@ fun MainApp(
                     navController = navController,
                     startDestination = startDestination,
                     modifier = Modifier
-                        .padding(PaddingValues(top = paddingValues.calculateTopPadding(), bottom = 25.dp)),
+                        .padding(paddingValues),
                     onSaveUser = onSaveUser
                 )
             }

@@ -39,7 +39,7 @@ class TasksRepositoryImpl @Inject constructor(
     private val localDataSource: LocalDataSource,
     private val remoteDataSource: RemoteDataSource,
     private val database: FirebaseFirestore,
-    private val preferences: TodoAppPreferences
+    private val preferences: TodoAppPreferences,
 ) : TasksRepository {
 
     override val tasks: (fetchRemote: Boolean) -> Flow<List<TaskItem>>
@@ -74,9 +74,7 @@ class TasksRepositoryImpl @Inject constructor(
             }
         }
 
-    override suspend fun saveTask(task: TaskItem): Result<Boolean> {
-        return localDataSource.saveTask(task.toTodoModel())
-    }
+    override suspend fun saveTask(task: TaskItem): Result<Boolean> = localDataSource.saveTask(task.toTodoModel())
 
     override suspend fun deleteTask(taskId: Int): Result<Boolean> {
         return try {
@@ -89,6 +87,18 @@ class TasksRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+    override val updateTask: (task: TaskItem) -> Flow<Boolean>
+        get() = { task ->
+            flow {
+                val uid = preferences.userData.firstOrNull()?.id
+                if (uid.isNullOrEmpty()) {
+                    emit(false)
+                    return@flow
+                }
+                val updated = localDataSource.updateTask(task.toTodoModel())
+                emit(updated)
+            }
+        }
 
     override suspend fun uploadTask(task: TaskItem): Result<Boolean> {
         return try {
@@ -113,12 +123,10 @@ class TasksRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun completeTask(taskId: Int, completionDate: String): Result<Boolean> {
-        return try {
-            localDataSource.completeTask(taskId = taskId, completionDate = completionDate)
-            Result.success(true)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    override suspend fun completeTask(taskId: Int, completionDate: String): Result<Boolean> = try {
+        localDataSource.completeTask(taskId = taskId, completionDate = completionDate)
+        Result.success(true)
+    } catch (e: Exception) {
+        Result.failure(e)
     }
 }

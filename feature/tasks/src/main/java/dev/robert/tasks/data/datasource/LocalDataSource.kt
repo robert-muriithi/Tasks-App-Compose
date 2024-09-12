@@ -31,11 +31,10 @@ interface LocalDataSource {
     suspend fun completeTask(taskId: Int, completionDate: String)
     suspend fun setSynced(taskId: Int)
     suspend fun clear()
+    suspend fun updateTask(task: TodoModel): Boolean
 }
 
-class LocalDataStoreImpl @Inject constructor(
-    private val taskDao: TodoDao
-) : LocalDataSource {
+class LocalDataStoreImpl @Inject constructor(private val taskDao: TodoDao) : LocalDataSource {
 
     override val tasks: Flow<List<TodoModel>>
         get() = try {
@@ -87,6 +86,15 @@ class LocalDataStoreImpl @Inject constructor(
     override suspend fun clear() {
         try {
             taskDao.clear()
+        } catch (e: Exception) {
+            throw e
+        }
+    }
+
+    override suspend fun updateTask(task: TodoModel): Boolean {
+        try {
+            taskDao.updateTask(task.toEntity())
+            return true
         } catch (e: Exception) {
             throw e
         }

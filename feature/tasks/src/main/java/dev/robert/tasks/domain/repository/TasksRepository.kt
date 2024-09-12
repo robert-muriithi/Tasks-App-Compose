@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.Flow
 interface TasksRepository {
     val task: (taskId: Int) -> Flow<TaskItem>
     val tasks: (fetchRemote: Boolean) -> Flow<List<TaskItem>>
+    val updateTask: (task: TaskItem) -> Flow<Boolean>
     suspend fun saveTask(task: TaskItem): Result<Boolean>
     suspend fun deleteTask(taskId: Int): Result<Boolean>
     suspend fun uploadTask(task: TaskItem): Result<Boolean>

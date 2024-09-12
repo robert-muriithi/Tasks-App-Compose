@@ -32,4 +32,5 @@
     <string name="sync_task">Sync Task</string>
     <string name="delete_task">Delete Task</string>
     <string name="edit_task">Edit Task</string>
+    <string name="edit">Edit</string>
 </resources>

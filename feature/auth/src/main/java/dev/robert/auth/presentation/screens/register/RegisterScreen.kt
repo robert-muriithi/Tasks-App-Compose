@@ -64,7 +64,11 @@ fun RegisterScreen(
         viewModel.action.collect {
             when (it) {
                 is RegisterAction.NavigateToLogin -> {
-                    Toast.makeText(context, "Registration success", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.registration_success),
+                        Toast.LENGTH_SHORT
+                    ).show()
                     onNavigateUp()
                 }
 

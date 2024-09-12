@@ -16,15 +16,20 @@
 package dev.robert.tasks.presentation.screens.details
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.robert.tasks.domain.model.TaskItem
+import dev.robert.tasks.domain.usecase.UpdateTaskUseCase
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 @HiltViewModel
-class TaskDetailsViewModel @Inject constructor() : ViewModel() {
+class TaskDetailsViewModel @Inject constructor(private val updateTaskUseCase: UpdateTaskUseCase) :
+    ViewModel() {
 
     private val _uiState = MutableStateFlow(TaskDetailsState())
     val uiState = _uiState.asStateFlow()
@@ -44,6 +49,14 @@ class TaskDetailsViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun updateTask(taskItem: TaskItem) {
+        val updatedTaskItem = taskItem.copy(synced = false)
+        viewModelScope.launch {
+            updateTaskUseCase(updatedTaskItem).collectLatest {
+                _uiState.update { currentState ->
+                    currentState.copy(taskUpdated = it)
+                }
+            }
+        }
     }
 
     fun initializeTask(taskItem: TaskItem) {

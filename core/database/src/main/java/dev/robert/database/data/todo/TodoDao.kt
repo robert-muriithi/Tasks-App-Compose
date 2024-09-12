@@ -62,4 +62,7 @@ interface TodoDao {
 
     @Query("UPDATE todos SET complete = 1, completionDate = :completionDate WHERE id =:id")
     suspend fun completeTask(id: Int, completionDate: String)
+
+    @Upsert
+    suspend fun updateTask(entity: TodoEntity)
 }
