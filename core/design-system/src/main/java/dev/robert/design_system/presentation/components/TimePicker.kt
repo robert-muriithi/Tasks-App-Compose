@@ -45,9 +45,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import dev.robert.design_system.R
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -101,11 +103,11 @@ fun AdvancedTimePicker(
 
 @Composable
 fun AdvancedTimePickerDialog(
-    title: String = "Select Time",
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
+    title: String = stringResource(R.string.select_time),
     toggle: @Composable () -> Unit = {},
-    content: @Composable () -> Unit,
+    content: @Composable () -> Unit
 ) {
     Dialog(
         onDismissRequest = onDismiss,
