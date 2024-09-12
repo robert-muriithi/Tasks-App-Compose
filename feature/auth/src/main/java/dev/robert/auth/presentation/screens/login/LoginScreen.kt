@@ -110,7 +110,7 @@ fun LoginScreen(
         viewModel.action.collectLatest { value: LoginAction ->
             when (value) {
                 is LoginAction.NavigateToHome -> {
-                    Toast.makeText(applicationContext, "Log in success", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext, "Login success", Toast.LENGTH_SHORT).show()
                     uiState.user?.let { onNavigateToHome(it) }
                     viewModel.onEvent(LoginScreenEvents.OnResetState)
                 }
