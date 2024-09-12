@@ -25,6 +25,7 @@ import dev.robert.tasks.domain.usecase.DeleteTaskUseCase
 import dev.robert.tasks.domain.usecase.GetTasksUseCase
 import dev.robert.tasks.domain.usecase.SaveTaskUseCase
 import dev.robert.tasks.domain.usecase.SearchUseCase
+import dev.robert.tasks.domain.usecase.UpdateTaskUseCase
 import dev.robert.tasks.domain.usecase.UploadTaskToServerUseCase
 import dev.robert.tasks.presentation.utils.Validator
 import javax.inject.Singleton
@@ -48,6 +49,14 @@ object TasksModule {
     fun provideSearchTasksUseCase(
         repository: TasksRepository
     ): SearchUseCase = SearchUseCase(repository = repository)
+
+    @[
+    Provides
+    Singleton
+    ]
+    fun provideUpdateTaskUseCase(
+        repository: TasksRepository
+    ): UpdateTaskUseCase = UpdateTaskUseCase(repository = repository)
 
     @[
     Provides

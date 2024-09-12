@@ -34,7 +34,7 @@ import dev.robert.navigation.profile.ProfileNavGraph
 import dev.robert.navigation.profile.profileNavGraph
 import dev.robert.navigation.settings.ChangePasswordScreen
 import dev.robert.navigation.settings.settingsNavGraph
-import dev.robert.navigation.tasks.Task
+import dev.robert.navigation.tasks.TaskDetails
 import dev.robert.navigation.tasks.TasksNavGraph
 import dev.robert.navigation.tasks.TasksScreen
 import dev.robert.navigation.tasks.tasksNavGraph
@@ -82,7 +82,7 @@ fun CoreNavigator(
         )
         tasksNavGraph(
             onNavigateToDetails = { taskItem ->
-                navController.navigate(Task(item = taskItem)) {
+                navController.navigate(TaskDetails(item = taskItem)) {
                     launchSingleTop = true
                     restoreState = true
                     popUpTo(TasksScreen) {

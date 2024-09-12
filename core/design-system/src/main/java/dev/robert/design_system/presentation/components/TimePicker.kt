@@ -67,10 +67,8 @@ fun AdvancedTimePicker(
         is24Hour = true,
     )
 
-    /** Determines whether the time picker is dial or input */
     var showDial by remember { mutableStateOf(true) }
 
-    /** The icon used for the icon button that switches from dial to input */
     val toggleIcon = if (showDial) {
         Icons.Default.Edit
     } else {

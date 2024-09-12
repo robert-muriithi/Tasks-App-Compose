@@ -13,18 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.robert.tasks.domain.repository
+package dev.robert.tasks.domain.usecase
 
 import dev.robert.tasks.domain.model.TaskItem
-import kotlinx.coroutines.flow.Flow
+import dev.robert.tasks.domain.repository.TasksRepository
 
-interface TasksRepository {
-    val task: (taskId: Int) -> Flow<TaskItem>
-    val tasks: (fetchRemote: Boolean) -> Flow<List<TaskItem>>
-    val updateTask: (task: TaskItem) -> Flow<Boolean>
-    suspend fun saveTask(task: TaskItem): Result<Boolean>
-    suspend fun deleteTask(taskId: Int): Result<Boolean>
-    suspend fun uploadTask(task: TaskItem): Result<Boolean>
-    suspend fun completeTask(taskId: Int, completionDate: String): Result<Boolean>
-    val searchTasks: (query: String) -> Flow<List<TaskItem>>
+class UpdateTaskUseCase(private val repository: TasksRepository) {
+    operator fun invoke(task: TaskItem) = repository.updateTask(task)
 }

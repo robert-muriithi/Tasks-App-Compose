@@ -19,5 +19,6 @@ import dev.robert.tasks.domain.model.TaskItem
 
 data class TaskDetailsState(
     val taskItem: TaskItem? = null,
-    val isEditing: Boolean = false
+    val isEditing: Boolean = false,
+    val taskUpdated: Boolean = false
 )
