@@ -16,6 +16,10 @@
 package dev.robert.tasks.presentation.screens.tasks
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -55,8 +59,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -70,7 +74,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
@@ -258,8 +261,7 @@ fun TaskSuccessState(
                 onEvent(TaskScreenEvents.RefreshTasks(
                     fetchRemote = isOnline
                 ))
-            },
-            isRefreshing = state.isRefreshing
+            }
         )
     }
     if (showOptionsDialog.value)
@@ -316,7 +318,6 @@ fun TaskSuccessState(
 fun PullToRefreshLazyVerticalGrid(
     state: TasksScreenState,
     categories: List<String>?,
-    isRefreshing: Boolean,
     onRefresh: () -> Unit,
     onNavigateToDetails: (TaskItem) -> Unit,
     onTaskLongPress: (TaskItem) -> Unit,
@@ -324,30 +325,37 @@ fun PullToRefreshLazyVerticalGrid(
     modifier: Modifier = Modifier,
     gridState: LazyGridState = rememberLazyGridState()
 ) {
-    val pullToRefreshState = rememberPullToRefreshState()
 
-    LaunchedEffect(isRefreshing) {
-        if (isRefreshing) {
-            pullToRefreshState.startRefresh()
-        } else {
-            pullToRefreshState.endRefresh()
-        }
-    }
+    val pullToRefreshState = remember {
+        object : PullToRefreshState {
+            private val anim = Animatable(0f, Float.VectorConverter)
 
-    LaunchedEffect(pullToRefreshState.isRefreshing) {
-        if (pullToRefreshState.isRefreshing) {
-            onRefresh()
+            override val distanceFraction
+                get() = anim.value
+
+            override suspend fun animateToThreshold() {
+                anim.animateTo(1f, spring(dampingRatio = Spring.DampingRatioHighBouncy))
+            }
+
+            override suspend fun animateToHidden() {
+                anim.animateTo(0f)
+            }
+
+            override suspend fun snapTo(targetValue: Float) {
+                anim.snapTo(targetValue)
+            }
         }
     }
 
     val isGridView = state.isGridView
 
-    Box(
-        modifier = modifier
-            .nestedScroll(pullToRefreshState.nestedScrollConnection)
+    PullToRefreshBox(
+        state = pullToRefreshState,
+        isRefreshing = state.isRefreshing,
+        onRefresh = onRefresh,
     ) {
         LazyVerticalGrid(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(16.dp),
             state = gridState,
@@ -402,12 +410,6 @@ fun PullToRefreshLazyVerticalGrid(
                 )
             }
         }
-
-        PullToRefreshContainer(
-            state = pullToRefreshState,
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-        )
     }
 }
 
