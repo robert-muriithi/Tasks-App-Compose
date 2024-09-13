@@ -16,10 +16,6 @@
 package dev.robert.tasks.presentation.screens.tasks
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -59,8 +55,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshState
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -74,6 +70,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
@@ -258,9 +255,11 @@ fun TaskSuccessState(
             },
             onEvent = onEvent,
             onRefresh = {
-                onEvent(TaskScreenEvents.RefreshTasks(
-                    fetchRemote = isOnline
-                ))
+                onEvent(
+                    TaskScreenEvents.RefreshTasks(
+                        fetchRemote = isOnline
+                    )
+                )
             }
         )
     }
@@ -326,36 +325,30 @@ fun PullToRefreshLazyVerticalGrid(
     gridState: LazyGridState = rememberLazyGridState()
 ) {
 
-    val pullToRefreshState = remember {
-        object : PullToRefreshState {
-            private val anim = Animatable(0f, Float.VectorConverter)
+    val pullToRefreshState = rememberPullToRefreshState()
 
-            override val distanceFraction
-                get() = anim.value
+    LaunchedEffect(pullToRefreshState.isRefreshing) {
+        if (pullToRefreshState.isRefreshing) {
+            onRefresh()
+        }
+    }
 
-            override suspend fun animateToThreshold() {
-                anim.animateTo(1f, spring(dampingRatio = Spring.DampingRatioHighBouncy))
-            }
-
-            override suspend fun animateToHidden() {
-                anim.animateTo(0f)
-            }
-
-            override suspend fun snapTo(targetValue: Float) {
-                anim.snapTo(targetValue)
-            }
+    LaunchedEffect(state.isRefreshing) {
+        if (state.isRefreshing) {
+            pullToRefreshState.startRefresh()
+        } else {
+            pullToRefreshState.endRefresh()
         }
     }
 
     val isGridView = state.isGridView
 
-    PullToRefreshBox(
-        state = pullToRefreshState,
-        isRefreshing = state.isRefreshing,
-        onRefresh = onRefresh,
+    Box(
+        modifier = modifier
+            .nestedScroll(pullToRefreshState.nestedScrollConnection)
     ) {
         LazyVerticalGrid(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
             state = gridState,
@@ -410,6 +403,12 @@ fun PullToRefreshLazyVerticalGrid(
                 )
             }
         }
+
+        PullToRefreshContainer(
+            state = pullToRefreshState,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+        )
     }
 }
 
@@ -429,7 +428,8 @@ fun AnalyticsSection(
                 Text(
                     text = stringResource(
                         R.string.congrats_you_have_completed_tasks,
-                        state.analytics.completedTasks),
+                        state.analytics.completedTasks
+                    ),
                     style = TextStyle(
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
                         fontWeight = FontWeight(800),
@@ -485,7 +485,8 @@ fun AnalyticsSection(
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        text = stringResource(R.string.today_s_complete_tasks,
+                        text = stringResource(
+                            R.string.today_s_complete_tasks,
                             state.analytics.todaysCompleteTasks
                         ),
                         style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
@@ -510,7 +511,8 @@ fun AnalyticsSection(
                     Text(
                         text = stringResource(
                             R.string.total_incomplete_tasks,
-                            state.analytics.totalTasks - state.analytics.completedTasks),
+                            state.analytics.totalTasks - state.analytics.completedTasks
+                        ),
                         style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
                         fontWeight = FontWeight(600)
                     )
