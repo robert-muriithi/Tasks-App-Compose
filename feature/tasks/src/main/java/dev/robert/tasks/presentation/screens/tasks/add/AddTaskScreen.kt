@@ -192,14 +192,17 @@ fun AddTaskScreen(
         onDismiss = {
             showDialog = false
         },
-        title = if (result.name == ActionResult.Success.name) stringResource(R.string.success) else stringResource(
+        title = if (result.name ==
+            ActionResult.Success.name) stringResource(R.string.success) else stringResource(
             R.string.error
         ),
-        message = if (result.name == ActionResult.Success.name) stringResource(R.string.task_created_successfully) else stringResource(
+        message = if (result.name ==
+            ActionResult.Success.name) stringResource(R.string.task_created_successfully) else stringResource(
             R.string.an_error_occurred
         ),
         showCancel = result.name != ActionResult.Success.name,
-        type = if (result.name == ActionResult.Success.name) DialogType.SUCCESS else DialogType.ERROR
+        type = if (result.name ==
+            ActionResult.Success.name) DialogType.SUCCESS else DialogType.ERROR
     )
 }
 
@@ -208,10 +211,8 @@ enum class TIME {
     END_TIME
 }
 
-fun showDialogState(result: ActionResult, showDialog: Boolean): @Composable () -> Unit {
-    return {
-        if (showDialog) {
-        }
+fun showDialogState(result: ActionResult, showDialog: Boolean): @Composable () -> Unit = {
+    if (showDialog) {
     }
 }
 
@@ -277,7 +278,9 @@ fun AddTaskContent(
                         else TDSpacer(modifier = Modifier.height(10.dp))
                         TDFilledTextField(
                             value = uiState.taskStartDate,
-                            onValueChange = { onInputChange(OnInputChanged.TaskStartDateChanged(it)) },
+                            onValueChange = {
+                                onInputChange(OnInputChanged.TaskStartDateChanged(it))
+                            },
                             label = stringResource(R.string.date),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -479,7 +482,7 @@ fun AddTaskAppBar(
                 }
         ) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.Arrowgit Back,
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = stringResource(R.string.back),
                 modifier = Modifier
                     .size(24.dp)
