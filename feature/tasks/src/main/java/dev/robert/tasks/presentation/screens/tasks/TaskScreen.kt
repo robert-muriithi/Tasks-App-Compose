@@ -255,11 +255,12 @@ fun TaskSuccessState(
             },
             onEvent = onEvent,
             onRefresh = {
-                onEvent(TaskScreenEvents.RefreshTasks(
-                    fetchRemote = isOnline
-                ))
-            },
-            isRefreshing = state.isRefreshing
+                onEvent(
+                    TaskScreenEvents.RefreshTasks(
+                        fetchRemote = isOnline
+                    )
+                )
+            }
         )
     }
     if (showOptionsDialog.value)
@@ -316,7 +317,6 @@ fun TaskSuccessState(
 fun PullToRefreshLazyVerticalGrid(
     state: TasksScreenState,
     categories: List<String>?,
-    isRefreshing: Boolean,
     onRefresh: () -> Unit,
     onNavigateToDetails: (TaskItem) -> Unit,
     onTaskLongPress: (TaskItem) -> Unit,
@@ -324,19 +324,20 @@ fun PullToRefreshLazyVerticalGrid(
     modifier: Modifier = Modifier,
     gridState: LazyGridState = rememberLazyGridState()
 ) {
-    val pullToRefreshState = rememberPullToRefreshState()
 
-    LaunchedEffect(isRefreshing) {
-        if (isRefreshing) {
-            pullToRefreshState.startRefresh()
-        } else {
-            pullToRefreshState.endRefresh()
-        }
-    }
+    val pullToRefreshState = rememberPullToRefreshState()
 
     LaunchedEffect(pullToRefreshState.isRefreshing) {
         if (pullToRefreshState.isRefreshing) {
             onRefresh()
+        }
+    }
+
+    LaunchedEffect(state.isRefreshing) {
+        if (state.isRefreshing) {
+            pullToRefreshState.startRefresh()
+        } else {
+            pullToRefreshState.endRefresh()
         }
     }
 
@@ -427,7 +428,8 @@ fun AnalyticsSection(
                 Text(
                     text = stringResource(
                         R.string.congrats_you_have_completed_tasks,
-                        state.analytics.completedTasks),
+                        state.analytics.completedTasks
+                    ),
                     style = TextStyle(
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
                         fontWeight = FontWeight(800),
@@ -483,7 +485,8 @@ fun AnalyticsSection(
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        text = stringResource(R.string.today_s_complete_tasks,
+                        text = stringResource(
+                            R.string.today_s_complete_tasks,
                             state.analytics.todaysCompleteTasks
                         ),
                         style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
@@ -508,7 +511,8 @@ fun AnalyticsSection(
                     Text(
                         text = stringResource(
                             R.string.total_incomplete_tasks,
-                            state.analytics.totalTasks - state.analytics.completedTasks),
+                            state.analytics.totalTasks - state.analytics.completedTasks
+                        ),
                         style = MaterialTheme.typography.titleSmall.copy(color = Color.White),
                         fontWeight = FontWeight(600)
                     )
