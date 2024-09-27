@@ -211,11 +211,6 @@ enum class TIME {
     END_TIME
 }
 
-fun showDialogState(result: ActionResult, showDialog: Boolean): @Composable () -> Unit = {
-    if (showDialog) {
-    }
-}
-
 @Composable
 fun AddTaskContent(
     uiState: AddTaskState,
