@@ -1,6 +1,8 @@
 # Tasks App - Compose  🚀 
 A Jetpack compose android app built using Kotlin that enables users to create, edit[on progress] and delete tasks. The app achieves this by use of Room Database for local storage and FirebaseFirestore to store tasks online. The app works both offline and online.
 
+> NOTE: Migration to KMM is underway on `kmm_migration` branch.
+
 [![Watch the video](https://github.com/robert-muriithi/Tasks-App-Compose/tree/develop/attachments/login.png)](https://github.com/robert-muriithi/Tasks-App-Compose/tree/develop/attachments/Screen_recording_20240902_144835.mp4)
 
 
