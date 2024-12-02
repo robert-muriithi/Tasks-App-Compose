@@ -154,7 +154,13 @@ fun AddTaskScreen(
 
     if (showDatePicker) DatePickerModal(
         onSelectDate = {
-            viewModel.onInputChanged(OnInputChanged.TaskStartDateChanged(convertMillisToDate(it ?: 0)))
+            viewModel.onInputChanged(
+                OnInputChanged.TaskStartDateChanged(
+                    convertMillisToDate(
+                        it ?: 0
+                    )
+                )
+            )
             showDatePicker = false
         },
         onDismiss = {
@@ -193,16 +199,19 @@ fun AddTaskScreen(
             showDialog = false
         },
         title = if (result.name ==
-            ActionResult.Success.name) stringResource(R.string.success) else stringResource(
+            ActionResult.Success.name
+        ) stringResource(R.string.success) else stringResource(
             R.string.error
         ),
         message = if (result.name ==
-            ActionResult.Success.name) stringResource(R.string.task_created_successfully) else stringResource(
+            ActionResult.Success.name
+        ) stringResource(R.string.task_created_successfully) else stringResource(
             R.string.an_error_occurred
         ),
         showCancel = result.name != ActionResult.Success.name,
         type = if (result.name ==
-            ActionResult.Success.name) DialogType.SUCCESS else DialogType.ERROR
+            ActionResult.Success.name
+        ) DialogType.SUCCESS else DialogType.ERROR
     )
 }
 
@@ -225,96 +234,71 @@ fun AddTaskContent(
         modifier = modifier
             .fillMaxSize()
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.5f)
-                .background(MaterialTheme.colorScheme.tertiaryContainer)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-                AddTaskAppBar(
-                    title = stringResource(R.string.create_new_task),
-                    onBackClick = onNavigateUp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                )
-                Box(modifier = Modifier.fillMaxHeight(0.5f)) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.Center)
-                    ) {
-                        TDFilledTextField(
-                            value = uiState.taskTitle,
-                            onValueChange = { onInputChange(OnInputChanged.TaskTitleChanged(it)) },
-                            label = stringResource(R.string.title),
-                            modifier = Modifier.fillMaxWidth(),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Text,
-                                imeAction = ImeAction.Next,
-                                capitalization = KeyboardCapitalization.Words
-                            ),
-                            isLoading = uiState.isLoading,
-                            enabled = uiState.isLoading.not()
-                        )
-                        if (uiState.taskTitleError != null && uiState.isLoading.not())
-                            Row(modifier = Modifier.fillMaxWidth(0.9f)) {
-                                Text(
-                                    text = uiState.taskTitleError,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.errorContainer
-                                )
-                            }
-                        else TDSpacer(modifier = Modifier.height(10.dp))
-                        TDFilledTextField(
-                            value = uiState.taskStartDate,
-                            onValueChange = {
-                                onInputChange(OnInputChanged.TaskStartDateChanged(it))
-                            },
-                            label = stringResource(R.string.date),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    onInitDatePicker()
-                                },
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Text,
-                                imeAction = ImeAction.Next
-                            ),
-                            isLoading = uiState.isLoading,
-                            enabled = false,
-                        )
-                        if (uiState.taskStartDateError != null && uiState.isLoading.not())
-                            Row(modifier = Modifier.fillMaxWidth(0.9f)) {
-                                Text(
-                                    text = uiState.taskStartDateError,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.errorContainer
-                                )
-                            }
-                        else TDSpacer(modifier = Modifier.height(10.dp))
-                    }
-                }
-            }
-        }
         LazyColumn(
             modifier = Modifier
-                .padding(top = 250.dp)
-                .clip(shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp))
-                .background(
-                    color = MaterialTheme.colorScheme.background
-                )
                 .fillMaxSize()
                 .padding(horizontal = 16.dp, vertical = 30.dp),
             contentPadding = PaddingValues(bottom = 16.dp)
         ) {
             item {
+                AddTaskAppBar(
+                    title = stringResource(R.string.create_new_task),
+                    onBackClick = onNavigateUp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+            }
+            item {
                 Spacer(modifier = Modifier.height(8.dp))
+                TDFilledTextField(
+                    value = uiState.taskTitle,
+                    onValueChange = { onInputChange(OnInputChanged.TaskTitleChanged(it)) },
+                    label = stringResource(R.string.title),
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next,
+                        capitalization = KeyboardCapitalization.Words
+                    ),
+                    isLoading = uiState.isLoading,
+                    enabled = uiState.isLoading.not()
+                )
+                if (uiState.taskTitleError != null && uiState.isLoading.not())
+                    Row(modifier = Modifier.fillMaxWidth(0.9f)) {
+                        Text(
+                            text = uiState.taskTitleError,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.errorContainer
+                        )
+                    }
+                else TDSpacer(modifier = Modifier.height(10.dp))
+                TDFilledTextField(
+                    value = uiState.taskStartDate,
+                    onValueChange = {
+                        onInputChange(OnInputChanged.TaskStartDateChanged(it))
+                    },
+                    label = stringResource(R.string.date),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onInitDatePicker()
+                        },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    isLoading = uiState.isLoading,
+                    enabled = false,
+                )
+                if (uiState.taskStartDateError != null && uiState.isLoading.not())
+                    Row(modifier = Modifier.fillMaxWidth(0.9f)) {
+                        Text(
+                            text = uiState.taskStartDateError,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.errorContainer
+                        )
+                    }
+                else TDSpacer(modifier = Modifier.height(10.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -471,7 +455,6 @@ fun AddTaskAppBar(
             modifier = Modifier
                 .size(40.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(Color.Transparent)
                 .clickable {
                     onBackClick()
                 }
@@ -482,14 +465,14 @@ fun AddTaskAppBar(
                 modifier = Modifier
                     .size(24.dp)
                     .align(Alignment.Center),
-                tint = MaterialTheme.colorScheme.onSecondary
+                tint = MaterialTheme.colorScheme.onSurface
             )
         }
         Spacer(modifier = Modifier.width(10.dp))
         Text(
             text = title,
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onPrimary
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
