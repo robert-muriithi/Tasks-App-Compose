@@ -60,4 +60,5 @@ dependencies {
     implementation(project(path = ":feature:auth"))
     implementation(project(path = ":feature:tasks"))
     implementation(project(path = ":feature:profile"))
+    implementation(project(":core:design-system"))
 }
