@@ -15,10 +15,13 @@
  */
 package dev.robert.navigation.tasks
 
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
+import dev.robert.design_system.presentation.utils.scaleIntoContainer
+import dev.robert.design_system.presentation.utils.scaleOutOfContainer
 import dev.robert.navigation.navtype.CustomNavTypeArgs
 import dev.robert.tasks.domain.model.TaskItem
 import dev.robert.tasks.presentation.screens.details.TaskDetailsScreen
@@ -50,13 +53,38 @@ fun NavGraphBuilder.tasksNavGraph(
     navigation<TasksNavGraph>(
         startDestination = TasksScreen,
     ) {
-        composable<TasksScreen> {
+        composable<TasksScreen>(
+            enterTransition = {
+                scaleIntoContainer()
+            },
+            exitTransition = {
+                scaleOutOfContainer(direction = AnimatedContentTransitionScope.SlideDirection.Left)
+            },
+            popEnterTransition = {
+                scaleIntoContainer(direction = AnimatedContentTransitionScope.SlideDirection.Right)
+            },
+            popExitTransition = {
+                scaleOutOfContainer()
+            }
+        ) {
             TaskScreen(
                 onNavigateToDetails = onNavigateToDetails,
             )
         }
         composable<TaskDetails>(
-            typeMap = mapOf(typeOf<TaskItem>() to todoItem)
+            typeMap = mapOf(typeOf<TaskItem>() to todoItem),
+            enterTransition = {
+                scaleIntoContainer()
+            },
+            exitTransition = {
+                scaleOutOfContainer(direction = AnimatedContentTransitionScope.SlideDirection.Left)
+            },
+            popEnterTransition = {
+                scaleIntoContainer(direction = AnimatedContentTransitionScope.SlideDirection.Right)
+            },
+            popExitTransition = {
+                scaleOutOfContainer()
+            }
         ) { backStackEntry ->
             val item: TaskDetails = backStackEntry.toRoute()
             TaskDetailsScreen(
@@ -64,12 +92,38 @@ fun NavGraphBuilder.tasksNavGraph(
                 onNavigateUp = onNavigateUp
             )
         }
-        composable<AddTaskScreen> {
+        composable<AddTaskScreen>(
+            enterTransition = {
+                scaleIntoContainer()
+            },
+            exitTransition = {
+                scaleOutOfContainer(direction = AnimatedContentTransitionScope.SlideDirection.Left)
+            },
+            popEnterTransition = {
+                scaleIntoContainer(direction = AnimatedContentTransitionScope.SlideDirection.Right)
+            },
+            popExitTransition = {
+                scaleOutOfContainer()
+            }
+        ) {
             AddTaskScreen(
                 onNavigateUp = onNavigateUp
             )
         }
-        composable<SearchScreen> {
+        composable<SearchScreen>(
+            enterTransition = {
+                scaleIntoContainer()
+            },
+            exitTransition = {
+                scaleOutOfContainer(direction = AnimatedContentTransitionScope.SlideDirection.Left)
+            },
+            popEnterTransition = {
+                scaleIntoContainer(direction = AnimatedContentTransitionScope.SlideDirection.Right)
+            },
+            popExitTransition = {
+                scaleOutOfContainer()
+            }
+        ) {
             SearchScreen(
                 onNavigateUp = onNavigateUp
             )
