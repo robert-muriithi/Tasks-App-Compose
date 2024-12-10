@@ -13,21 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.robert.database.data.todo
+package dev.robert.database.data
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import dev.robert.database.TasksTypeConverter
+import dev.robert.database.data.categories.CategoriesDao
+import dev.robert.database.data.categories.CategoryEntity
+import dev.robert.database.data.todo.TodoDao
+import dev.robert.database.data.todo.TodoEntity
 
 @Database(
     exportSchema = false,
     entities = [
         TodoEntity::class,
+        CategoryEntity::class
     ],
     version = 4,
 )
 @TypeConverters(TasksTypeConverter::class)
 abstract class TodoDatabase : RoomDatabase() {
-    abstract val dao: TodoDao
+    abstract val tasksDao: TodoDao
+    abstract val categoryDao: CategoriesDao
 }

@@ -23,7 +23,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-interface LocalDataSource {
+interface TaskLocalDataSource {
     val tasks: Flow<List<TodoModel>>
     fun getTaskById(id: Int): Flow<TodoModel>
     suspend fun saveTask(task: TodoModel): Result<Boolean>
@@ -34,7 +34,7 @@ interface LocalDataSource {
     suspend fun updateTask(task: TodoModel): Boolean
 }
 
-class LocalDataStoreImpl @Inject constructor(private val taskDao: TodoDao) : LocalDataSource {
+class TaskLocalDataStoreImpl @Inject constructor(private val taskDao: TodoDao) : TaskLocalDataSource {
 
     override val tasks: Flow<List<TodoModel>>
         get() = try {

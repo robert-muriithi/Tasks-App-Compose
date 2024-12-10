@@ -87,7 +87,6 @@ fun MainApp(
     var selectedIndex by remember {
         mutableIntStateOf(0)
     }
-    Timber.d("User Object: $userObject")
 
     // TODO: FIX THIS/ OR FIND BETTER APPROACH.. it's always reseting to 0 when user navigates back
     LaunchedEffect(currentDestination) {

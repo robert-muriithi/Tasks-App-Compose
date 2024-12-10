@@ -90,6 +90,7 @@ fun AddTaskScreen(
     viewModel: AddTaskViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val categories by viewModel.categories.collectAsStateWithLifecycle()
     var showBottomSheet by remember {
         mutableStateOf(false)
     }
@@ -112,7 +113,6 @@ fun AddTaskScreen(
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     LaunchedEffect(key1 = Unit) {
-        viewModel.getCategories()
         viewModel.actions.collectLatest {
             when (it) {
                 is Action.AddCategory -> {
@@ -138,7 +138,8 @@ fun AddTaskScreen(
             showTimePicker = true
             action = timeAction
         },
-        onInputChange = viewModel::onInputChanged
+        onInputChange = viewModel::onInputChanged,
+        categories = categories
     )
 
     if (showBottomSheet) AddCategoryBottomSheet(
@@ -146,7 +147,7 @@ fun AddTaskScreen(
             showBottomSheet = false
         },
         onAddCategory = {
-            viewModel.onEvent(AddTaskEvents.GetCategoriesEvent)
+//            viewModel.onEvent(AddTaskEvents.GetCategoriesEvent)
         },
         scope = scope,
         sheetState = sheetState
@@ -223,6 +224,7 @@ enum class TIME {
 @Composable
 fun AddTaskContent(
     uiState: AddTaskState,
+    categories: List<TaskCategory>,
     onNavigateUp: () -> Unit,
     onEvent: (AddTaskEvents) -> Unit,
     onInputChange: (OnInputChanged) -> Unit,
@@ -369,32 +371,34 @@ fun AddTaskContent(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    items(uiState.categories.size) { index ->
-                        val category = uiState.categories[index]
-                        if (index == uiState.categories.size - 1)
-                            Box(modifier = Modifier
+                    items(categories.size) { index ->
+                        val category = categories[index]
+                        TasksCategory(
+                            category = category,
+                            onClick = {
+                                onInputChange(OnInputChanged.SelectCategory(category))
+                            },
+                            selected = uiState.category?.name == category.name,
+                            modifier = Modifier.padding(end = 4.dp, top = 8.dp),
+                        )
+                    }
+                    item {
+                        Box(
+                            modifier = Modifier
                                 .padding(top = 8.dp)
                                 .clip(RoundedCornerShape(10.dp))
                                 .clickable {
                                     onEvent(AddTaskEvents.AddCategoryEvent)
                                 }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = stringResource(R.string.add_category),
-                                    modifier = Modifier
-                                        .size(24.dp)
-                                        .align(Alignment.Center)
-                                )
-                            }
-                        else TasksCategory(
-                            category = category.name,
-                            onClick = {
-                                onInputChange(OnInputChanged.SelectCategory(category))
-                            },
-                            selected = uiState.category?.name == category.name,
-                            modifier = Modifier.padding(end = 8.dp, top = 8.dp)
-                        )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = stringResource(R.string.add_category),
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .align(Alignment.Center)
+                            )
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -504,21 +508,20 @@ fun AddCategoryBottomSheet(
 private fun AddTaskScreenPreview() {
     TDSurface {
         AddTaskContent(
-            AddTaskState(
-                categories = listOf(
-                    TaskCategory("Work"),
-                    TaskCategory("Personal"),
-                    TaskCategory("Shopping"),
-                    TaskCategory("Home"),
-                    TaskCategory("School"),
-                    TaskCategory("Others")
-                ),
-            ),
+            AddTaskState(),
             onNavigateUp = {},
             onEvent = {},
             onInitDatePicker = {},
             onInitTimePicker = {},
-            onInputChange = {}
+            onInputChange = {},
+            categories = listOf(
+                TaskCategory("Work"),
+                TaskCategory("Personal"),
+                TaskCategory("Shopping"),
+                TaskCategory("Home"),
+                TaskCategory("School"),
+                TaskCategory("Others")
+            ),
         )
     }
 }

@@ -17,7 +17,7 @@ package dev.robert.tasks.data.repo
 
 import com.google.firebase.firestore.FirebaseFirestore
 import dev.robert.datastore.data.TodoAppPreferences
-import dev.robert.tasks.data.datasource.LocalDataSource
+import dev.robert.tasks.data.datasource.TaskLocalDataSource
 import dev.robert.tasks.data.datasource.RemoteDataSource
 import dev.robert.tasks.data.mappers.toTodoItem
 import dev.robert.tasks.data.mappers.toTodoModel
@@ -36,7 +36,7 @@ import kotlinx.coroutines.tasks.await
 
 @Singleton
 class TasksRepositoryImpl @Inject constructor(
-    private val localDataSource: LocalDataSource,
+    private val taskLocalDataSource: TaskLocalDataSource,
     private val remoteDataSource: RemoteDataSource,
     private val database: FirebaseFirestore,
     private val preferences: TodoAppPreferences,
@@ -52,35 +52,50 @@ class TasksRepositoryImpl @Inject constructor(
                 }
                 if (fetchRemote) {
                     val remoteTasks = remoteDataSource.getTasks(uid).map { it.toTodoItem() }
-                    localDataSource.clear()
+                    taskLocalDataSource.clear()
                     remoteTasks.forEach { saveTask(it) }
                 }
-                emitAll(localDataSource.tasks.map { list -> list.map { it.toTodoItem() } })
+                emitAll(taskLocalDataSource.tasks.map { list -> list.map { it.toTodoItem() } })
             }
         }
 
+    fun fetchTasks(fetchRemote: Boolean): Flow<List<TaskItem>> = flow {
+        val uid = preferences.userData.firstOrNull()?.id
+        if (uid.isNullOrEmpty()) {
+            emit(emptyList())
+            return@flow
+        }
+        if (fetchRemote) {
+            val remoteTasks = remoteDataSource.getTasks(uid).map { it.toTodoItem() }
+            taskLocalDataSource.clear()
+            remoteTasks.forEach { saveTask(it) }
+        }
+        emitAll(taskLocalDataSource.tasks.map { list -> list.map { it.toTodoItem() } })
+    }
+
+
     override val task: (taskId: Int) -> Flow<TaskItem>
         get() = { taskId ->
-            localDataSource.getTaskById(taskId).map {
+            taskLocalDataSource.getTaskById(taskId).map {
                 it.toTodoItem()
             }
         }
 
     override val searchTasks: (query: String) -> Flow<List<TaskItem>>
         get() = { query ->
-            localDataSource.tasks.map { list ->
+            taskLocalDataSource.tasks.map { list ->
                 list.filter { it.name.contains(query, ignoreCase = true) }
                     .map { it.toTodoItem() }
             }
         }
 
-    override suspend fun saveTask(task: TaskItem): Result<Boolean> = localDataSource.saveTask(task.toTodoModel())
+    override suspend fun saveTask(task: TaskItem): Result<Boolean> = taskLocalDataSource.saveTask(task.toTodoModel())
 
     override suspend fun deleteTask(taskId: Int): Result<Boolean> {
         return try {
             val uid = preferences.userData.firstOrNull()?.id
                 ?: return Result.failure(Exception("User not authenticated"))
-            localDataSource.deleteTask(taskId)
+            taskLocalDataSource.deleteTask(taskId)
             remoteDataSource.deleteTask(uid, taskId)
             Result.success(true)
         } catch (e: Exception) {
@@ -95,7 +110,7 @@ class TasksRepositoryImpl @Inject constructor(
                     emit(false)
                     return@flow
                 }
-                val updated = localDataSource.updateTask(task.toTodoModel())
+                val updated = taskLocalDataSource.updateTask(task.toTodoModel())
                 emit(updated)
             }
         }
@@ -113,7 +128,7 @@ class TasksRepositoryImpl @Inject constructor(
                             .document(taskId.toString())
                             .set(this.toTodoModel())
                             .await()
-                        localDataSource.setSynced(taskId)
+                        taskLocalDataSource.setSynced(taskId)
                     }
                 }
                 Result.success(true)
@@ -124,7 +139,7 @@ class TasksRepositoryImpl @Inject constructor(
     }
 
     override suspend fun completeTask(taskId: Int, completionDate: String): Result<Boolean> = try {
-        localDataSource.completeTask(taskId = taskId, completionDate = completionDate)
+        taskLocalDataSource.completeTask(taskId = taskId, completionDate = completionDate)
         Result.success(true)
     } catch (e: Exception) {
         Result.failure(e)

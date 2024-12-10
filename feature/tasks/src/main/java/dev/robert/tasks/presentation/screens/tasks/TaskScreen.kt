@@ -15,6 +15,7 @@
  */
 package dev.robert.tasks.presentation.screens.tasks
 
+import android.graphics.Color.parseColor
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -90,9 +91,11 @@ import dev.robert.design_system.presentation.components.OptionsDialog
 import dev.robert.design_system.presentation.components.RotatingSyncIcon
 import dev.robert.design_system.presentation.utils.isInternetAvailable
 import dev.robert.tasks.R
+import dev.robert.tasks.domain.model.TaskCategory
 import dev.robert.tasks.domain.model.TaskItem
 import dev.robert.tasks.presentation.components.CircularProgressbar
 import dev.robert.tasks.presentation.components.HomeShimmerLoading
+import dev.robert.tasks.presentation.utils.toSafeColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -131,7 +134,7 @@ fun TaskScreen(
                 TaskSuccessState(
                     state = tasks,
                     onNavigateToDetails = onNavigateToDetails,
-                    categories = tasks.category.map { it?.name ?: "" },
+                    categories = tasks.category,
                     onEvent = viewModel::onEvent,
                 )
             },
@@ -228,7 +231,7 @@ fun TasksEmptyState(
 fun TaskSuccessState(
     state: TasksScreenState,
     onNavigateToDetails: (TaskItem) -> Unit,
-    categories: List<String>?,
+    categories:  List<TaskCategory?>,
     onEvent: (TaskScreenEvents) -> Unit
 ) {
     val showOptionsDialog = remember { mutableStateOf(false) }
@@ -316,7 +319,7 @@ fun TaskSuccessState(
 @Composable
 fun PullToRefreshLazyVerticalGrid(
     state: TasksScreenState,
-    categories: List<String>?,
+    categories:  List<TaskCategory?>,
     onRefresh: () -> Unit,
     onNavigateToDetails: (TaskItem) -> Unit,
     onTaskLongPress: (TaskItem) -> Unit,
@@ -528,7 +531,7 @@ fun AnalyticsSection(
 
 @Composable
 fun TasksCategories(
-    categories: List<String>?,
+    categories:  List<TaskCategory?>,
     state: TasksScreenState,
     onEvent: (TaskScreenEvents) -> Unit,
     modifier: Modifier = Modifier
@@ -559,16 +562,18 @@ fun TasksCategories(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(5.dp),
         ) {
-            categories?.let { cat ->
+            categories.let { cat ->
                 items(cat.size) { index ->
-                    TasksCategory(
-                        category = cat[index],
-                        onClick = {
-                            onEvent(TaskScreenEvents.FilterTasks(cat[index]))
-                        },
-                        selected = state.selectedCategory?.name == cat[index],
-                        modifier = Modifier
-                    )
+                    cat[index]?.let {
+                        TasksCategory(
+                            category = it,
+                            onClick = {
+                                onEvent(TaskScreenEvents.FilterTasks(it))
+                            },
+                            selected = state.selectedCategory?.name == it.name,
+                            modifier = Modifier,
+                        )
+                    }
                 }
             }
         }
@@ -577,7 +582,7 @@ fun TasksCategories(
 
 @Composable
 fun TasksCategory(
-    category: String,
+    category: TaskCategory,
     onClick: (String) -> Unit,
     selected: Boolean,
     modifier: Modifier = Modifier
@@ -585,20 +590,33 @@ fun TasksCategory(
     Box(modifier = modifier
         .clip(RoundedCornerShape(10.dp))
         .background(
-            color = if (selected) MaterialTheme.colorScheme.tertiaryContainer else
-                MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)
+            color = if (selected) category.color.toSafeColor()
+            else MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)
         )
         .padding(8.dp)
         .clickable {
-            onClick(category)
+            onClick(category.name)
         }
     ) {
-        Text(
-            text = category,
-            color = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight(800)),
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 1.dp)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (category.icon != null) {
+                Icon(
+                    painter = painterResource(id = category.icon),
+                    contentDescription = null,
+                    tint = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(3.dp))
+            }
+            Text(
+                text = category.name,
+                color = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight(800)),
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 1.dp)
+            )
+        }
     }
 }
 

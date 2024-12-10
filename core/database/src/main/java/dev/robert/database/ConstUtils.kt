@@ -17,5 +17,6 @@ package dev.robert.database
 
 object ConstUtils {
     const val TODO_TABLE_NAME = "todos"
+    const val TODO_TASK_CATEGORY_TABLE_NAME = "task_categories"
     const val TODO_DATABASE = "todos_database.db"
 }

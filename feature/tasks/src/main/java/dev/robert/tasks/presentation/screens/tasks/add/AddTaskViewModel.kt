@@ -20,6 +20,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.robert.tasks.domain.model.TaskCategory
 import dev.robert.tasks.domain.model.TaskItem
+import dev.robert.tasks.domain.repository.TaskCategoriesRepository
 import dev.robert.tasks.domain.usecase.SaveTaskUseCase
 import dev.robert.tasks.presentation.utils.Validator
 import javax.inject.Inject
@@ -27,8 +28,11 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -36,9 +40,9 @@ import timber.log.Timber
 @HiltViewModel
 class AddTaskViewModel @Inject constructor(
     private val saveTaskUseCase: SaveTaskUseCase,
-    private val validator: Validator
+    private val categoriesRepository: TaskCategoriesRepository
 ) : ViewModel() {
-
+    private val validator = Validator()
     private val _uiState = MutableStateFlow(AddTaskState())
     val uiState = _uiState.asStateFlow()
 
@@ -71,7 +75,6 @@ class AddTaskViewModel @Inject constructor(
 
     fun onEvent(event: AddTaskEvents) = when (event) {
         is AddTaskEvents.CreateTaskEvent -> addTask()
-        is AddTaskEvents.GetCategoriesEvent -> getCategories()
         is AddTaskEvents.AddCategoryEvent -> addCategory()
     }
 
@@ -85,19 +88,13 @@ class AddTaskViewModel @Inject constructor(
         is OnInputChanged.SelectCategory -> setSelectCategory(event.category)
     }
 
-    fun getCategories() {
-        val taskCategories = listOf(
-            TaskCategory("Personal"),
-            TaskCategory("Work"),
-            TaskCategory("Shopping"),
-            TaskCategory("Health"),
-            TaskCategory("Finance"),
-            TaskCategory("Home"),
-            TaskCategory("School"),
-            TaskCategory("Other")
+
+    val categories : StateFlow<List<TaskCategory>> =
+        categoriesRepository.categories.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = emptyList()
         )
-        _uiState.update { it.copy(categories = taskCategories) }
-    }
 
     private fun addCategory() {
         viewModelScope.launch { _actions.send(Action.AddCategory) }
