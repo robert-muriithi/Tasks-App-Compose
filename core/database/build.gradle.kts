@@ -43,7 +43,7 @@ android {
 }
 
 dependencies {
-
+    implementation(project(path = ":core:design-system"))
     implementation(libs.androidx.core.ktx)
     // room
     implementation(libs.androidx.room.runtime)

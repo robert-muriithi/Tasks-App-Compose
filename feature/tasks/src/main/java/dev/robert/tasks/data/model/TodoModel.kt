@@ -29,4 +29,6 @@ data class TodoModel(
 
 data class TaskCategoryModel(
     val name: String = "",
+    val color: String? = null,
+    val icon: Int? = null
 )

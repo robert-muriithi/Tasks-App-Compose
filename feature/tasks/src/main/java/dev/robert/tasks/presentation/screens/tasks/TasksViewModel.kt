@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @HiltViewModel
 class TasksViewModel @Inject constructor(
@@ -85,7 +86,7 @@ class TasksViewModel @Inject constructor(
                         refreshed = refresh,
                         selectedCategory = TaskCategory("All"),
                         category = tasks.map { it.category }
-                            .distinct()
+                            .distinctBy { it?.name }
                             .toMutableList()
                             .apply { add(0, TaskCategory("All")) }
                             .filterNotNull(),

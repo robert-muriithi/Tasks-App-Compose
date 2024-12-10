@@ -15,6 +15,7 @@
  */
 package dev.robert.tasks.data.mappers
 
+import dev.robert.database.data.categories.CategoryEntity
 import dev.robert.database.data.todo.TaskCategoryModelEntity
 import dev.robert.database.data.todo.TodoEntity
 import dev.robert.tasks.data.model.TaskCategoryModel
@@ -36,10 +37,12 @@ fun TodoEntity.toTodoModel() = TodoModel(
 
 fun TaskCategoryModelEntity.toDomain() = TaskCategoryModel(
     name = name,
+    icon = icon
 )
 
 fun TaskCategoryModel.toEntity() = TaskCategoryModelEntity(
     name = name,
+    icon = icon
 )
 
 fun TodoModel.toEntity() = TodoEntity(
@@ -80,8 +83,24 @@ fun TaskItem.toTodoModel() = TodoModel(
 
 fun TaskCategoryModel.toDomain() = TaskCategory(
     name = name,
+    color = color,
+    icon = icon,
 )
 
 fun TaskCategory.toModel() = TaskCategoryModel(
     name = name,
+    color = color ?: "",
+    icon = icon,
+)
+
+fun CategoryEntity.toDomain() = TaskCategory(
+    name = name,
+    color = color,
+    icon = icon,
+)
+
+fun TaskCategory.toEntity() = CategoryEntity(
+    name = name,
+    color = color ?: "",
+    icon =  icon ?: 0,
 )

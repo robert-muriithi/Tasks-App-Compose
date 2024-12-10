@@ -90,8 +90,8 @@ object TasksModule {
         repository: TasksRepository
     ): SaveTaskUseCase = SaveTaskUseCase(tasksRepository = repository)
 
-    @[
-    Provides
-    ]
-    fun provideValidator(): Validator = Validator()
+//    @[
+//    Provides
+//    ]
+//    fun provideValidator(): Validator = Validator()
 }
