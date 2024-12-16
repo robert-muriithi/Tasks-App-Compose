@@ -21,10 +21,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dev.robert.tasks.data.datasource.CategoriesLocalDataSource
 import dev.robert.tasks.data.datasource.CategoriesLocalDataSourceImpl
-import dev.robert.tasks.data.datasource.TaskLocalDataSource
-import dev.robert.tasks.data.datasource.TaskLocalDataStoreImpl
 import dev.robert.tasks.data.datasource.RemoteDataSource
 import dev.robert.tasks.data.datasource.RemoteDataSourceImpl
+import dev.robert.tasks.data.datasource.TaskLocalDataSource
+import dev.robert.tasks.data.datasource.TaskLocalDataStoreImpl
 import dev.robert.tasks.data.repo.TaskCategoriesRepoImpl
 import dev.robert.tasks.data.repo.TasksRepositoryImpl
 import dev.robert.tasks.domain.repository.TaskCategoriesRepository

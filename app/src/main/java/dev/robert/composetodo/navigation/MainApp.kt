@@ -65,7 +65,6 @@ import dev.robert.navigation.tasks.AddTaskScreen
 import dev.robert.navigation.tasks.SearchScreen
 import dev.robert.navigation.tasks.TasksScreen
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -88,8 +88,7 @@ class AddTaskViewModel @Inject constructor(
         is OnInputChanged.SelectCategory -> setSelectCategory(event.category)
     }
 
-
-    val categories : StateFlow<List<TaskCategory>> =
+    val categories: StateFlow<List<TaskCategory>> =
         categoriesRepository.categories.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),

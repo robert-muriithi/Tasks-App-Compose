@@ -27,7 +27,6 @@ import dev.robert.tasks.domain.usecase.SaveTaskUseCase
 import dev.robert.tasks.domain.usecase.SearchUseCase
 import dev.robert.tasks.domain.usecase.UpdateTaskUseCase
 import dev.robert.tasks.domain.usecase.UploadTaskToServerUseCase
-import dev.robert.tasks.presentation.utils.Validator
 import javax.inject.Singleton
 
 @Module

@@ -102,5 +102,5 @@ fun CategoryEntity.toDomain() = TaskCategory(
 fun TaskCategory.toEntity() = CategoryEntity(
     name = name,
     color = color ?: "",
-    icon =  icon ?: 0,
+    icon = icon ?: 0,
 )
