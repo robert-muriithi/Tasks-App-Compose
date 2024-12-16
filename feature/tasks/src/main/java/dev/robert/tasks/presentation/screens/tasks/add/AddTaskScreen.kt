@@ -149,7 +149,7 @@ fun AddTaskScreen(
         onAddCategory = {
 //            viewModel.onEvent(AddTaskEvents.GetCategoriesEvent)
         },
-        scope = scope,
+//        scope = scope,
         sheetState = sheetState
     )
 
@@ -487,9 +487,10 @@ fun AddCategoryBottomSheet(
     onDismiss: () -> Unit,
     onAddCategory: () -> Unit,
     sheetState: SheetState,
-    scope: CoroutineScope,
+//    scope: CoroutineScope,
     modifier: Modifier = Modifier,
 ) {
+    var text by remember { mutableStateOf("") }
     ModalBottomSheet(
         onDismissRequest = onDismiss
     ) {
@@ -498,7 +499,36 @@ fun AddCategoryBottomSheet(
                 .fillMaxWidth()
                 .padding(8.dp)
         ) {
-            // TODO: Implement add category functionality to customize categories
+            Text(
+                text = stringResource(R.string.add_category),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            TDFilledTextField(
+                value = text,
+                onValueChange = {
+                    text = it
+                },
+                label = stringResource(R.string.category_name),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
+                isLoading = false,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            TDButton(
+                onClick = {
+                    onAddCategory()
+                    onDismiss()
+                },
+                text = stringResource(R.string.add_category),
+                enabled = text.isNotEmpty(),
+                modifier = Modifier.fillMaxWidth(),
+                isLoading = false
+            )
         }
     }
 }

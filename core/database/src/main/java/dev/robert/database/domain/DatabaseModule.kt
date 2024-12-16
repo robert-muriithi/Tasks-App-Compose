@@ -94,6 +94,7 @@ object DatabaseModule {
     }
 
 
+    // Pre-populate the database with some categories
     private fun getInitialCategories(): List<CategoryEntity> = listOf(
         CategoryEntity(name = "Work", color = "#FF5733", icon = R.drawable.ic_work_outline),
         CategoryEntity(name = "Personal", color = "#33FF57", icon = R.drawable.ic_personal),
