@@ -17,4 +17,3 @@ fun String?.toSafeColor(defaultColor: Color = MaterialTheme.colorScheme.tertiary
         defaultColor
     }
 }
-

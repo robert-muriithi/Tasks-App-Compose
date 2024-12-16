@@ -4,12 +4,12 @@ import dev.robert.database.data.categories.CategoriesDao
 import dev.robert.tasks.data.mappers.toDomain
 import dev.robert.tasks.data.mappers.toEntity
 import dev.robert.tasks.domain.model.TaskCategory
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import javax.inject.Inject
 
 interface CategoriesLocalDataSource {
     val categories: Flow<List<TaskCategory>>
@@ -24,8 +24,8 @@ class CategoriesLocalDataSourceImpl @Inject constructor(
 
     override val categories: Flow<List<TaskCategory>> = flow {
         emit(categoriesDao.getCategories().map {
-                it.toDomain()
-            }
+            it.toDomain()
+        }
         )
     }.flowOn(Dispatchers.IO).catch { e -> throw e }
 

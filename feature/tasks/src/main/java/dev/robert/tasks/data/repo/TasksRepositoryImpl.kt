@@ -17,8 +17,8 @@ package dev.robert.tasks.data.repo
 
 import com.google.firebase.firestore.FirebaseFirestore
 import dev.robert.datastore.data.TodoAppPreferences
-import dev.robert.tasks.data.datasource.TaskLocalDataSource
 import dev.robert.tasks.data.datasource.RemoteDataSource
+import dev.robert.tasks.data.datasource.TaskLocalDataSource
 import dev.robert.tasks.data.mappers.toTodoItem
 import dev.robert.tasks.data.mappers.toTodoModel
 import dev.robert.tasks.data.utils.ConstUtils.TASKS_COLLECTION
@@ -72,7 +72,6 @@ class TasksRepositoryImpl @Inject constructor(
         }
         emitAll(taskLocalDataSource.tasks.map { list -> list.map { it.toTodoItem() } })
     }
-
 
     override val task: (taskId: Int) -> Flow<TaskItem>
         get() = { taskId ->

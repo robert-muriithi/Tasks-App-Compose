@@ -15,7 +15,6 @@
  */
 package dev.robert.tasks.presentation.screens.tasks
 
-import android.graphics.Color.parseColor
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -231,7 +230,7 @@ fun TasksEmptyState(
 fun TaskSuccessState(
     state: TasksScreenState,
     onNavigateToDetails: (TaskItem) -> Unit,
-    categories:  List<TaskCategory?>,
+    categories: List<TaskCategory?>,
     onEvent: (TaskScreenEvents) -> Unit
 ) {
     val showOptionsDialog = remember { mutableStateOf(false) }
@@ -319,7 +318,7 @@ fun TaskSuccessState(
 @Composable
 fun PullToRefreshLazyVerticalGrid(
     state: TasksScreenState,
-    categories:  List<TaskCategory?>,
+    categories: List<TaskCategory?>,
     onRefresh: () -> Unit,
     onNavigateToDetails: (TaskItem) -> Unit,
     onTaskLongPress: (TaskItem) -> Unit,
@@ -531,7 +530,7 @@ fun AnalyticsSection(
 
 @Composable
 fun TasksCategories(
-    categories:  List<TaskCategory?>,
+    categories: List<TaskCategory?>,
     state: TasksScreenState,
     onEvent: (TaskScreenEvents) -> Unit,
     modifier: Modifier = Modifier

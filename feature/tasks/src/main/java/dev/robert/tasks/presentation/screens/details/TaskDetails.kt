@@ -54,7 +54,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.robert.tasks.R
@@ -245,7 +244,7 @@ fun BottomToolBar(
             icon = dev.robert.design_system.R.drawable.undo_icon,
             contentDescription = "Undo",
             onClick = {
-                if(undoStack.isNotEmpty()) {
+                if (undoStack.isNotEmpty()) {
                     redoStack.add(undoStack.last())
                     undoStack.removeAt(undoStack.lastIndex)
                     onUndoRedo(undoStack.last())
@@ -257,7 +256,7 @@ fun BottomToolBar(
             icon = dev.robert.design_system.R.drawable.redo_icon,
             contentDescription = "Redo",
             onClick = {
-                if(redoStack.isNotEmpty()) {
+                if (redoStack.isNotEmpty()) {
                     undoStack.add(redoStack.last())
                     redoStack.removeAt(redoStack.lastIndex)
                     onUndoRedo(redoStack.last())
@@ -268,14 +267,12 @@ fun BottomToolBar(
             icon = dev.robert.design_system.R.drawable.text_clear_formatting,
             contentDescription = "Format",
             onClick = {
-
             },
         ),
         Action(
             icon = R.drawable.baseline_list_24,
             contentDescription = "List",
             onClick = {
-
             },
         ),
     )
@@ -307,9 +304,9 @@ fun ActionIcon(
     onClick: () -> Unit,
     icon: Int,
     contentDescription: String,
-    enabled: Boolean = true,
-    modifier: Modifier = Modifier
-    ) {
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
     Box(
         modifier = modifier
             .clickable {
