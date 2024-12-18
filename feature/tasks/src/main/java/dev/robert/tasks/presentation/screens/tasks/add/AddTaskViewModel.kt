@@ -132,7 +132,7 @@ class AddTaskViewModel @Inject constructor(
                 )
             )
             // Delay to show loading
-            delay(100)
+            delay(1000)
             when (result.isSuccess) {
                 true -> {
                     _uiState.update { it.copy(isLoading = false) }
